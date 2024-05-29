@@ -8,16 +8,14 @@ on:
       - main
 
 jobs:
-  build:
+  build-android:
     runs-on: ubuntu-latest
 
     defaults:
       run:
-        working-directory: ./drp
-        
+        working-directory: ./drp   
 
     steps:
-    
     - name: Set up JDK
       uses: actions/setup-java@v2
       with:
@@ -46,7 +44,39 @@ jobs:
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: android-apk
+        path: ./*.aab
+      
     # - name: Build for iOS
     #   run: eas build --platform ios --non-interactive
     #   env:
     #     EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-android
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        ref: main
+
+    - name: Download APK Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: android-apk
+        path: ./artifacts
+
+    - name: Commit APK to repository
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git checkout -b apk-files
+        mv ./artifacts/*.aab ./drp/
+        git add ./drp/*.aab
+        git commit -m "Add built AAB"
+        git push origin apk-files
