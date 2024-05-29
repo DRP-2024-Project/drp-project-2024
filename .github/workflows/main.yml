@@ -11,6 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./drp
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -22,7 +26,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd drp
         npm install
         npm install -g eas-cli
 
