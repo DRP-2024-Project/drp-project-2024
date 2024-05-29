@@ -37,9 +37,10 @@ target 'drp' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => podfile_properties['apple.ccacheEnabled'] == 'true',
     )
-    
-    #installer.pods_project.build_configurations.each do |config|
-     # config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+
+  installer.pods_project.build_configurations.each do |config|
+    config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+  end
 
     # This is necessary for Xcode 14, because it signs resource bundles by default
     # when building for devices.
