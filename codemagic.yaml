@@ -26,6 +26,7 @@ workflows:
         - name: Build ipa for distribution
           script: |
             cd drp/ios
+            ls /Users/builder/clone/
             xcode-project build-ipa \
               --project "$CM_BUILD_DIR/$XCODE_PROJECT" \
               --scheme "$XCODE_SCHEME"
