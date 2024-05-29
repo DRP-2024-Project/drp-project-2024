@@ -59,6 +59,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-android
 
+    defaults:
+      run:
+        working-directory: ./drp  
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
