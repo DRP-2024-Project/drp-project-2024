@@ -16,6 +16,13 @@ workflows:
         xcode: latest # <-- set to specific version e.g. 14.3, 15.0 to avoid unexpected updates.
         cocoapods: default
       scripts:
+        - name: Install dependencies
+          script: |
+           cd drp
+           yarn install
+           expo start -c
+           expo doctor --fix-dependencies
+           expo prebuild
         - name: Install CocoaPods dependencies
           script: | 
             cd drp/ios
