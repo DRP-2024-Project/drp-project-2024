@@ -303,11 +303,11 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.harveydensem.drp;
-				PRODUCT_NAME = drp;
+				PRODUCT_NAME = "drp";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 				SWIFT_OBJC_BRIDGING_HEADER = "drp/drp-Bridging-Header.h";
 				CODE_SIGN_ENTITLEMENTS = drp/drp.entitlements;
 			};
@@ -330,10 +330,10 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.harveydensem.drp;
-				PRODUCT_NAME = drp;
+				PRODUCT_NAME = "drp";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 				SWIFT_OBJC_BRIDGING_HEADER = "drp/drp-Bridging-Header.h";
 				CODE_SIGN_ENTITLEMENTS = drp/drp.entitlements;
 			};
