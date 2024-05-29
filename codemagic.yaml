@@ -6,9 +6,6 @@ workflows:
         # .......  
     ios-native:
       environment:
-        ios_signing:
-          distribution_type: app_store # or: ad_hoc | development | enterprise
-          bundle_identifier: com.harveydensem.drp
         vars:
           BUNDLE_ID: "com.harveydensem.drp"
           XCODE_PROJECT: "drp.xcodeproj" # <-- Name of your Xcode project
