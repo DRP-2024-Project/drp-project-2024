@@ -24,6 +24,7 @@ jobs:
       run: |
         cd drp
         npm install
+        npm install -g eas-cli
 
     - name: Authenticate with EAS
       env:
