@@ -44,6 +44,9 @@ jobs:
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
+    - name: Looking at current directory
+      run: ls
+
     - name: Move app into known file
       run: mv $(ls *.aab | head -n 1) rawapp.aab
 
