@@ -27,7 +27,7 @@ workflows:
           script: | 
             # build using workspace
             xcodebuild build \
-              -workspace "$CM_BUILD_DIR/drp/ios/$XCODE_PROJECT" \
+              -project "$CM_BUILD_DIR/drp/ios/$XCODE_PROJECT" \
               -scheme "$XCODE_SCHEME" \
               CODE_SIGN_IDENTITY="" \
               CODE_SIGNING_REQUIRED=NO \
