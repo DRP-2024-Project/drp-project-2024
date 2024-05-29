@@ -44,17 +44,12 @@ jobs:
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-    - name: Looking at current directory
-      run: ls
-
-    - name: Move app into known file
-      run: mv $(ls *.aab | head -n 1) rawapp.aab
-
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v2
       with:
         name: android-apk
-        path: rawapp.aab
+        path: /home/runner/work/drp-dev-ops-setup/drp-dev-ops-setup/drp/*.aab
+      
       
     # - name: Build for iOS
     #   run: eas build --platform ios --non-interactive
