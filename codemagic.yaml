@@ -22,7 +22,7 @@ workflows:
           script: |
             cd drp/ios
             xcode-project build-ipa \
-              --workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE" \
+              --project "drp.xcodeproj" \
               --scheme "$XCODE_SCHEME"
       artifacts:
         - build/ios/ipa/*.ipa
