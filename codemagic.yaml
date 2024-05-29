@@ -16,8 +16,16 @@ workflows:
           BUNDLE_ID: "com.harveydensem.drp"
           XCODE_WORKSPACE: "project.xcworkspace" # <-- Name of your Xcode workspace
           XCODE_SCHEME: "drp" # <-- Name of your Xcode scheme
+        xcode: latest # <-- set to specific version e.g. 14.3, 15.0 to avoid unexpected updates.
+        cocoapods: default
       scripts:
-        # ...
+        - name: Print ls
+          script: |
+            ls
+        - name: Install CocoaPods dependencies
+          script: | 
+            pod install
+          
         - name: Build ipa for distribution
           script: | 
             xcode-project build-ipa \
