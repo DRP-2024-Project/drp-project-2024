@@ -21,8 +21,8 @@ workflows:
         #     cd drp/ios
         #     pod install
         
-        - name: Set up code signing settings on Xcode project
-          script: xcode-project use-profiles
+        #- name: Set up code signing settings on Xcode project
+         # script: xcode-project use-profiles
           
         - name: Build ipa for distribution
           script: |
