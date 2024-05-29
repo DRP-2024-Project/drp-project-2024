@@ -28,7 +28,7 @@ workflows:
             cd drp/ios
             ls /Users/builder/clone/
             xcode-project build-ipa \
-              --project "$CM_BUILD_DIR/$XCODE_PROJECT" \
+              --project "$CM_BUILD_DIR/ios/$XCODE_PROJECT" \
               --scheme "$XCODE_SCHEME"
       artifacts:
         - build/ios/ipa/*.ipa
