@@ -17,6 +17,11 @@ workflows:
           script: | 
             cd drp/ios
             pod install
+
+        - name: Set up provisioning profiles settings on Xcode project
+            script: |
+              cd drp/ios
+              xcode-project use-profiles
           
         - name: Build ipa for distribution
           script: |
