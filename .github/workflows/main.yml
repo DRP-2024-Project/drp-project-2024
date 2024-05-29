@@ -48,7 +48,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: android-apk
-        path: /home/runner/work/drp-dev-ops-setup/drp-dev-ops-setup/drp/*.aab
+        path: ./drp/*.aab
       
       
     # - name: Build for iOS
@@ -74,14 +74,13 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: android-apk
-        path: ./artifacts
+        path: ./drp/
 
     - name: Commit APK to repository
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git checkout -b apk-files
-        mv ./artifacts/*.aab ./drp/
         git add ./drp/*.aab
         git commit -m "Add built AAB"
         git push origin apk-files
