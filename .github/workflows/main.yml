@@ -44,11 +44,14 @@ jobs:
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
+    - name: Move app into known file
+      run: mv $(ls *.aab | head -n 1) rawapp.aab
+
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v2
       with:
         name: android-apk
-        path: ./*.aab
+        path: rawapp.aab
       
     # - name: Build for iOS
     #   run: eas build --platform ios --non-interactive
