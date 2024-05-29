@@ -10,7 +10,7 @@ workflows:
       instance_type: mac_mini_m1
       environment:
         vars:
-          BUNDLE_ID: "com.harveydensem.drp"
+          # BUNDLE_ID: "com.harveydensem.drp"
           XCODE_PROJECT: "drp.xcodeproj" # <-- Name of your Xcode project
           XCODE_SCHEME: "drp" # <-- Name of your Xcode scheme
         xcode: latest # <-- set to specific version e.g. 14.3, 15.0 to avoid unexpected updates.
@@ -21,19 +21,28 @@ workflows:
         #     cd drp/ios
         #     pod install
         
-        #- name: Set up code signing settings on Xcode project
+        # - name: Set up code signing settings on Xcode project
          # script: xcode-project use-profiles
-          
-        - name: Build ipa for distribution
-          script: |
-            xcode-project build-ipa \
-              --project "$CM_BUILD_DIR/drp/ios/$XCODE_PROJECT" \
-              --scheme "$XCODE_SCHEME"
+        - name: Build the .app
+          script: | 
+            # build using workspace
+            xcodebuild build \
+              -workspace "$CM_BUILD_DIR/drp/ios/$XCODE_PROJECT" \
+              -scheme "$XCODE_SCHEME" \
               CODE_SIGN_IDENTITY="" \
               CODE_SIGNING_REQUIRED=NO \
               CODE_SIGNING_ALLOWED=NO
+          
+      #   - name: Build ipa for distribution
+      #     script: |
+      #       xcode-project build-ipa \
+      #         --project "$CM_BUILD_DIR/drp/ios/$XCODE_PROJECT" \
+      #         --scheme "$XCODE_SCHEME"
+      #         CODE_SIGN_IDENTITY="" \
+      #         CODE_SIGNING_REQUIRED=NO \
+      #         CODE_SIGNING_ALLOWED=NO
       artifacts:
-        - build/ios/ipa/*.ipa
-        - /tmp/xcodebuild_logs/*.log
+      #   - build/ios/ipa/*.ipa
+      #   - /tmp/xcodebuild_logs/*.log
         - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
-        - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+      #   - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
