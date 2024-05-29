@@ -1,19 +1,15 @@
 {
   "expo": {
     "android": {
-      "splash" : {
-        "backgroundColor": "#000000"
-      }
+      "package": "com.harveydensem.drp"
     },
     "extra": {
       "eas": {
         "projectId": "add3618a-cbfb-4296-a695-5c63180da087"
       }
     },
-    "android": {
-      "package": "com.harveydensem.drp"
+    "ios": {
+      "bundleIdentifier": "com.harveydensem.drp"
     }
-
   }
 }
-
