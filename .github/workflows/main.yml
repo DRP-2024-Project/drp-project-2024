@@ -14,8 +14,16 @@ jobs:
     defaults:
       run:
         working-directory: ./drp
+        
 
     steps:
+    
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17' # Specify the Java version you want to use here
+        distribution: 'adopt'
+        
     - name: Checkout repository
       uses: actions/checkout@v2
 
