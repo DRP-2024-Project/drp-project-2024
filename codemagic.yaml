@@ -6,6 +6,9 @@ workflows:
         # .......  
     ios-native:
       environment:
+        ios_signing:
+          distribution_type: app_store # or: ad_hoc | development | enterprise
+          bundle_identifier: com.example.id
         vars:
           BUNDLE_ID: "com.harveydensem.drp"
           XCODE_PROJECT: "drp.xcodeproj" # <-- Name of your Xcode project
@@ -17,6 +20,9 @@ workflows:
         #   script: | 
         #     cd drp/ios
         #     pod install
+        
+        - name: Set up code signing settings on Xcode project
+          script: xcode-project use-profiles
           
         - name: Build ipa for distribution
           script: |
