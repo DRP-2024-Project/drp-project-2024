@@ -81,6 +81,6 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git checkout -b apk-files
-        git add ./drp/*.aab
+        git add ./*.aab
         git commit -m "Add built AAB"
         git push origin apk-files
