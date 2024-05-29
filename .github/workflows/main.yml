@@ -32,7 +32,7 @@ jobs:
     - name: Authenticate with EAS
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      run: eas login --token $EXPO_TOKEN
+      run: eas login --auth-token $EXPO_TOKEN
 
     - name: Build for Android
       run: eas build --platform android --non-interactive
