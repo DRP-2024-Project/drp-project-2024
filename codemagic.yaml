@@ -5,6 +5,9 @@ workflows:
         # .......
         # .......  
     ios-native:
+      name: IOS Workflow
+      max_build_duration: 120
+      instance_type: mac_mini_m1
       environment:
         vars:
           BUNDLE_ID: "com.harveydensem.drp"
