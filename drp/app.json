@@ -3,11 +3,6 @@
     "android": {
       "package": "com.harveydensem.drp"
     },
-    "extra": {
-      "eas": {
-        "projectId": "add3618a-cbfb-4296-a695-5c63180da087"
-      }
-    },
     "ios": {
       "bundleIdentifier": "com.harveydensem.drp"
     }
