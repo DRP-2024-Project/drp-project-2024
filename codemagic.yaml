@@ -30,6 +30,9 @@ workflows:
             xcode-project build-ipa \
               --project "$CM_BUILD_DIR/drp/ios/$XCODE_PROJECT" \
               --scheme "$XCODE_SCHEME"
+              CODE_SIGN_IDENTITY="" \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGNING_ALLOWED=NO
       artifacts:
         - build/ios/ipa/*.ipa
         - /tmp/xcodebuild_logs/*.log
