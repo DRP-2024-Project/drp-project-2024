@@ -20,9 +20,9 @@ workflows:
           script: |
            cd drp
            yarn install
-           expo start -c
-           expo doctor --fix-dependencies
-           expo prebuild
+           npx expo start -c
+           npx expo doctor --fix-dependencies
+           npx expo prebuild
         - name: Install CocoaPods dependencies
           script: | 
             cd drp/ios
