@@ -1,10 +1,4 @@
 workflows:
-    default-workflow:
-        name: Default workflow
-        instance_type: mac_mini_m1
-        max_build_duration: 120
-        # Specify path to the app folder like this
-        working_directory: ios/drp
     android-workflow-id:
         name: Android Sample Workflow
         # .......    
@@ -19,15 +13,14 @@ workflows:
         xcode: latest # <-- set to specific version e.g. 14.3, 15.0 to avoid unexpected updates.
         cocoapods: default
       scripts:
-        - name: Print ls
-          script: |
-            ls
         - name: Install CocoaPods dependencies
           script: | 
+            cd drp/ios
             pod install
           
         - name: Build ipa for distribution
-          script: | 
+          script: |
+            cd drp/ios
             xcode-project build-ipa \
               --workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE" \
               --scheme "$XCODE_SCHEME"
