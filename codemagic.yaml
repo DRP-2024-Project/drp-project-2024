@@ -13,14 +13,13 @@ workflows:
         xcode: latest # <-- set to specific version e.g. 14.3, 15.0 to avoid unexpected updates.
         cocoapods: default
       scripts:
-        - name: Install CocoaPods dependencies
-          script: | 
-            cd drp/ios
-            pod install
+        # - name: Install CocoaPods dependencies
+        #   script: | 
+        #     cd drp/ios
+        #     pod install
           
         - name: Build ipa for distribution
           script: |
-            cd drp/ios
             xcode-project build-ipa \
               --project "$CM_BUILD_DIR/drp/ios/$XCODE_PROJECT" \
               --scheme "$XCODE_SCHEME"
