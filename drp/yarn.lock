@@ -3408,7 +3408,7 @@ expo-modules-autolinking@1.11.1, expo-modules-autolinking@^1.11.1:
     find-up "^5.0.0"
     fs-extra "^9.1.0"
 
-expo-modules-core@1.12.12:
+expo-modules-core@1.12.12, expo-modules-core@^1.12.12:
   version "1.12.12"
   resolved "https://registry.yarnpkg.com/expo-modules-core/-/expo-modules-core-1.12.12.tgz#c4c7d70b7a80dcbb60998ca98624f65743d018ac"
   integrity sha512-ls2Ido4Aduo4f9/LPQx66Hp3X2qddVOY5S7kP3/lp/G4ieqfPcUMueGYSeaz76fg/TYXRh2XLv/HGvu8zV6bbQ==
