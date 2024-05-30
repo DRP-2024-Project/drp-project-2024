@@ -42,7 +42,9 @@ jobs:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
     - name: Build for IOS
-      run: eas build --platform ios --local --non-interactive
+      run: |
+        npx expo run:ios
+        ls
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
