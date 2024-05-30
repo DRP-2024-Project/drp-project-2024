@@ -49,7 +49,7 @@ jobs:
         echo before
         ls
         echo after
-        xcodebuild -project drp2024.xcodeproj -scheme drp2024 -sdk iphoneos -configuration Debug
+        xcodebuild -project drp2024.xcodeproj -scheme drp2024 -sdk iphoneos -configuration Debug --archive-xcargs "CODE_SIGN_STYLE=Manual"
         xcodebuild archive -project drp2024.xcodeproj -scheme drp2024 -sdk iphoneos -configuration Release -archivePath drp2024.xcarchive
         xcodebuild -exportArchive -archivePath drp2024.xcarchive -exportPath ./ExportedIPA -exportOptionsPlist ../exportOptions.plist
         ls
