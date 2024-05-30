@@ -21,6 +21,9 @@ jobs:
       with:
         java-version: '17' # Specify the Java version you want to use here
         distribution: 'adopt'
+    
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
@@ -32,9 +35,6 @@ jobs:
 
     - name: Set up fastlane
     - run: gem install fastlane -NV
-    
-    - name: Checkout repository
-      uses: actions/checkout@v2
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
@@ -95,3 +95,4 @@ jobs:
         git add ../latest-release/*
         git commit -m "BOT: Added built IPA"
         git push origin latest-release
+
