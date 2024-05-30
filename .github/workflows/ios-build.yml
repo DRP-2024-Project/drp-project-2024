@@ -42,7 +42,18 @@ jobs:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
     - name: Build for IOS
-      run: eas build --platform ios --local --non-interactive --profile preview
+      run: |
+        npx expo prebuild
+        cd ios 
+        pod install
+        echo before
+        ls
+        echo after
+        xcodebuild -project drp2024.xcodeproj -scheme drp2024 -sdk iphoneos -configuration Debug --archive-xcargs "CODE_SIGN_STYLE=Manual"
+        xcodebuild archive -project drp2024.xcodeproj -scheme drp2024 -sdk iphoneos -configuration Release -archivePath drp2024.xcarchive
+        xcodebuild -exportArchive -archivePath drp2024.xcarchive -exportPath ./ExportedIPA -exportOptionsPlist ../exportOptions.plist
+        ls
+
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
