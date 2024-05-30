@@ -1,3 +1,6 @@
 build:
   docker:
     web: Dockerfile # path to your Dockerfile
+
+run:
+  web: node app.js
