@@ -50,13 +50,13 @@ jobs:
       run: tar -czf *.tar.gz ios-build.ipa
 
     - name: Move ipa build to latest release folder
-      run: rm -f ../latest-release/* | mv *.ipa ../latest-release/
+      run: rm -f ../latest-release/ios/* | mv *.ipa ../latest-release/ios/
 
     - name: Upload IPA Artifact
       uses: actions/upload-artifact@v2
       with:
         name: ios-ipa
-        path: ./latest-release/*.ipa
+        path: ./latest-release/ios/*.ipa
 
     
   deploy:
@@ -77,14 +77,14 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: ios-ipa
-        path: ./latest-release
+        path: ./latest-release/ios
 
     - name: Commit IPA to repository
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git checkout -b latest-release
-        git add ../latest-release/*
+        git add ../latest-release/ios/*
         git commit -m "BOT: Added built IPA"
         git push origin latest-release
 

@@ -45,13 +45,13 @@ jobs:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
     - name: Move apk build to latest release folder
-      run: rm -f ../latest-release/* | mv *.aab ../latest-release/
+      run: rm -f ../latest-release/android/* | mv *.aab ../latest-release/android/
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v2
       with:
         name: android-apk
-        path: ./latest-release/*.aab
+        path: ./latest-release/android/*.aab
 
   deploy:
     runs-on: ubuntu-latest
@@ -71,13 +71,13 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: android-apk
-        path: ./latest-release
+        path: ./latest-release/android
 
     - name: Commit APK to repository
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git checkout -b latest-release
-        git add ../latest-release/*.aab
+        git add ../latest-release/android/*.aab
         git commit -m "BOT: Added built APK"
         git push origin latest-release
