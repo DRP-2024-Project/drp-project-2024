@@ -1,4 +1,4 @@
-import mysql from 'mysql';
+const mysql = require('mysql');
 
 var con = mysql.createConnection({
     host: "localhost",
@@ -7,7 +7,7 @@ var con = mysql.createConnection({
     database: "drpDB"
 });
 
-export function connect() {
+function connect() {
     return new Promise((resolve, reject) => {
         con.connect(function(err) {
             if (err) return reject(err);
@@ -17,11 +17,11 @@ export function connect() {
     });
 }
 
-export function disconnect() {
+function disconnect() {
     con.end();
 }
 
-export function query(sql, params) {
+function query(sql, params) {
     return new Promise((resolve, reject) => {
 
         con.query(sql, params, (err, results) => {
@@ -31,4 +31,10 @@ export function query(sql, params) {
             return resolve(results);
         });
     });    
+}
+
+module.exports = {
+    connect,
+    disconnect,
+    query
 }
