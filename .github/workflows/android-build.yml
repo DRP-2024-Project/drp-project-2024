@@ -13,7 +13,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./drp-frontend
+        working-directory: ./drp-frontend/drp/drp-2024
 
     steps:
     - name: Set up JDK
@@ -59,7 +59,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./drp-frontend
+        working-directory: ./drp-frontend/drp/drp-2024
 
     steps:
     - name: Checkout repository
