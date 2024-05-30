@@ -13,7 +13,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./drp-frontend
+        working-directory: ./drp-frontend/drp/drp-2024
 
     steps:
     - name: Set up JDK
@@ -50,7 +50,7 @@ jobs:
       run: tar -czf *.tar.gz ios-build.ipa
 
     - name: Move ipa build to latest release folder
-      run: rm -f ../latest-release/ios/* | mv *.ipa ../latest-release/ios/
+      run: rm -f ../../../latest-release/ios/* | mv *.ipa ../../../latest-release/ios/
 
     - name: Upload IPA Artifact
       uses: actions/upload-artifact@v2
@@ -65,7 +65,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./drp-frontend
+        working-directory: ./drp-frontend/drp/drp-2024
 
     steps:
     - name: Checkout repository
@@ -85,7 +85,8 @@ jobs:
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git checkout -b latest-release
         git pull origin latest-release
-        git add ../latest-release/ios/*
+        git add ../../../latest-release/ios/*
+        git add -u
         git commit -m "BOT: Added built IPA"
         git push origin latest-release
 
