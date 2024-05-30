@@ -46,6 +46,9 @@ jobs:
         npx expo prebuild
         cd ios 
         pod install
+        echo before
+        ls
+        echo after
         xcodebuild -workspace drp2024.xcodeproj -scheme drp2024 -sdk iphoneos -configuration Debug
         xcodebuild archive -workspace drp2024.xcodeproj -scheme drp2024 -sdk iphoneos -configuration Release -archivePath drp2024.xcarchive
         xcodebuild -exportArchive -archivePath drp2024.xcarchive -exportPath ./ExportedIPA -exportOptionsPlist ../exportOptions.plist
