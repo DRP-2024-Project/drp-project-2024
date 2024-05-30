@@ -45,7 +45,7 @@ jobs:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
     - name: Move apk build to latest release folder
-      run: rm -f ./latest-release/* | mv *.aab ./latest-release/
+      run: rm -f ../latest-release/* | mv *.aab ../latest-release/
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v2
@@ -83,6 +83,6 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add ./latest-release/*
+        git add ../latest-release/*
         git commit -m "BOT: Added built APK"
         git push
