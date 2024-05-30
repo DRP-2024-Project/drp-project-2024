@@ -51,7 +51,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: android-apk
-        path: ./latest-release/android/*.aab
+        path: ../../../latest-release/android/*.aab
 
   deploy:
     runs-on: ubuntu-latest
