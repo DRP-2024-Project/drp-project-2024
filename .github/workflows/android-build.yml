@@ -84,10 +84,8 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git config pull.rebase false
         git checkout -b latest-release
-        git pull origin latest-release
         git add ../../../latest-release/android/universal-aligned-debugSigned.apk
         git add -u
         git commit -m "BOT: Added built APK"
-        git push origin latest-release
+        git push -f origin latest-release
