@@ -25,16 +25,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.0'  # Specify the Ruby version you need
+    # - name: Set up Ruby
+    #   uses: ruby/setup-ruby@v1
+    #   with:
+    #     ruby-version: '3.0'  # Specify the Ruby version you need
 
-    - name: Install dependencies
-      run: bundle install
+    # - name: Install dependencies
+    #   run: bundle install
 
-    - name: Set up fastlane
-    - run: gem install fastlane -NV
+    # - name: Set up fastlane
+    # - run: gem install fastlane -NV
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
