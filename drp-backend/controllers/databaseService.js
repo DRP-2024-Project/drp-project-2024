@@ -1,4 +1,4 @@
-const { connect, query, disconnect } = require('../config/database.js')
+const { connect, query, disconnect } = require('../../drp-backend/config/database.js')
 
 
 // createTables: Function that will create the necessary tables for the database
