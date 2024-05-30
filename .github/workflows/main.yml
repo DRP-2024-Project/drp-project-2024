@@ -45,7 +45,7 @@ jobs:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
     - name: Move apk build to latest release folder
-    - run: rm -f ./latest-release/* | mv *.aab ./latest-release/
+      run: rm -f ./latest-release/* | mv *.aab ./latest-release/
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v2
