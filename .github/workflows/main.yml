@@ -13,7 +13,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./drp   
+        working-directory: ./drp-frontend   
 
     steps:
     - name: Set up JDK
@@ -44,11 +44,14 @@ jobs:
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
+    - name: Move apk build to latest release folder
+    - run: mv *.aab ./latest-release/
+
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v2
       with:
         name: android-apk
-        path: ./drp/*.aab
+        path: ./drp-frontend/latest-release/*.aab
       
       
     # - name: Build for iOS
@@ -62,7 +65,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./drp  
+        working-directory: ./drp-frontend
 
     steps:
     - name: Checkout repository
@@ -74,13 +77,12 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: android-apk
-        path: ./drp/
+        path: ./drp-frontend/latest-release
 
     - name: Commit APK to repository
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git checkout -b apk-files
-        git add ./*.aab
-        git commit -m "Add built AAB"
-        git push origin apk-files
+        git add ./latest-release/*
+        git commit -m "BOT: Added built APK"
+        git push
