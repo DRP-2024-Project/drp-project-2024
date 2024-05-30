@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { View, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 const DATA = [
@@ -34,15 +34,25 @@ export default function HomeScreen({ navigation }) {
     </TouchableOpacity>
   );
 
-  let data;
-  fetch("https://drp2024-backend-84f8cdfad73b.herokuapp.com/homePage/")
-    .then(res => data = res);
+  const [communities, setData] = useState(undefined);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch("https://drp2024-backend-84f8cdfad73b.herokuapp.com/homePage/");
+      const json = await response.json();
+      setData(json);
+    };
+
+    fetchData();
+  }, []);
+
+  console.log(communities);
 
   return (
     <FlatList
-      data={data}
+      data={communities}
       renderItem={renderItem}
-      keyExtractor={item => item.id}
+      keyExtractor={item => item.communityId}
     />
   );
 }
