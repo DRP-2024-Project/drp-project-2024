@@ -22,6 +22,15 @@ jobs:
         java-version: '17' # Specify the Java version you want to use here
         distribution: 'adopt'
 
+    - name: Set up Ruby
+    - uses: actions/checkout@v4
+    - uses: ruby/setup-ruby@ec02537da5712d66d4d50a0f33b7eb52773b5ed1
+      with:
+        ruby-version: '3.1' # Not needed with a .ruby-version file
+
+    - name: Set up fastlane
+    - run: gem install fastlane -NV
+    
     - name: Checkout repository
       uses: actions/checkout@v2
 
@@ -42,7 +51,7 @@ jobs:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
     - name: Build for IOS
-      run: eas build --platform ios --local --non-interactive --profile development
+      run: eas build --platform ios --local --non-interactive --profile preview
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
