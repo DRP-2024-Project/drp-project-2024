@@ -85,6 +85,7 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git checkout -b latest-release
+        git pull
         git add ../../../latest-release/android/universal-aligned-debugSigned.apk
         git add -u
         git commit -m "BOT: Added built APK"
