@@ -1,7 +1,7 @@
 defaults:
   run:
     shell: bash
-    
+
 on:
   push:
     branches:
@@ -13,7 +13,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./drp-frontend   
+        working-directory: ./drp-frontend
 
     steps:
     - name: Set up JDK
@@ -21,7 +21,7 @@ jobs:
       with:
         java-version: '17' # Specify the Java version you want to use here
         distribution: 'adopt'
-        
+
     - name: Checkout repository
       uses: actions/checkout@v2
 
@@ -38,7 +38,7 @@ jobs:
       run: eas init
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        
+
     - name: Build for Android
       run: eas build --platform android --non-interactive --local
       env:
@@ -52,13 +52,13 @@ jobs:
       with:
         name: android-apk
         path: ./latest-release/*.aab
-      
-      
+
+
     # - name: Build for iOS
     #   run: eas build --platform ios --non-interactive
     #   env:
     #     EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        
+
   deploy:
     runs-on: ubuntu-latest
     needs: build-android
@@ -83,6 +83,7 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git checkout -b latest-release
         git add ../latest-release/*
         git commit -m "BOT: Added built APK"
-        git push
+        git push origin latest-release
