@@ -22,12 +22,13 @@ jobs:
         java-version: '17' # Specify the Java version you want to use here
         distribution: 'adopt'
 
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@ec02537da5712d66d4d50a0f33b7eb52773b5ed1
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.1' # Not needed with a .ruby-version file
-    - run: bundle install
-    - run: bundle exec rake
+        ruby-version: '3.0'  # Specify the Ruby version you need
+
+    - name: Install dependencies
+      run: bundle install
 
     - name: Set up fastlane
     - run: gem install fastlane -NV
