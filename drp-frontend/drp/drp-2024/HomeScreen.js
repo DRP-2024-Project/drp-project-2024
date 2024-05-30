@@ -34,9 +34,13 @@ export default function HomeScreen({ navigation }) {
     </TouchableOpacity>
   );
 
+  let data;
+  fetch("https://drp2024-backend-84f8cdfad73b.herokuapp.com/homePage/")
+    .then(res => data = res);
+
   return (
     <FlatList
-      data={DATA}
+      data={data}
       renderItem={renderItem}
       keyExtractor={item => item.id}
     />
