@@ -3,9 +3,8 @@ defaults:
     shell: bash
 
 on:
-  push:
-    branches:
-      - main
+  deployment:
+    types: [created]
 
 jobs:
   build-android:
@@ -85,8 +84,7 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git checkout -b latest-release
-        git pull
         git add ../../../latest-release/android/universal-aligned-debugSigned.apk
         git add -u
         git commit -m "BOT: Added built APK"
-        git push origin latest-release
+        git push -f origin latest-release

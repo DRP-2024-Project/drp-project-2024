@@ -13,7 +13,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./drp-frontend
+        working-directory: ./drp-frontend/drp/drp-2024
 
     steps:
     - name: Set up JDK
@@ -42,7 +42,18 @@ jobs:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
     - name: Build for IOS
-      run: eas build --platform ios --local --non-interactive --profile preview
+      run: |
+        npx expo prebuild
+        cd ios 
+        pod install
+        echo before
+        ls
+        echo after
+        xcodebuild -project drp2024.xcodeproj -scheme drp2024 -sdk iphoneos -configuration Debug --archive-xcargs "CODE_SIGN_STYLE=Manual"
+        xcodebuild archive -project drp2024.xcodeproj -scheme drp2024 -sdk iphoneos -configuration Release -archivePath drp2024.xcarchive
+        xcodebuild -exportArchive -archivePath drp2024.xcarchive -exportPath ./ExportedIPA -exportOptionsPlist ../exportOptions.plist
+        ls
+
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
@@ -50,7 +61,7 @@ jobs:
       run: tar -czf *.tar.gz ios-build.ipa
 
     - name: Move ipa build to latest release folder
-      run: rm -f ../latest-release/ios/* | mv *.ipa ../latest-release/ios/
+      run: rm -f ../../../latest-release/ios/* | mv *.ipa ../../../latest-release/ios/
 
     - name: Upload IPA Artifact
       uses: actions/upload-artifact@v2
@@ -65,7 +76,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./drp-frontend
+        working-directory: ./drp-frontend/drp/drp-2024
 
     steps:
     - name: Checkout repository
@@ -83,8 +94,11 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config pull.rebase false
         git checkout -b latest-release
-        git add ../latest-release/ios/*
+        git pull origin latest-release
+        git add ../../../latest-release/ios/*
+        git add -u
         git commit -m "BOT: Added built IPA"
         git push origin latest-release
 
