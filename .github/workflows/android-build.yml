@@ -10,7 +10,7 @@ on:
   push:
     branches:
       - main
-
+      - frontend
 jobs:
   build-android:
     runs-on: ubuntu-latest

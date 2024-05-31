@@ -1,0 +1,38 @@
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches:
+      - main
+      - frontend
+
+jobs:
+  frontend-unit-tests:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./drp-frontend/drp/drp-2024
+
+    steps:
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17' # Specify the Java version you want to use here
+        distribution: 'adopt'
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20.10.0'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run unit tests
+      run: npm test
