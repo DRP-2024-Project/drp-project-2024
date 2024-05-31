@@ -2,18 +2,14 @@ defaults:
   run:
     shell: bash
 
-      #on:
-      # deployment:
-      # types: [created]
+  #on:
+  # deployment:
+  # types: [created]
 
 on:
   push:
     branches:
       - main
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 
 jobs:
   build-android:
