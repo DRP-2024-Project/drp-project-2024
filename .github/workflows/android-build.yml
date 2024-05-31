@@ -3,8 +3,9 @@ defaults:
     shell: bash
 
 on:
-  deployment:
-    types: [created]
+  push:
+    branches:
+      - main
 
 jobs:
   build-android:
