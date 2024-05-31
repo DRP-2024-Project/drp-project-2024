@@ -2,16 +2,14 @@ defaults:
   run:
     shell: bash
 
-<<<<<<< Updated upstream
 on:
   deployment:
     types: [created]
-=======
-      #on:
-      # push:
-      # branches:
-      #  - main
->>>>>>> Stashed changes
+    
+#on:
+# push:
+# branches:
+#  - main
 
 jobs:
   build-ios:
