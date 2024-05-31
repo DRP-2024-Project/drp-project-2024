@@ -5,20 +5,21 @@ on:
       - backend
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        
-      - name: Heroku Action
-      # uses: CDNievas/heroku-action@c9cf9c85571e67583e44ec92c0d1113f66b0e838
-        uses: CDNievas/heroku-action@v1.0
+
+      - name: Heroku Container Deploy
+        # You may pin to the exact commit or the version.
+        # uses: josejuniordev/heroku-container-deploy-action@9fa96a1bbe0b9c161bbe4b0737167041956d2f61
+        uses: josejuniordev/heroku-container-deploy-action@v1
         with:
           # Used for authentication. You can find it in your heroku homepage account settings
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           # Email from Heroku Account
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
           # The appname to use for deploying/updating
-          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_command: ${{ secrets.HEROKU_APP_NAME }}
