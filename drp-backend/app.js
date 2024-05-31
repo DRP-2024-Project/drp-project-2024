@@ -38,7 +38,7 @@ const DATA = [
   ];
 
 app.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.send('Hello World!!');
 });
 
 app.get('/homePage', async (req, res) => {
