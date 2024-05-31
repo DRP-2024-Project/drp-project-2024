@@ -1,4 +1,27 @@
-const { connect, query, disconnect } = require('../config/database.js')
+const { query } = require('../config/database.js');
+
+const DATA = [
+    { communityId: '1', title: 'Morning Jogging Club', description: 'Group jogs in the local park', price: "£0", perTime: "week", location: 'Greenwood Park', schedule: 'Mon, Wed, Fri at 6 AM', contactInfo: 'joggingclub@example.com', requiredEquipment: 'Running shoes'},
+    { communityId: '2', title: 'Weekend Warriors Basketball', description: 'Weekend basketball games for casual players', price: "£3", perTime: "session", location: 'Downtown Sports Center', schedule: 'Every Saturday at 10 AM', contactInfo: 'weekendhoops@example.com', requiredEquipment: 'Basketball shoes, sports attire'},
+    { communityId: '3', title: 'Yoga Retreats', description: 'Peaceful yoga sessions to rejuvenate your mind and body', price: "£20", perTime: "month", location: 'Lotus Yoga Studio', schedule: 'Tue and Thu at 7 PM', contactInfo: 'lotusyoga@example.com', requiredEquipment: 'Yoga mat, towel'},
+    { communityId: '4', title: 'Elite Tennis Club', description: 'Competitive tennis sessions for advanced players', price: "£15", perTime: "month", location: 'Riverside Tennis Courts', schedule: 'Weekends at 3 PM', contactInfo: 'elite.tennis@example.com', requiredEquipment: 'Tennis racket, tennis balls'},
+    { communityId: '5', title: 'Mountain Biking Adventures', description: 'Challenging mountain biking trails for thrill-seekers', price: "£10", perTime: "month", location: 'Highland Trails', schedule: 'Every Sunday at 9 AM', contactInfo: 'mtbadventure@example.com', requiredEquipment: 'Mountain bike, helmet, gloves'},
+    { communityId: '6', title: 'Senior Water Aerobics', description: 'Low-impact water exercises ideal for seniors', price: "£8", perTime: "month", location: 'Community Pool', schedule: 'Mon, Wed, Fri at 10 AM', contactInfo: 'senioraqua@example.com', requiredEquipment: 'Swimsuit, water shoes'},
+    { communityId: '7', title: 'Dynamic Pilates', description: 'Dynamic Pilates classes to strengthen and tone your body', price: "£18", perTime: "month", location: 'Pilates Power Gym', schedule: 'Tue and Thu at 5 PM', contactInfo: 'dynamicpilates@example.com', requiredEquipment: 'Pilates mat, comfortable clothing'},
+    { communityId: '8', title: 'Kids Soccer Camp', description: 'Fun and educational soccer training for kids', price: "£12", perTime: "month", location: 'City Sports Complex', schedule: 'Saturday mornings', contactInfo: 'kidssoccer@example.com', requiredEquipment: 'Soccer ball, shin guards'},
+    { communityId: '9', title: 'Outdoor Fitness Bootcamp', description: 'High-intensity fitness classes in the great outdoors', price: "£25", perTime: "month", location: 'Central Park', schedule: 'Every Tuesday at 6 AM', contactInfo: 'bootcamp@example.com', requiredEquipment: 'Gym attire, water bottle'},
+    { communityId: '10', title: 'Rock Climbing Sessions', description: 'Indoor and outdoor rock climbing for all skill levels', price: "£30", perTime: "month", location: 'ClimbOn Gym', schedule: 'Weekday evenings', contactInfo: 'climbon@example.com', requiredEquipment: 'Climbing shoes, harness'},
+    { communityId: '11', title: 'Amateur Boxing Club', description: 'Boxing training and sparring sessions', price: "£15", perTime: "month", location: 'Downtown Boxing Gym', schedule: 'Mon, Wed, and Fri at 7 PM', contactInfo: 'amateurboxing@example.com', requiredEquipment: 'Boxing gloves, mouthguard'},
+    { communityId: '12', title: 'Triathlon Preparation Group', description: 'Training sessions covering swimming, cycling, and running', price: "£35", perTime: "month", location: 'City Sports Club', schedule: 'Weekends at 8 AM', contactInfo: 'triathlonprep@example.com', requiredEquipment: 'Swim gear, bicycle, running shoes'},
+    { communityId: '13', title: 'Beach Volleyball League', description: 'Competitive and fun beach volleyball games', price: "£5", perTime: "game", location: 'Sandy Beach Courts', schedule: 'Thursdays at 5 PM', contactInfo: 'beachvolley@example.com', requiredEquipment: 'Volleyball, sunglasses'},
+    { communityId: '14', title: 'Hiking and Nature Walks', description: 'Guided hikes through scenic trails and nature reserves', price: "Free", perTime: "event", location: 'Trailhead Park', schedule: 'First Saturday of each month', contactInfo: 'hikingclub@example.com', requiredEquipment: 'Hiking boots, backpack'},
+    { communityId: '15', title: 'CrossFit Challenges', description: 'CrossFit workouts designed to test your limits', price: "£20", perTime: "month", location: 'CrossFit Box', schedule: 'Mon, Wed, Fri at 6 AM', contactInfo: 'crossfitchallenge@example.com', requiredEquipment: 'Workout clothes, water bottle'},
+    { communityId: '16', title: 'Dance Fitness Fiesta', description: 'Dance your way to fitness with high-energy classes', price: "£12", perTime: "month", location: 'Downtown Dance Studio', schedule: 'Tuesday and Thursday evenings', contactInfo: 'dancefiesta@example.com', requiredEquipment: 'Comfortable dance shoes, attire'},
+    { communityId: '17', title: 'Martial Arts Dojo', description: 'Traditional and modern martial arts training', price: "£25", perTime: "month", location: 'Warrior Dojo', schedule: 'Mon, Wed, Sat mornings', contactInfo: 'martialartsdojo@example.com', requiredEquipment: 'Gi or comfortable clothing'},
+    { communityId: '18', title: 'Golf Clinics', description: 'Golf lessons for beginners and intermediate players', price: "£30", perTime: "session", location: 'Riverside Golf Course', schedule: 'Weekend mornings', contactInfo: 'golfclinic@example.com', requiredEquipment: 'Golf clubs, golf balls'},
+    { communityId: '19', title: 'Roller Skating Nights', description: 'Family-friendly roller skating evenings', price: "£8", perTime: "night", location: 'City Skating Rink', schedule: 'Friday nights', contactInfo: 'rollerskating@example.com', requiredEquipment: 'Roller skates, safety pads'},
+    { communityId: '20', title: 'SUP Yoga', description: 'Yoga on a stand-up paddleboard at the lake', price: "£18", perTime: "class", location: 'Lake Serene', schedule: 'Sunday mornings', contactInfo: 'supyoga@example.com', requiredEquipment: 'Yoga mat, paddleboard (rentals available)'}
+  ];
 
 
 // createTables: Function that will create the necessary tables for the database
@@ -11,12 +34,15 @@ const { connect, query, disconnect } = require('../config/database.js')
 async function createTables() {
     const commTable = `CREATE TABLE communities (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255),
-        owner VARCHAR(255),
-        activity VARCHAR(255),
-        location VARCHAR(255),
+        title VARCHAR(255),
         description VARCHAR(255),
-        image LONGBLOB
+        price VARCHAR(255),
+        perTime VARCHAR(255),
+        location VARCHAR(255),
+        schedule VARCHAR(255),
+        contactInfo VARCHAR(255),
+        requiredEquipment VARCHAR(255),
+        owner VARCHAR(255)
     )`;
     const memberTable = `CREATE TABLE members (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -30,11 +56,9 @@ async function createTables() {
         FOREIGN KEY (member_id) REFERENCES members(id)
     )`;
 
-    await connect();
     await query(commTable, []);
     await query(memberTable, []);
     await query(commMemberTable, []);
-    disconnect();
 }
 
 
@@ -42,11 +66,9 @@ async function createTables() {
 // Note: commMembers must be dropped first, as the others are a foreign key of it
 // Pre: The tables exist
 async function dropTables() {
-    await connect();
     await query('DROP TABLE commMembers', []);
     await query('DROP TABLE members', []);
     await query('DROP TABLE communities', []);
-    disconnect();
 }
 
 // communityExists: Checks if a community already exists with the given name on
@@ -54,7 +76,7 @@ async function dropTables() {
 // Pre: Function located between connect and disconnect calls
 function communityExists(name) {
     return new Promise(async (resolve, reject) => {
-        let res = await query(`SELECT * FROM communities WHERE name = ?`, [name]);
+        let res = await query(`SELECT * FROM communities WHERE title = ?`, [name]);
         return resolve(res.length > 0);
     });
 }
@@ -63,40 +85,42 @@ function communityExists(name) {
 //                  the given data
 // Usage: Data supplied is of the form:
 // {
-//     commName: 'Imperial Rugby',
-//     owner: 'Harvey Densem', 
-//     activity: 'Rugby',
-//     location: 'Harlington',
-//     description: 'Rugby Team of Imperial College',
-//     image: 
+//     title: 'Morning Jogging Club', 
+//     description: 'Group jogs in the local park',
+//     price: "£0", 
+//     perTime: "week", 
+//     location: 'Greenwood Park', 
+//     schedule: 'Mon, Wed, Fri at 6 AM', 
+//     contactInfo: 'joggingclub@example.com', 
+//     requiredEquipment: 'Running shoes'
 // }
 // Return: Returns a Promise that will have the value True if the community is 
 //         created successfully and False otherwise
 // Note: Only allows for one community of a given name
 async function createCommunity(data) {
     const communityData = {
-        name: data.commName,
-        owner: data.owner,
-        activity: data.activity,
-        location: data.location,
-        description: data.description
-        // image: data.image
+        title: data.title, 
+        description: data.description,
+        price: data.price, 
+        perTime: data.perTime, 
+        location: data.location, 
+        schedule: data.schedule, 
+        contactInfo: data.schedule, 
+        requiredEquipment: data.requiredEquipment,
+        owner: 'Harvey Densem'
     }
-    await connect();
     return new Promise(async (resolve, reject) => {
-        let exists = await communityExists(communityData.name);
+        let exists = await communityExists(data.title);
         if (exists) {
-            disconnect()
             return resolve(false);
         }
         
         let commResult = await query(`INSERT INTO communities SET ?`, communityData);
-        let memResult = await query(`SELECT * FROM members WHERE name = ?`, [data.owner]);
+        let memResult = await query(`SELECT * FROM members WHERE name = ?`, [communityData.owner]);
         await query(`INSERT INTO commMembers SET ?`, {
             community_id: commResult.insertId,
             member_id: memResult[0].id
         });
-        disconnect();
 
         return resolve(true);
     })
@@ -106,72 +130,69 @@ async function createCommunity(data) {
 // Pre: The community is in the communities table
 // Note: The commMembers entries must be removed first as they have the community
 //       as a foreign key
-async function deleteCommunity(name) {
-    await connect();
-    let commRes = await query(`SELECT id FROM communities WHERE name = ?`, [name]);
+async function deleteCommunity(title) {
+    let commRes = await query(`SELECT id FROM communities WHERE title = ?`, [title]);
     await query(`DELETE FROM commMembers WHERE community_id = ?`, [commRes[0].id]);
-    await query(`DELETE FROM communities WHERE name = ?`, [name]);
-    disconnect();
+    await query(`DELETE FROM communities WHERE title = ?`, [title]);
 }
 
 // getCommunityDetails: Get the information stored about a community on the 
 //                      communities table
 // Return: data is returned of the form:
-// RowDataPacket {
-//     id: 2,
-//     name: 'Imperial Rugby',
-//     owner: 'Harvey Densem',
-//     activity: 'Rugby',
-//     location: 'Harlington',
-//     description: 'Rugby Team of Imperial College',
-//     image: null
+// { 
+//     communityId: '1', 
+//     title: 'Morning Jogging Club', 
+//     description: 'Group jogs in the local park', 
+//     price: "£0", perTime: "week", 
+//     location: 'Greenwood Park', 
+//     schedule: 'Mon, Wed, Fri at 6 AM', 
+//     contactInfo: 'joggingclub@example.com', 
+//     requiredEquipment: 'Running shoes'
 // }
-function getCommunityDetails(name) {
+function getCommunityDetails(title) {
     return new Promise(async (resolve, reject) => {
-        await connect();
-        let result = await query(`SELECT * FROM communities WHERE name = ?`, [name]);
-        disconnect();
+        let result = await query(`SELECT * FROM communities WHERE title = ?`, [title]);
         return resolve(result[0]);
     });
 }
 
+function getAllCommunities() {
+    return new Promise(async (resolve, reject) => {
+        let result = await query(`SELECT * FROM communities`);
+        return resolve(translateResult(result));
+    })
+}
+
 // getCommunityMembers: get a list of all names of members of a community
 // Return: returns an array of names: ['Harvey Densem', 'John Doe']
-function getCommunityMembers(name) {
+function getCommunityMembers(title) {
     return new Promise(async (resolve, reject) => {
-        await connect();
-        let commResult = await query(`SELECT id FROM communities WHERE name = ?`, [name])
+        let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [title])
         let memResult = await query(`SELECT member_id FROM commMembers WHERE community_id = ?`, [commResult[0].id]);
         const idList = memResult.map(row => row.member_id);
         let res = await query(`SELECT name FROM members WHERE id IN (?)`, [idList]);
-        disconnect();
         return resolve(res.map(row => row.name));
     })
 }
 
 // createMember: Adds a new member to the members table
 async function createMember(name) {
-    await connect();
     await query(`INSERT INTO members SET ?`, {name});
-    disconnect();
 }
 
 // deleteMember: Deletes a member from the members table and from the 
 //               commMembers table
 // Pre: The given name exists in the table
 async function deleteMember(name) {
-    await connect();
     let res = await query(`SELECT id FROM members WHERE name = ?`, [name]);
     await query(`DELETE FROM commMembers WHERE member_id = ?`, [res[0].id]);
     await query(`DELETE FROM members WHERE name = ?`, [name]);
-    disconnect();
 }
 
 // memberAlreadyInCommunity: Checks if a member given by member_id is already
 //                           in the community given by community_id
 // Return: Returns a Promise object of True if the member is in the community
 //         and False if the member is not in the community
-// Pre: Located inbetween connect() and disconnect()
 function memberAlreadyInCommunity(member_id, community_id) {
     return new Promise(async (resolve, reject) => {
         let res = await query(`SELECT * FROM commMembers WHERE member_id = ? AND community_id = ?`, 
@@ -186,13 +207,11 @@ function memberAlreadyInCommunity(member_id, community_id) {
 //         a part of the community
 function addMemberToCommunity(commName, memberName) {
     return new Promise(async (resolve, reject) => {
-        await connect();
-        let commResult = await query(`SELECT id FROM communities WHERE name = ?`, [commName]);
+        let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
         let memResult = await query(`SELECT id FROM members WHERE name = ?`, [memberName]);
         let memExists = await memberAlreadyInCommunity(memResult[0].id, commResult[0].id);
         
         if (memExists) {
-            disconnect();
             return resolve(false);
         }
 
@@ -200,7 +219,6 @@ function addMemberToCommunity(commName, memberName) {
             member_id: memResult[0].id,
             community_id: commResult[0].id
         });
-        disconnect();
         return resolve(true);
     });
 }
@@ -209,15 +227,29 @@ function addMemberToCommunity(commName, memberName) {
 // Pre: The member name is not the owner
 //      The given member is a member of the community
 async function deleteMemberFromCommunity(commName, memName) {
-    await connect();
-    let commRes = await query(`SELECT id FROM communities WHERE name = ?`, [commName]);
+    let commRes = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
     let memRes = await query(`SELECT id FROM members WHERE name = ?`, [memName]);
     await query(`DELETE FROM commMembers WHERE member_id = ? AND community_id = ?`, 
         [
             memRes[0].id,
             commRes[0].id
         ]);
-    disconnect();
+}
+
+// translateResult: Translates data from the RowDataPacket object notation
+//                  to the format used by the frontend
+function translateResult(data) {
+    return data.map(row => ({
+       communityId: row.id.toString(),
+       title: row.title,
+       description: row.description,
+       price: row.price,
+       perTime: row.perTime,
+       location: row.location,
+       schedule: row.schedule,
+       contactInfo: row.contactInfo,
+       requiredEquipment: row.requiredEquipment 
+    }));
 }
 
 // createTables();
@@ -238,7 +270,7 @@ const dataToAdd = {
 // getCommunityMembers('Imperial Rugby')
 //     .then(res => console.log(res));
 // console.log(getCommunityDetails("Imperial Rugby").length);
-createMember("John Doe");
+// createMember("John Doe");
 // addMemberToCommunity('Imperial Rugby', 'John Doe')
 //     .then(res => console.log(res));
 // deleteCommunity('Imperial Rugby');
@@ -250,4 +282,8 @@ createMember("John Doe");
 
 // Potential TODO:
 // Change the Primary Key of community to name
+
+module.exports = {
+    getAllCommunities
+}
 

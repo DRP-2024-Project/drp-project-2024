@@ -1,10 +1,11 @@
 const mysql = require('mysql');
 
 var con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "drp",
-    database: "drpDB"
+    host: "drpdatabase.cdaay248o977.eu-west-2.rds.amazonaws.com",
+    user: "admin",
+    password: "drp12345",
+    database: "drpdb",
+    port: 3306
 });
 
 function connect() {
