@@ -181,6 +181,17 @@ function getAllCommunities() {
     })
 }
 
+// getSearchedCommunities: Returns a list of all details of communities containing
+//                      the search term
+function getSearchedCommunities(search) {
+    return new Promise(async (resolve, reject) => {
+        let result = await query(`SELECT * FROM communities 
+                                  WHERE title LIKE '%?%'
+                                  OR description LIKE '%?%'`, [search, search]);
+        return resolve(translateResult(result));
+    })}
+
+
 // getCommunityMembers: get a list of all names of members of a community
 // Return: returns an array of names: ['Harvey Densem', 'John Doe']
 function getCommunityMembers(title) {
