@@ -29,7 +29,7 @@ const DATA = [
 //               members: Holds a list of all members on the app
 //               commMembers: Holds all relations of members to community
 //               images: Holds all images for the app
-//               commImages: Holds the relations of immages and communities
+//               commImages: HoldsShin Pads, Football Kit, Practice the relations of immages and communities
 // Note: communnity and members must be created before commMembers, as commMembers
 //       uses them as a foreign key. Same applies for images and community.
 // Pre: The tables don't already exist
@@ -270,7 +270,7 @@ function translateResult(data) {
        requiredEquipment: row.requiredEquipment,
        links: row.links,
        rating: row.rating,
-       level: row.level
+       level: row.level,
     }));
 }
 

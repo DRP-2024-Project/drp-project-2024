@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
-
+import SearchBar from './SearchBar';
 export default function HomeScreen({ navigation }) {
   const renderItem = ({ item }) => (
     <TouchableOpacity
@@ -26,12 +26,19 @@ export default function HomeScreen({ navigation }) {
   console.log(communities);
 
   return (
+    <View style={styles.container}>
+      <View style={styles.topRow}>
+        <SearchBar />
+        </View>
+      <View style={styles.container}>
     <FlatList
       data={communities}
       renderItem={renderItem}
       keyExtractor={item => item.communityId}
       contentContainerStyle={styles.listContainer}
     />
+    </View>
+    </View>
   );
 }
 
@@ -55,5 +62,18 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingVertical: 20,
+  },
+  searchContainer: {
+    padding: 5,
+    backgroundColor: '#fff',
+  },
+
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  topRow: {
+    marginBottom: 10,
   },
 });
