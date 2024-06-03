@@ -6,40 +6,32 @@ import DropDownPicker from 'react-native-dropdown-picker';
 export default function HomeScreen({ navigation }) {
 
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
+  const [value, setValue] = useState('title');
+  const [search, setSearch] = useState('');
   const [items, setItems] = useState([
-    {label: 'Name', value: 'name'},
+    {label: 'Name', value: 'title'},
     {label: 'Rating', value: 'rating'}
   ]);
 
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.item}
-      onPress={() => navigation.navigate('Details', { item })}
-    >
-      <Text style={styles.title}>{item.title}</Text>
-    </TouchableOpacity>
-  );
-
   const [communities, setData] = useState(undefined);
-
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch("https://drp2024-backend-84f8cdfad73b.herokuapp.com/homePage/");
+      console.log(value)
+      const response = await fetch(`https://drp2024-backend-84f8cdfad73b.herokuapp.com/search/?orderBy=${value}&searchTerm=${search}`);
       const json = await response.json();
       setData(json);
     };
 
     fetchData();
-  }, []);
+  }, [value, search]);
 
   console.log(communities);
 
   return (
     <View style={styles.container}>
     <View style={styles.topRow}>
-      <SearchBar />
+      <SearchBar searchPhrase={search} setSearchPhrase={setSearch}/>
     </View>
     <View style={styles.middleRow}>
       <Text style={styles.orderBy}>Order By: </Text>
