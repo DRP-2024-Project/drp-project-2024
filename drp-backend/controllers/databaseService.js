@@ -1,4 +1,4 @@
-const { query } = require('../config/database.js');
+const { connect, query, disconnect } = require('../config/database.js');
 
 const DATA = [
     { communityId: '1', title: 'Morning Jogging Club', description: 'Group jogs in the local park', price: "£0", perTime: "week", location: 'Greenwood Park', schedule: 'Mon, Wed, Fri at 6 AM', contactInfo: 'joggingclub@example.com', requiredEquipment: 'Running shoes'},
@@ -28,8 +28,10 @@ const DATA = [
 //               community: Holds all communities created
 //               members: Holds a list of all members on the app
 //               commMembers: Holds all relations of members to community
+//               images: Holds all images for the app
+//               commImages: Holds the relations of immages and communities
 // Note: communnity and members must be created before commMembers, as commMembers
-//       uses them as a foreign key
+//       uses them as a foreign key. Same applies for images and community.
 // Pre: The tables don't already exist
 async function createTables() {
     const commTable = `CREATE TABLE communities (
@@ -55,10 +57,22 @@ async function createTables() {
         FOREIGN KEY (community_id) REFERENCES communities(id),
         FOREIGN KEY (member_id) REFERENCES members(id)
     )`;
-
+    const imagesTable = `CREATE TABLE images (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        img LONGBLOB
+    )`
+    const commImagesTable = `CREATE TABLE commImages (
+        community_id INT,
+        image_id INT,
+        PRIMARY KEY (community_id, image_id),
+        FOREIGN KEY (community_id) REFERENCES communities(id),
+        FOREIGN KEY (image_id) REFERENCES images(id)
+    )`;
     await query(commTable, []);
     await query(memberTable, []);
     await query(commMemberTable, []);
+    await query(imagesTable, []);
+    await query(commImagesTable, []);
 }
 
 
@@ -67,6 +81,8 @@ async function createTables() {
 // Pre: The tables exist
 async function dropTables() {
     await query('DROP TABLE commMembers', []);
+    await query('Drop TABLE commImages');
+    await query('DROP TABLE images', []);
     await query('DROP TABLE members', []);
     await query('DROP TABLE communities', []);
 }
@@ -156,6 +172,8 @@ function getCommunityDetails(title) {
     });
 }
 
+// getAllCommunities: Returns a list of all details of all communities in the
+//                    communities database
 function getAllCommunities() {
     return new Promise(async (resolve, reject) => {
         let result = await query(`SELECT * FROM communities`);
@@ -252,18 +270,60 @@ function translateResult(data) {
     }));
 }
 
+// addCommunityImage: Adds an image to the images table, and assigns it to a 
+//                    community in the commImages table
+// Params:
+//   img: The binary format of an image
+async function addCommunityImage(commName, img) {
+    let imgResult = await query(`INSERT INTO images SET ?`, {img});
+    let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
+
+    await query(`INSERT INTO commImages SET ?`, {
+        community_id: commResult[0].id,
+        image_id: imgResult.insertId
+    });
+}
+
+// deleteImage: deletes the image with id of image_id from the database
+async function deleteImage(image_id) {
+    await query(`DELETE FROM commImages WHERE image_id = ?`, image_id);
+    await query(`DELETE FROM images WHERE id = ?`, [image_id]);
+}
+
+// getAllImages: Fetches all images associated with a specific community
+// Return: returns a list of the binary format of all images belonging to a 
+//         community
+function getCommunityImages(commName) {
+    return new Promise(async (resolve, reject) => {
+        let communityID = (await query(`SELECT id from communities WHERE title = ?`, [commName]))[0].id;
+        let imgIds = await query(`SELECT * FROM commImages WHERE community_id = ?`, [communityID]);
+        let idList = imgIds.map(row => row.image_id);
+        let result = await query(`SELECT img FROM images WHERE id IN (?)`, [idList]);
+        return resolve(result.map(row => row.img));
+    })
+}
+
+
 // createTables();
 // dropTables();
-const dataToAdd = { 
-    commName: 'Imperial Rugby',
-    owner: 'Harvey Densem', 
-    activity: 'Rugby',
-    location: 'Harlington',
-    description: 'Rugby Team of Imperial College',
-}
+const dataToAdd = {
+    title: 'Rugby Team', 
+    description: 'Group jogs in the local park', 
+    price: "£0", perTime: "week", 
+    location: 'Greenwood Park', 
+    schedule: 'Mon, Wed, Fri at 6 AM', 
+    contactInfo: 'joggingclub@example.com', 
+    requiredEquipment: 'Running shoes'
+};
 // const dataToAdd = { name: 'Imperial Rugby', description: 'Rugby Team of Impearial College'};
-// createCommunity(dataToAdd)
-//     .then(res => console.log(res));
+// connect()
+//     .then(() => {
+//         createCommunity(dataToAdd)
+//             .then(res => {
+//                 console.log(res);
+//                 disconnect();
+//             })
+//     });
 // createMember("Harvey Densem");
 // getCommunityDetails('Imperial Rugby')
 //     .then(result => console.log(result));
@@ -282,6 +342,33 @@ const dataToAdd = {
 
 // Potential TODO:
 // Change the Primary Key of community to name
+
+// connect()
+//     .then(() => {
+//         createTables()
+//             .then(disconnect());
+//     });
+
+async function exImageAdd() {
+    const fs = require('fs').promises;
+
+    const binaryData = await fs.readFile("../../images1/City.jpg");
+
+    await connect();
+    await addCommunityImage("Rugby Team", binaryData);
+    disconnect();
+}
+
+async function exImageStore() {
+    const fs = require('fs').promises;
+
+    await connect();
+
+    const imgs = await getCommunityImages("Rugby Team");
+    disconnect();
+    
+    await fs.writeFile("../../images2/City.jpg", imgs[0]);
+}
 
 module.exports = {
     getAllCommunities
