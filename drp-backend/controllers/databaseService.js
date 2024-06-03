@@ -186,10 +186,11 @@ function getAllCommunities() {
 function getSearchedCommunities(search) {
     return new Promise(async (resolve, reject) => {
         let result = await query(`SELECT * FROM communities 
-                                  WHERE title LIKE '%?%'
-                                  OR description LIKE '%?%'`, [search, search]);
+                                  WHERE title LIKE ?
+                                  OR description LIKE ?`, [`%${search}%`, `%${search}%`]);
         return resolve(translateResult(result));
-    })}
+    })
+}
 
 
 // getCommunityMembers: get a list of all names of members of a community
@@ -386,6 +387,7 @@ async function exImageStore() {
 }
 
 module.exports = {
-    getAllCommunities
+    getAllCommunities,
+    getSearchedCommunities
 }
 
