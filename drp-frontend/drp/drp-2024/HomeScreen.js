@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 export default function HomeScreen({ navigation }) {
@@ -30,18 +30,30 @@ export default function HomeScreen({ navigation }) {
       data={communities}
       renderItem={renderItem}
       keyExtractor={item => item.communityId}
+      contentContainerStyle={styles.listContainer}
     />
   );
 }
 
 const styles = StyleSheet.create({
   item: {
+    backgroundColor: '#D3D3D3',
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16,
-    backgroundColor: "#87ceeb",
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
+    color: '#000000', 
+    fontWeight: 'bold',
+  },
+  listContainer: {
+    paddingVertical: 20,
   },
 });
