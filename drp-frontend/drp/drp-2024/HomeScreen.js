@@ -87,7 +87,8 @@ const styles = StyleSheet.create({
   },
   middleRow: {
     flexDirection: 'row',
-    padding: 10,
+    paddingBottom: 35,
+    paddingLeft: 20,
     zIndex: 3000, // Highest zIndex to ensure dropdown is on top
   },
   item: {
@@ -107,8 +108,9 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   dropdownContainer: {
+    alignItems: "center",
+    width: "50%",
     height: 40,
-    width: 300,
   },
   dropdownStyle: {
     backgroundColor: '#fafafa',
