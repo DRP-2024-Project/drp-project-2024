@@ -29,7 +29,7 @@ const DATA = [
 //               members: Holds a list of all members on the app
 //               commMembers: Holds all relations of members to community
 //               images: Holds all images for the app
-//               commImages: Holds the relations of immages and communities
+//               commImages: HoldsShin Pads, Football Kit, Practice the relations of immages and communities
 // Note: communnity and members must be created before commMembers, as commMembers
 //       uses them as a foreign key. Same applies for images and community.
 // Pre: The tables don't already exist
@@ -59,20 +59,14 @@ async function createTables() {
     )`;
     const imagesTable = `CREATE TABLE images (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        img LONGBLOB
-    )`
-    const commImagesTable = `CREATE TABLE commImages (
         community_id INT,
-        image_id INT,
-        PRIMARY KEY (community_id, image_id),
-        FOREIGN KEY (community_id) REFERENCES communities(id),
-        FOREIGN KEY (image_id) REFERENCES images(id)
-    )`;
+        img LONGBLOB,
+        FOREIGN KEY (community_id) REFERENCES communities(id)
+    )`
     await query(commTable, []);
     await query(memberTable, []);
     await query(commMemberTable, []);
     await query(imagesTable, []);
-    await query(commImagesTable, []);
 }
 
 
@@ -81,7 +75,6 @@ async function createTables() {
 // Pre: The tables exist
 async function dropTables() {
     await query('DROP TABLE commMembers', []);
-    await query('Drop TABLE commImages');
     await query('DROP TABLE images', []);
     await query('DROP TABLE members', []);
     await query('DROP TABLE communities', []);
@@ -282,27 +275,24 @@ function translateResult(data) {
        requiredEquipment: row.requiredEquipment,
        links: row.links,
        rating: row.rating,
-       level: row.level
+       level: row.level,
     }));
 }
 
-// addCommunityImage: Adds an image to the images table, and assigns it to a 
-//                    community in the commImages table
+// addCommunityImage: Adds an image to the images table, and assigns the corresponding
+//                    community id
 // Params:
 //   img: The binary format of an image
 async function addCommunityImage(commName, img) {
-    let imgResult = await query(`INSERT INTO images SET ?`, {img});
     let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
-
-    await query(`INSERT INTO commImages SET ?`, {
+    await query(`INSERT INTO images SET ?`, {
         community_id: commResult[0].id,
-        image_id: imgResult.insertId
+        img: img
     });
 }
 
 // deleteImage: deletes the image with id of image_id from the database
 async function deleteImage(image_id) {
-    await query(`DELETE FROM commImages WHERE image_id = ?`, image_id);
     await query(`DELETE FROM images WHERE id = ?`, [image_id]);
 }
 
@@ -312,9 +302,12 @@ async function deleteImage(image_id) {
 function getCommunityImages(commName) {
     return new Promise(async (resolve, reject) => {
         let communityID = (await query(`SELECT id from communities WHERE title = ?`, [commName]))[0].id;
-        let imgIds = await query(`SELECT * FROM commImages WHERE community_id = ?`, [communityID]);
-        let idList = imgIds.map(row => row.image_id);
-        let result = await query(`SELECT img FROM images WHERE id IN (?)`, [idList]);
+        let result = await query(`SELECT * FROM images WHERE community_id = ?`, [communityID]);
+        // let idList = imgIds.map(row => row.image_id);
+        // if (idList.length == 0) {
+        //     return resolve([]);
+        // }
+        // let result = await query(`SELECT img FROM images WHERE id IN (?)`, [idList]);
         return resolve(result.map(row => row.img));
     })
 }
@@ -368,7 +361,7 @@ const dataToAdd = {
 async function exImageAdd() {
     const fs = require('fs').promises;
 
-    const binaryData = await fs.readFile("../../images1/City.jpg");
+    const binaryData = await fs.readFile("../../images1/rug4.jpeg");
 
     await connect();
     await addCommunityImage("Rugby Team", binaryData);
@@ -388,6 +381,7 @@ async function exImageStore() {
 
 module.exports = {
     getAllCommunities,
-    getSearchedCommunities
+    getSearchedCommunities,
+    getCommunityImages
 }
 
