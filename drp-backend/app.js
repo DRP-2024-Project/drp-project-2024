@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { connect } = require('./config/database.js');
-const { getAllCommunities, getSearchedCommunities, getCommunityImages} = require('./controllers/databaseService.js');
+const { getAllCommunities, getSearchedCommunities, getCommunityImages, getSearchOrderedBy} = require('./controllers/databaseService.js');
 
 const app = express();
 app.use(cors());
@@ -25,15 +25,27 @@ app.get('/homePage', async (req, res) => {
     res.json(data);
 });
 
-app.get('/search', async (req, res) => {
-    res.redirect('/homePage')
-})
+// app.get('/search', async (req, res) => {
+//     res.redirect('/homePage')
+// })
 
-app.get('/search/:searchTerm', async (req, res) => {
-    const search = req.params.searchTerm;
-    const data = await getSearchedCommunities(search);
-    res.json(data);
-})
+// app.get('/search/:searchTerm', async (req, res) => {
+//     const search = req.params.searchTerm;
+//     const data = await getSearchedCommunities(search);
+//     res.json(data);
+// })
+
+app.get('/search', async (req, res) => {
+    const search = req.query.searchTerm || ''; 
+    const orderBy = req.query.orderBy || 'title';
+    try {
+        const data = await getSearchOrderedBy(search, orderBy);
+        res.json(data);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
 
 app.get('/debug', (req,res) => {
     res.send("V1");

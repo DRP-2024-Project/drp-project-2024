@@ -185,6 +185,19 @@ function getSearchedCommunities(search) {
     })
 }
 
+function getSearchOrderedBy(search, col) {
+    const orderCols = ['title', 'rating'];
+    if (!orderCols.includes(col)) {
+        throw new Error("Invalid column name");
+    }
+    let sqlQuery = `SELECT * FROM communities WHERE title LIKE ? OR description LIKE ? ORDER BY ${col}`;
+
+    return new Promise(async (resolve, reject) => {
+        let result = await query(sqlQuery, [`%${search}%`, `%${search}%`]);
+        return resolve(translateResult(result));
+    })
+}
+
 
 // getCommunityMembers: get a list of all names of members of a community
 // Return: returns an array of names: ['Harvey Densem', 'John Doe']
@@ -382,6 +395,7 @@ async function exImageStore() {
 module.exports = {
     getAllCommunities,
     getSearchedCommunities,
-    getCommunityImages
+    getCommunityImages,
+    getSearchOrderedBy
 }
 
