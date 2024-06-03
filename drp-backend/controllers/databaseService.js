@@ -29,6 +29,10 @@ const DATA = [
 //               members: Holds a list of all members on the app
 //               commMembers: Holds all relations of members to community
 //               images: Holds all images for the app
+<<<<<<< HEAD
+=======
+//               commImages: HoldsShin Pads, Football Kit, Practice the relations of immages and communities
+>>>>>>> 9b5bca8c3b2bb99aac3c3ca0a5d7acfb56a51bd9
 // Note: communnity and members must be created before commMembers, as commMembers
 //       uses them as a foreign key. Same applies for images and community.
 // Pre: The tables don't already exist
@@ -173,6 +177,17 @@ function getAllCommunities() {
     })
 }
 
+// getSearchedCommunities: Returns a list of all details of communities containing
+//                      the search term
+function getSearchedCommunities(search) {
+    return new Promise(async (resolve, reject) => {
+        let result = await query(`SELECT * FROM communities 
+                                  WHERE title LIKE '%?%'
+                                  OR description LIKE '%?%'`, [search, search]);
+        return resolve(translateResult(result));
+    })}
+
+
 // getCommunityMembers: get a list of all names of members of a community
 // Return: returns an array of names: ['Harvey Densem', 'John Doe']
 function getCommunityMembers(title) {
@@ -238,7 +253,8 @@ function addMemberToCommunity(commName, memberName) {
 //      The given member is a member of the community
 async function deleteMemberFromCommunity(commName, memName) {
     let commRes = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
-    let memRes = await query(`SELECT id FROM members WHERE name = ?`, [memName]);
+    let memRes = await query(`SELECT id FROM members WHERE name In MySQL, views can be updated automatically by using the WITH CHECK OPTION clause when creating the view. This causes the view to automatically update when the underlying data in the tables used in the view changes.28 May 2017
+    = ?`, [memName]);
     await query(`DELETE FROM commMembers WHERE member_id = ? AND community_id = ?`, 
         [
             memRes[0].id,
@@ -258,7 +274,10 @@ function translateResult(data) {
        location: row.location,
        schedule: row.schedule,
        contactInfo: row.contactInfo,
-       requiredEquipment: row.requiredEquipment
+       requiredEquipment: row.requiredEquipment,
+       links: row.links,
+       rating: row.rating,
+       level: row.level,
     }));
 }
 
