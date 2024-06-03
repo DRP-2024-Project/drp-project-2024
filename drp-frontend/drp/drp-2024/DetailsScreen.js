@@ -25,7 +25,6 @@ export default function ItemDetailScreen({ route }) {
       <View style={styles.bottomRow}>
         <Text style={styles.schedule}>Schedule: {item.schedule}</Text>
         <Text style={styles.rating}>Rating: 4/5</Text>
-        <Text style={styles.box}> Hello Harvey </Text>
       </View>
     </View>
   );
