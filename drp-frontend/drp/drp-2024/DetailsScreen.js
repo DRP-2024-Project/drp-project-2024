@@ -22,7 +22,7 @@ export default function ItemDetailScreen({ route }) {
   return (
 <View style={styles.container}>
   <View style={styles.topRow}>
-    <Text style={styles.level}>Level: Intermediate</Text>
+    <Text style={styles.level}>Level: {item.level}</Text>
   </View>
   <View style={styles.middleRow}>
   <InteractiveBox initialSize={50} enlargedSize={100}>

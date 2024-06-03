@@ -246,7 +246,8 @@ function addMemberToCommunity(commName, memberName) {
 //      The given member is a member of the community
 async function deleteMemberFromCommunity(commName, memName) {
     let commRes = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
-    let memRes = await query(`SELECT id FROM members WHERE name = ?`, [memName]);
+    let memRes = await query(`SELECT id FROM members WHERE name In MySQL, views can be updated automatically by using the WITH CHECK OPTION clause when creating the view. This causes the view to automatically update when the underlying data in the tables used in the view changes.28 May 2017
+    = ?`, [memName]);
     await query(`DELETE FROM commMembers WHERE member_id = ? AND community_id = ?`, 
         [
             memRes[0].id,
@@ -266,7 +267,10 @@ function translateResult(data) {
        location: row.location,
        schedule: row.schedule,
        contactInfo: row.contactInfo,
-       requiredEquipment: row.requiredEquipment 
+       requiredEquipment: row.requiredEquipment,
+       links: row.links,
+       rating: row.rating,
+       level: row.level
     }));
 }
 
