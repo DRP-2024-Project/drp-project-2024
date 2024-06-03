@@ -374,5 +374,3 @@ module.exports = {
     getAllCommunities
 }
 
-exImageStore();
-
