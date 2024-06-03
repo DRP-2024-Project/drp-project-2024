@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import PhotoGrid from './PhotoGrid.js';
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   const [size, setSize] = useState(initialSize);
@@ -41,6 +42,9 @@ export default function ItemDetailScreen({ route }) {
   </View>
   <View style={styles.ratingRow}>
     <Text style={styles.rating}>Rating: {item.rating}/5</Text>
+  </View>
+  <View>
+    <PhotoGrid community={item.title}/>
   </View>
   <View style={styles.additionalInfoBox}>
     <Text style={styles.additionalInfo}>Additional Info:</Text>
