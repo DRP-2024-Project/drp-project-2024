@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-
+import React, {useState, useEffect} from 'react';
+import { View, Text, StyleSheet, Image} from 'react-native';
+import PhotoGrid from './PhotoGrid.js';
 
 export default function ItemDetailScreen({ route }) {
   const { item } = route.params;
@@ -24,8 +24,9 @@ export default function ItemDetailScreen({ route }) {
       <Text style={styles.description}>Description: {item.description}</Text>
       <View style={styles.bottomRow}>
         <Text style={styles.schedule}>Schedule: {item.schedule}</Text>
-        <Text style={styles.rating}>Rating: 4/5</Text>
+        <Text style={styles.rating}> Rating: 4/5</Text>
       </View>
+      <PhotoGrid community={item.title}/>
     </View>
   );
 }
