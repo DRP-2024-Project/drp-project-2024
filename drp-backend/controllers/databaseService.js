@@ -216,6 +216,18 @@ async function deleteMember(name) {
     await query(`DELETE FROM members WHERE name = ?`, [name]);
 }
 
+// memberExists: Checks if a member given by username exists in the database
+// Return: Returns a Promise object of True if the member exists
+//         and False if the member does not exist
+function memberExists(username) {
+    return new Promise(async (resolve, reject) => {
+        let res = await query(`SELECT * FROM members WHERE username = ?`, 
+            [username]);
+        return resolve(res.length > 0);
+    });
+}
+
+
 // memberAlreadyInCommunity: Checks if a member given by member_id is already
 //                           in the community given by community_id
 // Return: Returns a Promise object of True if the member is in the community
@@ -388,6 +400,7 @@ module.exports = {
     getCommunityImages,
     getSearchOrderedBy,
     getCommunityMembers,
-    createMember
+    createMember,
+    memberExists
 }
 

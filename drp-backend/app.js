@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { connect } = require('./config/database.js');
-const { getAllCommunities, getCommunityImages, getSearchOrderedBy, createMember, getCommunityMembers} = require('./controllers/databaseService.js');
+const { getAllCommunities, getCommunityImages, getSearchOrderedBy, createMember, getCommunityMembers, memberExists} = require('./controllers/databaseService.js');
 
 const app = express();
 app.use(cors());
@@ -47,11 +47,16 @@ app.get('/search', async (req, res) => {
 });
 
 app.post('/addMember', async (req, res) => {
-    const name = req.query.name
-    const username = req.query.username || ''
+    const name = req.query.name || ""
+    const username = req.query.username
     try {
-        createMember(name, username);
-        res.status(200);
+        const exists = await memberExists(username)
+        if (exists) {
+            res.json(username);
+        } else {
+            createMember(name, username);
+            res.json(username);
+        }
     } catch (error) {
         res.status(500).send(error.message);
     }
