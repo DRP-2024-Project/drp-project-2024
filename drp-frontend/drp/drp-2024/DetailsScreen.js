@@ -42,7 +42,7 @@ export default function ItemDetailScreen({ route }) {
     <Text style={styles.schedule}>{item.schedule}</Text>
   </View>
   <View style={styles.ratingRow}>
-    <StarRating rating={item.rating} maxRating={5} /> {/* Display star rating */}
+    <StarRating rating={item.rating} maxRating={5} />
   </View>
   <View>
     <PhotoGrid community={item.title}/>
