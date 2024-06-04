@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ImageGallery from 'react-image-gallery';
+import { REMOTE_HOST } from './Config';
 import "react-image-gallery/styles/css/image-gallery.css";
 import './styles/PhotoGrid.css';
 
@@ -9,7 +10,7 @@ const PhotoGrid = ({ community }) => {
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const url = new URL('http://localhost:3000/all-images');
+        const url = new URL(`${REMOTE_HOST}/all-images`);
         url.searchParams.append('name', community);
 
         const response = await fetch(url.toString());
