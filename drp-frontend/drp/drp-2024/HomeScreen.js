@@ -18,7 +18,7 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     const fetchData = async () => {
       console.log(value)
-      const response = await fetch(`http://127.0.0.1:3000/search/?orderBy=${value}&searchTerm=${search}`);
+      const response = await fetch(`http://localhost:3000/search/?orderBy=${value}&searchTerm=${search}`);
       const json = await response.json();
       setData(json);
     };

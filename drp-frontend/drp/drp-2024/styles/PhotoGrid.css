@@ -1,0 +1,13 @@
+/* Ensure the gallery container takes full width */
+.photo-grid-container .image-gallery-slide img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 80%; /* Adjust as needed */
+    object-fit: cover; /* Ensures uniform image display */
+  }
+  
+.photo-grid-container .image-gallery-thumbnail img {
+width: 100%; /* Adjust as needed */
+height: 50%; /* Adjust as needed */
+object-fit: cover;
+}

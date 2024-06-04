@@ -71,7 +71,22 @@ app.get('/images', async (req, res) => {
     const index = parseInt(req.query.id, 10);
     const imgs = await getCommunityImages(commName);
     res.set('Content-type', 'image/jpeg');
-    if (imgs.length > index) {
+    try {
         res.send(imgs[index]);
+    } catch (error) {
+        res.status(500).send(error.message)
     }
 })
+
+app.get('/all-images', async (req, res) => {
+    const commName = req.query.name;
+  
+    try {
+      const imgs = await getCommunityImages(commName);
+      const imagesBase64 = imgs.map(img => img.toString('base64'));
+      res.set('Content-type', 'application/json');
+      res.send(JSON.stringify(imagesBase64));
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
