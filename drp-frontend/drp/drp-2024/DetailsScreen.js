@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import PhotoGrid from './PhotoGrid.js';
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
@@ -21,7 +21,7 @@ export default function ItemDetailScreen({ route }) {
   const { item } = route.params;
 
   return (
-<View style={styles.container}>
+<ScrollView style={styles.container}>
   <View style={styles.topRow}>
     <Text style={styles.level}>Level: {item.level}</Text>
   </View>
@@ -66,7 +66,7 @@ export default function ItemDetailScreen({ route }) {
       numberOfLines={4}
     />
   </View>
-</View>
+</ScrollView>
   );
 }
 
