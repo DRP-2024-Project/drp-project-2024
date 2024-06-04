@@ -2,6 +2,7 @@ import React,  { useState, useEffect } from 'react';
 import { FlatList, ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import PhotoGrid from './PhotoGrid.js';
 import StarRating from './StarRating';
+import { REMOTE_HOST } from './Config.js';
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   const [size, setSize] = useState(initialSize);
@@ -24,7 +25,7 @@ export default function ItemDetailScreen({ route }) {
   const [members, setData] = useState(undefined);
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(`https://drp2024-backend-84f8cdfad73b.herokuapp.com/getCommunityMembers?community=${item.title}`);
+      const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${item.title}`);
       const json = await response.json();
       setData(json);
     };

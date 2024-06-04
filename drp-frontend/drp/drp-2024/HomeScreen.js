@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import SearchBar from './SearchBar';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { REMOTE_HOST } from './Config';
 
 export default function HomeScreen({ navigation }) {
 
@@ -18,7 +19,7 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     const fetchData = async () => {
       console.log(value)
-      const response = await fetch(`http://127.0.0.1:3000/search/?orderBy=${value}&searchTerm=${search}`);
+      const response = await fetch(`${REMOTE_HOST}/search/?orderBy=${value}&searchTerm=${search}`);
       const json = await response.json();
       setData(json);
     };
