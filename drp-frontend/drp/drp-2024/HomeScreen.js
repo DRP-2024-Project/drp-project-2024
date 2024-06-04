@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import SearchBar from './SearchBar';
 import DropDownPicker from 'react-native-dropdown-picker';
+import ItemRecord from './ItemRecord'
 
 export default function HomeScreen({ navigation }) {
 
@@ -51,12 +52,7 @@ export default function HomeScreen({ navigation }) {
     <FlatList
       data={communities}
       renderItem={({ item }) => (
-        <TouchableOpacity
-          style={styles.item}
-          onPress={() => navigation.navigate('Details', { item })}
-        >
-          <Text style={styles.title}>{item.title}</Text>
-        </TouchableOpacity>
+        <ItemRecord item={item}/>
       )}
       keyExtractor={item => item.id}
       contentContainerStyle={styles.listContainer}

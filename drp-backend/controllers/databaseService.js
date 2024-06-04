@@ -29,11 +29,17 @@ const DATA = [
 //               members: Holds a list of all members on the app
 //               commMembers: Holds all relations of members to community
 //               images: Holds all images for the app
-//               commImages: HoldsShin Pads, Football Kit, Practice the relations of immages and communities
+//               commImages: Holds the relations of immages and communities
+//               tags: Holds the tags and icons for the different community
 // Note: communnity and members must be created before commMembers, as commMembers
 //       uses them as a foreign key. Same applies for images and community.
 // Pre: The tables don't already exist
 async function createTables() {
+    const tagsTable = `CREATE TABLE tags (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        tag VARCHAR(255),
+        icon LONGBLOB
+    )`
     const commTable = `CREATE TABLE communities (
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(255),
@@ -44,7 +50,9 @@ async function createTables() {
         schedule VARCHAR(255),
         contactInfo VARCHAR(255),
         requiredEquipment VARCHAR(255),
-        owner VARCHAR(255)
+        tag_id INT,
+        owner VARCHAR(255),
+        FOREIGN KEY (tag) REFERENCES tags(id)
     )`;
     const memberTable = `CREATE TABLE members (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -63,6 +71,7 @@ async function createTables() {
         img LONGBLOB,
         FOREIGN KEY (community_id) REFERENCES communities(id)
     )`
+    await query(tagsTable, []);
     await query(commTable, []);
     await query(memberTable, []);
     await query(commMemberTable, []);
@@ -78,6 +87,7 @@ async function dropTables() {
     await query('DROP TABLE images', []);
     await query('DROP TABLE members', []);
     await query('DROP TABLE communities', []);
+    await query('DROP TABLE tags', []);
 }
 
 // communityExists: Checks if a community already exists with the given name on
@@ -260,6 +270,32 @@ function addMemberToCommunity(commName, memberName) {
     });
 }
 
+// getTagDetails: Returns the name and icon of a tag
+function getTagDetails(tag_id) {
+    return new Promise(async (resolve, reject) => {
+        let tagResult = await query(`SELECT * FROM tags WHERE id = ?`, tag_id);
+        return resolve({
+            id: tagResult[0].id,
+            name: tagResult[0].name,
+            icon: tagResult[0].icon
+        });
+    });
+}
+
+// createTag: Creates a tag for the tags table
+// Returns: returns a promise object with value false if the tag already
+//          exists or true if the tag has been created successfully
+function createTag(data) {
+    return new Promise(async (resolve, reject) => {
+        let res = await query(`SELECT * FROM tags WHERE tag = ?`, data.tag);
+        if (res.length > 0) {
+            return resolve(false);
+        }
+        await query(`INSERT INTO tags SET ?`, data);
+        return resolve(true);
+    })
+}
+
 // deleteMemberFromCommunity: Removes a member from a community
 // Pre: The member name is not the owner
 //      The given member is a member of the community
@@ -290,6 +326,7 @@ function translateResult(data) {
        links: row.links,
        rating: row.rating,
        level: row.level,
+       tag_id: row.tag_id,
     }));
 }
 
@@ -317,11 +354,6 @@ function getCommunityImages(commName) {
     return new Promise(async (resolve, reject) => {
         let communityID = (await query(`SELECT id from communities WHERE title = ?`, [commName]))[0].id;
         let result = await query(`SELECT * FROM images WHERE community_id = ?`, [communityID]);
-        // let idList = imgIds.map(row => row.image_id);
-        // if (idList.length == 0) {
-        //     return resolve([]);
-        // }
-        // let result = await query(`SELECT img FROM images WHERE id IN (?)`, [idList]);
         return resolve(result.map(row => row.img));
     })
 }
@@ -375,10 +407,13 @@ const dataToAdd = {
 async function exImageAdd() {
     const fs = require('fs').promises;
 
-    const binaryData = await fs.readFile("../../images1/rug4.jpeg");
+    const binaryData = await fs.readFile("../../images1/icon14.png");
 
     await connect();
-    await addCommunityImage("Rugby Team", binaryData);
+    await createTag({
+        'tag': 'Gym',
+        'icon': binaryData
+    })
     disconnect();
 }
 
@@ -397,6 +432,7 @@ module.exports = {
     getAllCommunities,
     getSearchedCommunities,
     getCommunityImages,
-    getSearchOrderedBy
+    getSearchOrderedBy,
+    getTagDetails
 }
 

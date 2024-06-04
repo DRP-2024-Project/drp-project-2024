@@ -5,7 +5,6 @@ const PhotoGrid = ({ community }) => {
   const url1 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
   url1.searchParams.append('name', community);
   url1.searchParams.append('id', '0');
-  console.log(url1.toString())
 
   const url2 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
   url2.searchParams.append('name', community);

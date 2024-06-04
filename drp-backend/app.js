@@ -1,7 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const { connect } = require('./config/database.js');
-const { getAllCommunities, getSearchedCommunities, getCommunityImages, getSearchOrderedBy} = require('./controllers/databaseService.js');
+const { 
+    getAllCommunities, 
+    getSearchedCommunities, 
+    getCommunityImages, 
+    getSearchOrderedBy, 
+    getTagDetails 
+} = require('./controllers/databaseService.js');
 
 const app = express();
 app.use(cors());
@@ -63,4 +69,11 @@ app.get('/images', async (req, res) => {
     if (imgs.length > index) {
         res.send(imgs[index]);
     }
+})
+
+app.get('/icon', async (req, res) => {
+    const tagId = req.query.id;
+    const tagDetails = await getTagDetails(tagId);
+    res.set('Content-type', 'image/png');
+    res.send(tagDetails.icon);
 })
