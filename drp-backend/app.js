@@ -63,7 +63,7 @@ app.post('/addMember', async (req, res) => {
 })
 
 
-app.get('/getCommunityMembers/:community', async (req, res) => {
+app.get('/getCommunityMembers', async (req, res) => {
     const community = req.query.community;
     try {
         const data = await getCommunityMembers(community);
