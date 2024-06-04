@@ -3,6 +3,7 @@ import { View, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native
 import SearchBar from './SearchBar';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { REMOTE_HOST } from './Config';
+import ItemRecord from './ItemRecord'
 
 export default function HomeScreen({ navigation }) {
 
@@ -18,7 +19,6 @@ export default function HomeScreen({ navigation }) {
   const [communities, setData] = useState(undefined);
   useEffect(() => {
     const fetchData = async () => {
-      console.log(value)
       const response = await fetch(`${REMOTE_HOST}/search/?orderBy=${value}&searchTerm=${search}`);
       const json = await response.json();
       setData(json);
@@ -52,12 +52,7 @@ export default function HomeScreen({ navigation }) {
     <FlatList
       data={communities}
       renderItem={({ item }) => (
-        <TouchableOpacity
-          style={styles.item}
-          onPress={() => navigation.navigate('Details', { item })}
-        >
-          <Text style={styles.title}>{item.title}</Text>
-        </TouchableOpacity>
+        <ItemRecord item={item}/>
       )}
       keyExtractor={item => item.id}
       contentContainerStyle={styles.listContainer}

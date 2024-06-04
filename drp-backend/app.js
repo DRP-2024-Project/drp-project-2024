@@ -1,12 +1,17 @@
 const express = require('express');
 const cors = require('cors');
 const { connect } = require('./config/database.js');
-const { getAllCommunities, getSearchedCommunities, getCommunityImages, getSearchOrderedBy, getCommunityMembers} = require('./controllers/databaseService.js');
-
+const { 
+    getAllCommunities,
+    getCommunityImages, 
+    getSearchOrderedBy, 
+    createMember, 
+    getCommunityMembers, 
+    memberExists,
+    getTagDetails
+} = require('./controllers/databaseService.js');
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 const port = process.env.PORT || 3000;
 
@@ -46,6 +51,22 @@ app.get('/search', async (req, res) => {
     }
 });
 
+app.post('/addMember', async (req, res) => {
+    const name = req.query.name || ""
+    const username = req.query.username
+    try {
+        const exists = await memberExists(username)
+        if (exists) {
+            res.json(username);
+        } else {
+            createMember(name, username);
+            res.json(username);
+        }
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
+
 
 app.get('/getCommunityMembers', async (req, res) => {
     const community = req.query.community;
@@ -74,4 +95,17 @@ app.get('/images', async (req, res) => {
     if (imgs.length > index) {
         res.send(imgs[index]);
     }
+})
+
+app.get('/icon', async (req, res) => {
+    const tagId = req.query.id;
+    const tagDetails = await getTagDetails(tagId);
+    res.set('Content-type', 'image/png');
+    res.send(tagDetails.icon);
+})
+
+app.get("/tag", async (req, res) => {
+    const tagId = req.query.id;
+    const tagDetails = await getTagDetails(tagId);
+    res.json(tagDetails.tag);
 })
