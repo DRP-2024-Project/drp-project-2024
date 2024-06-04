@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { connect } = require('./config/database.js');
-const { getAllCommunities, getCommunityImages, getSearchOrderedBy, createMember} = require('./controllers/databaseService.js');
+const { getAllCommunities, getCommunityImages, getSearchOrderedBy, createMember, getCommunityMembers} = require('./controllers/databaseService.js');
 
 const app = express();
 app.use(cors());
@@ -56,6 +56,17 @@ app.post('/addMember', async (req, res) => {
         res.status(500).send(error.message);
     }
 })
+
+
+app.get('/getCommunityMembers/:community', async (req, res) => {
+    const community = req.query.community;
+    try {
+        const data = await getCommunityMembers(community);
+        res.json(data);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
 
 
 app.get('/debug', (req,res) => {

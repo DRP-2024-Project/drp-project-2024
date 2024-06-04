@@ -21,14 +21,16 @@ const PhotoGrid = ({ community }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.row}>
-        <Image source={{ uri: url1.toString() }} style={styles.image} />
-        <Image source={{ uri: url2.toString() }} style={styles.image} />
-      </View>
-      <View style={styles.row}>
-        <Image source={{ uri: url3.toString() }} style={styles.image} />
-        <Image source={{ uri: url4.toString() }} style={styles.image} />
-      </View>
+      <View style={styles.box}>
+        <View style={styles.row}>
+          <Image source={{ uri: url1.toString() }} style={styles.image} />
+          <Image source={{ uri: url2.toString() }} style={styles.image} />
+        </View>
+        <View style={styles.row}>
+          <Image source={{ uri: url3.toString() }} style={styles.image} />
+          <Image source={{ uri: url4.toString() }} style={styles.image} />
+        </View>
+      </View>  
     </View>
   );
 };
@@ -38,6 +40,13 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  box: {
+    padding: 10,
+    marginHorizontal: 5,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 5,
+    marginBottom: 20,
   },
   row: {
     flexDirection: 'row',

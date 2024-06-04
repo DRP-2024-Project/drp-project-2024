@@ -177,10 +177,11 @@ function getAllCommunities() {
 
 function getSearchOrderedBy(search, col) {
     const orderCols = ['title', 'rating'];
+    const ascDesc = ['ASC', 'DESC']
     if (!orderCols.includes(col)) {
         throw new Error("Invalid column name");
     }
-    let sqlQuery = `SELECT * FROM communities WHERE title LIKE ? OR description LIKE ? ORDER BY ${col}`;
+    let sqlQuery = `SELECT * FROM communities WHERE title LIKE ? OR description LIKE ? ORDER BY ${col} ${ascDesc[orderCols.indexOf(col)]}`;
 
     return new Promise(async (resolve, reject) => {
         let result = await query(sqlQuery, [`%${search}%`, `%${search}%`]);
@@ -386,6 +387,7 @@ module.exports = {
     getAllCommunities,
     getCommunityImages,
     getSearchOrderedBy,
+    getCommunityMembers,
     createMember
 }
 
