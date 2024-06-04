@@ -204,7 +204,9 @@ function getSearchOrderedBy(search, col) {
 // Return: returns an array of names: ['Harvey Densem', 'John Doe']
 function getCommunityMembers(title) {
     return new Promise(async (resolve, reject) => {
+        console.log(title)
         let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [title])
+        console.log(commResult)
         let memResult = await query(`SELECT member_id FROM commMembers WHERE community_id = ?`, [commResult[0].id]);
         const idList = memResult.map(row => row.member_id);
         let res = await query(`SELECT name FROM members WHERE id IN (?)`, [idList]);
