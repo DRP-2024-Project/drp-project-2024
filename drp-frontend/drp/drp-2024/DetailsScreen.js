@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import { ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import PhotoGrid from './PhotoGrid.js';
+import StarRating from './StarRating';
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   const [size, setSize] = useState(initialSize);
@@ -41,7 +42,7 @@ export default function ItemDetailScreen({ route }) {
     <Text style={styles.schedule}>{item.schedule}</Text>
   </View>
   <View style={styles.ratingRow}>
-    <Text style={styles.rating}>Rating: {item.rating}/5</Text>
+    <StarRating rating={item.rating} maxRating={5} /> {/* Display star rating */}
   </View>
   <View>
     <PhotoGrid community={item.title}/>
