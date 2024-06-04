@@ -184,16 +184,6 @@ function getAllCommunities() {
     })
 }
 
-// getSearchedCommunities: Returns a list of all details of communities containing
-//                      the search term
-function getSearchedCommunities(search) {
-    return new Promise(async (resolve, reject) => {
-        let result = await query(`SELECT * FROM communities 
-                                  WHERE title LIKE ?
-                                  OR description LIKE ?`, [`%${search}%`, `%${search}%`]);
-        return resolve(translateResult(result));
-    })
-}
 
 function getSearchOrderedBy(search, col) {
     const orderCols = ['title', 'rating'];
@@ -214,7 +204,9 @@ function getSearchOrderedBy(search, col) {
 // Return: returns an array of names: ['Harvey Densem', 'John Doe']
 function getCommunityMembers(title) {
     return new Promise(async (resolve, reject) => {
+        console.log(title)
         let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [title])
+        console.log(commResult)
         let memResult = await query(`SELECT member_id FROM commMembers WHERE community_id = ?`, [commResult[0].id]);
         const idList = memResult.map(row => row.member_id);
         let res = await query(`SELECT name FROM members WHERE id IN (?)`, [idList]);
@@ -223,8 +215,8 @@ function getCommunityMembers(title) {
 }
 
 // createMember: Adds a new member to the members table
-async function createMember(name) {
-    await query(`INSERT INTO members SET ?`, {name});
+async function createMember(name, username) {
+    await query(`INSERT INTO members SET name = ?, username = ?`, [name, username]);
 }
 
 // deleteMember: Deletes a member from the members table and from the 
@@ -235,6 +227,18 @@ async function deleteMember(name) {
     await query(`DELETE FROM commMembers WHERE member_id = ?`, [res[0].id]);
     await query(`DELETE FROM members WHERE name = ?`, [name]);
 }
+
+// memberExists: Checks if a member given by username exists in the database
+// Return: Returns a Promise object of True if the member exists
+//         and False if the member does not exist
+function memberExists(username) {
+    return new Promise(async (resolve, reject) => {
+        let res = await query(`SELECT * FROM members WHERE username = ?`, 
+            [username]);
+        return resolve(res.length > 0);
+    });
+}
+
 
 // memberAlreadyInCommunity: Checks if a member given by member_id is already
 //                           in the community given by community_id
@@ -276,7 +280,7 @@ function getTagDetails(tag_id) {
         let tagResult = await query(`SELECT * FROM tags WHERE id = ?`, tag_id);
         return resolve({
             id: tagResult[0].id,
-            name: tagResult[0].name,
+            tag: tagResult[0].tag,
             icon: tagResult[0].icon
         });
     });
@@ -430,9 +434,11 @@ async function exImageStore() {
 
 module.exports = {
     getAllCommunities,
-    getSearchedCommunities,
     getCommunityImages,
     getSearchOrderedBy,
-    getTagDetails
+    getTagDetails,
+    getCommunityMembers,
+    createMember,
+    memberExists
 }
 

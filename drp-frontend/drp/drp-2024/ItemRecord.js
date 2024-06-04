@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, Text, View, StyleSheet, Image } from 'react-native';
 
 const ItemRecord = ({ item }) => {
-  const url = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/icons');
-  url.searchParams.append('id', item.tag_id);
+  const urlIcon = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/icon');
+  urlIcon.searchParams.append('id', item.tag_id);
+
+  const [tag, setData] = useState(undefined);
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch(`https://drp2024-backend-84f8cdfad73b.herokuapp.com/tag?id=${item.tag_id}`);
+      const json = await response.json();
+      setData(json);
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <TouchableOpacity 
@@ -15,10 +26,10 @@ const ItemRecord = ({ item }) => {
       </View>
       <View style={styles.tagIconContainer}>
         <View style={styles.iconContainer}>
-          <Image source={{ uri: url.toString() }} style={styles.icon} />
+          <Image source={{ uri: urlIcon.toString() }} style={styles.icon} />
         </View>
         <View style={styles.tagContainer}>
-          <Text style={styles.tag}>Rugby</Text>
+          <Text style={styles.tag}>{tag}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -48,7 +59,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconContainer: {
-    marginRight: 10,
+    marginRight: 0,
   },
   icon: {
     width: 30,

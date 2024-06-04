@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import { ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import React,  { useState, useEffect } from 'react';
+import { FlatList, ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import PhotoGrid from './PhotoGrid.js';
 import StarRating from './StarRating';
 
@@ -20,6 +20,19 @@ const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
 
 export default function ItemDetailScreen({ route }) {
   const { item } = route.params;
+
+  const [members, setData] = useState(undefined);
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch(`https://drp2024-backend-84f8cdfad73b.herokuapp.com/getCommunityMembers?community=${item.title}`);
+      const json = await response.json();
+      setData(json);
+    };
+
+    fetchData();
+  }, []);
+
+  console.log(members)
 
   return (
 <ScrollView style={styles.container}>
@@ -42,7 +55,7 @@ export default function ItemDetailScreen({ route }) {
     <Text style={styles.schedule}>{item.schedule}</Text>
   </View>
   <View style={styles.ratingRow}>
-    <StarRating rating={item.rating} maxRating={5} /> {/* Display star rating */}
+    <StarRating rating={item.rating} maxRating={5} />
   </View>
   <View>
     <PhotoGrid community={item.title}/>
@@ -57,6 +70,15 @@ export default function ItemDetailScreen({ route }) {
       <Text style={styles.equipmentRequired}>Additional Links:</Text>
       <Text style={styles.equipmentList}>{item.links}</Text>
     </View>
+  </View>
+  <View style={styles.membersSection}>
+    <Text style={styles.membersHeader}>Members:</Text>
+    <FlatList
+      data={members}
+      renderItem={({ item }) => (<Text>{item}</Text>)}
+      keyExtractor={item => item.id}
+      contentContainerStyle={styles.listContainer}
+    />
   </View>
   <View style={styles.commentsSection}>
     <Text style={styles.commentsHeader}>Comments:</Text>
@@ -137,6 +159,16 @@ const styles = StyleSheet.create({
   },
   equipmentList: {
     fontSize: 14,
+  },
+  membersSection: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#e8e8e8',
+    borderRadius: 5,
+  },
+  membersHeader: {
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   commentsSection: {
     marginTop: 10,

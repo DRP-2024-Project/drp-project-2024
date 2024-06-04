@@ -18,7 +18,6 @@ export default function HomeScreen({ navigation }) {
   const [communities, setData] = useState(undefined);
   useEffect(() => {
     const fetchData = async () => {
-      console.log(value)
       const response = await fetch(`https://drp2024-backend-84f8cdfad73b.herokuapp.com/search/?orderBy=${value}&searchTerm=${search}`);
       const json = await response.json();
       setData(json);
