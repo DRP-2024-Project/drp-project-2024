@@ -174,16 +174,6 @@ function getAllCommunities() {
     })
 }
 
-// getSearchedCommunities: Returns a list of all details of communities containing
-//                      the search term
-function getSearchedCommunities(search) {
-    return new Promise(async (resolve, reject) => {
-        let result = await query(`SELECT * FROM communities 
-                                  WHERE title LIKE ?
-                                  OR description LIKE ?`, [`%${search}%`, `%${search}%`]);
-        return resolve(translateResult(result));
-    })
-}
 
 function getSearchOrderedBy(search, col) {
     const orderCols = ['title', 'rating'];
@@ -212,8 +202,8 @@ function getCommunityMembers(title) {
 }
 
 // createMember: Adds a new member to the members table
-async function createMember(name) {
-    await query(`INSERT INTO members SET ?`, {name});
+async function createMember(name, username) {
+    await query(`INSERT INTO members SET name = ?, username = ?`, [name, username]);
 }
 
 // deleteMember: Deletes a member from the members table and from the 
@@ -394,8 +384,8 @@ async function exImageStore() {
 
 module.exports = {
     getAllCommunities,
-    getSearchedCommunities,
     getCommunityImages,
-    getSearchOrderedBy
+    getSearchOrderedBy,
+    createMember
 }
 
