@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { connect } = require('./config/database.js');
-const { getAllCommunities, getSearchedCommunities, getCommunityImages, getSearchOrderedBy} = require('./controllers/databaseService.js');
+const { getAllCommunities, getSearchedCommunities, getCommunityImages, getSearchOrderedBy, getCommunityMembers} = require('./controllers/databaseService.js');
 
 const app = express();
 app.use(cors());
@@ -40,6 +40,17 @@ app.get('/search', async (req, res) => {
     const orderBy = req.query.orderBy || 'title';
     try {
         const data = await getSearchOrderedBy(search, orderBy);
+        res.json(data);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+
+app.get('/getCommunityMembers/:community', async (req, res) => {
+    const community = req.query.community;
+    try {
+        const data = await getCommunityMembers(community);
         res.json(data);
     } catch (error) {
         res.status(500).send(error.message);

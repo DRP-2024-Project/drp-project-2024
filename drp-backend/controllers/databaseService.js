@@ -397,6 +397,7 @@ module.exports = {
     getAllCommunities,
     getSearchedCommunities,
     getCommunityImages,
-    getSearchOrderedBy
+    getSearchOrderedBy,
+    getCommunityMembers
 }
 
