@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, Text, View, StyleSheet, Image } from 'react-native';
 
-const ItemRecord = ({ item }) => {
+const ItemRecord = ({ item, navigation }) => {
   const urlIcon = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/icon');
   urlIcon.searchParams.append('id', item.tag_id);
 
