@@ -190,7 +190,7 @@ function getSearchOrderedBy(search, col) {
     if (!orderCols.includes(col)) {
         throw new Error("Invalid column name");
     }
-    let sqlQuery = `SELECT * FROM communities WHERE title LIKE ? OR description LIKE ? ORDER BY ${col}`;
+    let sqlQuery = `SELECT * FROM communities WHERE title LIKE ? OR description LIKE ? ORDER BY ${col} DESC`;
 
     return new Promise(async (resolve, reject) => {
         let result = await query(sqlQuery, [`%${search}%`, `%${search}%`]);
