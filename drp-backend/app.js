@@ -57,10 +57,10 @@ app.post('/addMember', async (req, res) => {
     try {
         const exists = await memberExists(username)
         if (exists) {
-            res.json(username);
+            res.send(username);
         } else {
             createMember(name, username);
-            res.json(username);
+            res.send(username);
         }
     } catch (error) {
         res.status(500).send(error.message);
