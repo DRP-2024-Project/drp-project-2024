@@ -30,7 +30,7 @@ const PhotoGrid = ({ community }) => {
 
   return (
     <div className="photo-grid-container">
-      <ImageGallery items={images} />
+      {/* <ImageGallery items={images} /> */}
     </div>
   );
 };
