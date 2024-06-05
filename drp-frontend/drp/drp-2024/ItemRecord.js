@@ -29,7 +29,7 @@ const ItemRecord = ({ item, navigation }) => {
           <Image source={{ uri: urlIcon.toString() }} style={styles.icon} />
         </View>
         <View style={styles.tagContainer}>
-          <Text style={styles.tag}>{tag}</Text>
+          <Text style={styles.tag}>{item.tag}</Text>
         </View>
       </View>
     </TouchableOpacity>

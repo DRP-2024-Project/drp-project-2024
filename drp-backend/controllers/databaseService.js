@@ -195,6 +195,10 @@ function getSearchOrderedBy(search, col) {
 
     return new Promise(async (resolve, reject) => {
         let result = await query(sqlQuery, [`%${search}%`, `%${search}%`]);
+        await Promise.all(result.map(async (row) => {
+            let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.tag_id]);
+            row.tag = tag[0].tag;
+        }));
         return resolve(translateResult(result));
     })
 }
@@ -204,9 +208,7 @@ function getSearchOrderedBy(search, col) {
 // Return: returns an array of names: ['Harvey Densem', 'John Doe']
 function getCommunityMembers(title) {
     return new Promise(async (resolve, reject) => {
-        console.log(title)
         let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [title])
-        console.log(commResult)
         let memResult = await query(`SELECT member_id FROM commMembers WHERE community_id = ?`, [commResult[0].id]);
         const idList = memResult.map(row => row.member_id);
         let res = await query(`SELECT name FROM members WHERE id IN (?)`, [idList]);
@@ -305,8 +307,7 @@ function createTag(data) {
 //      The given member is a member of the community
 async function deleteMemberFromCommunity(commName, memName) {
     let commRes = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
-    let memRes = await query(`SELECT id FROM members WHERE name In MySQL, views can be updated automatically by using the WITH CHECK OPTION clause when creating the view. This causes the view to automatically update when the underlying data in the tables used in the view changes.28 May 2017
-    = ?`, [memName]);
+    let memRes = await query(`SELECT id FROM members WHERE name = ?`, [memName]);
     await query(`DELETE FROM commMembers WHERE member_id = ? AND community_id = ?`, 
         [
             memRes[0].id,
@@ -331,6 +332,7 @@ function translateResult(data) {
        rating: row.rating,
        level: row.level,
        tag_id: row.tag_id,
+       tag: row.tag,
     }));
 }
 
