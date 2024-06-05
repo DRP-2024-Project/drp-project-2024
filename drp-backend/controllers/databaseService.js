@@ -205,14 +205,14 @@ function getSearchOrderedBy(search, col) {
 
 
 // getCommunityMembers: get a list of all names of members of a community
-// Return: returns an array of names: ['Harvey Densem', 'John Doe']
+// Return: returns an array of names and an array of usernames.
 function getCommunityMembers(title) {
     return new Promise(async (resolve, reject) => {
         let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [title])
         let memResult = await query(`SELECT member_id FROM commMembers WHERE community_id = ?`, [commResult[0].id]);
         const idList = memResult.map(row => row.member_id);
-        let res = await query(`SELECT name FROM members WHERE id IN (?)`, [idList]);
-        return resolve(res.map(row => row.name));
+        let res = await query(`SELECT name, username FROM members WHERE id IN (?)`, [idList]);
+        return resolve([res.map(row => row.name), res.map(row => row.username)]);
     })
 }
 
@@ -242,14 +242,17 @@ function memberExists(username) {
 }
 
 
-// memberAlreadyInCommunity: Checks if a member given by member_id is already
-//                           in the community given by community_id
+// memberAlreadyInCommunity: Checks if a member given by username is already
+//                           in the community given by commName
 // Return: Returns a Promise object of True if the member is in the community
 //         and False if the member is not in the community
-function memberAlreadyInCommunity(member_id, community_id) {
+function memberAlreadyInCommunity(username, commName) {
     return new Promise(async (resolve, reject) => {
+        let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
+        let memResult = await query(`SELECT id FROM members WHERE username = ?`, [username]);
+
         let res = await query(`SELECT * FROM commMembers WHERE member_id = ? AND community_id = ?`, 
-            [member_id, community_id]);
+            [memResult[0].id, commResult[0].id]);
         return resolve(res.length > 0);
     });
 }
@@ -258,11 +261,11 @@ function memberAlreadyInCommunity(member_id, community_id) {
 // Return: Returns a Promise object of True if the member added to the 
 //         community successfully or False if the given member was already
 //         a part of the community
-function addMemberToCommunity(commName, memberName) {
+function addMemberToCommunity(commName, username) {
     return new Promise(async (resolve, reject) => {
         let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
-        let memResult = await query(`SELECT id FROM members WHERE name = ?`, [memberName]);
-        let memExists = await memberAlreadyInCommunity(memResult[0].id, commResult[0].id);
+        let memResult = await query(`SELECT id FROM members WHERE username = ?`, [username]);
+        let memExists = await memberAlreadyInCommunity(username, commName);
         
         if (memExists) {
             return resolve(false);
@@ -305,9 +308,9 @@ function createTag(data) {
 // deleteMemberFromCommunity: Removes a member from a community
 // Pre: The member name is not the owner
 //      The given member is a member of the community
-async function deleteMemberFromCommunity(commName, memName) {
+async function deleteMemberFromCommunity(commName, username) {
     let commRes = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
-    let memRes = await query(`SELECT id FROM members WHERE name = ?`, [memName]);
+    let memRes = await query(`SELECT id FROM members WHERE username = ?`, [username]);
     await query(`DELETE FROM commMembers WHERE member_id = ? AND community_id = ?`, 
         [
             memRes[0].id,
@@ -441,6 +444,9 @@ module.exports = {
     getTagDetails,
     getCommunityMembers,
     createMember,
-    memberExists
+    memberExists,
+    addMemberToCommunity,
+    deleteMemberFromCommunity,
+    memberAlreadyInCommunity
 }
 

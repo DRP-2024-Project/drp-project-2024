@@ -11,7 +11,7 @@ export default function UserScreen({ navigation }) {
         //     method: 'POST',
         // });
         const user = await response.text();
-        navigation.navigate("Communities");
+        navigation.navigate("Communities", { navigation, user });
     };
     
     return (

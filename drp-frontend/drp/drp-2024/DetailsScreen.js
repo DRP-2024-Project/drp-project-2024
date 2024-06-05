@@ -20,23 +20,45 @@ const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
 
 
 export default function ItemDetailScreen({ route }) {
-  const { item } = route.params;
+  const { item, user } = route.params;
 
-  const [members, setData] = useState(undefined);
+  const commName = item.title
+
+  const [memberNames, setMembers] = useState(undefined);
+  const [memberUsernames, setMemberUsernames] = useState(undefined);
+  const [joined, setJoined] = useState(undefined);
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${item.title}`);
+      // const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
+      const response = await fetch(`http://localhost:3000/getCommunityMembers?community=${commName}`);
       const json = await response.json();
-      setData(json);
+      setMembers(json.names);
+      setMemberUsernames(json.usernames);
+      setJoined(memberUsernames.includes(user));
     };
 
     fetchData();
   }, []);
 
+  const handleJoin = async () => {
+    console.log(memberUsernames);
+    console.log(memberNames);
+    setJoined(!joined);
+    const response = await fetch(`http://localhost:3000/toggleMemberInCommunity/?commName=${commName}&username=${user}`, {
+      method: 'POST',
+  });
+    
+  };
+
   return (
 <ScrollView style={styles.container}>
   <View style={styles.topRow}>
     <Text style={styles.level}>Level: {item.level}</Text>
+    <TouchableOpacity 
+    style={[joined ? styles.joinedButton : styles.notJoinedButton]}
+    onPress={handleJoin}>
+      <Text style={styles.joinButtonText}>{joined ? 'Joined' : 'Join'}</Text>
+  </TouchableOpacity>
   </View>
   <View style={styles.middleRow}>
   <InteractiveBox initialSize={50} enlargedSize={100}>
@@ -73,7 +95,7 @@ export default function ItemDetailScreen({ route }) {
   <View style={styles.membersSection}>
     <Text style={styles.membersHeader}>Members:</Text>
     <FlatList
-      data={members}
+      data={memberNames}
       renderItem={({ item }) => (<Text>{item}</Text>)}
       keyExtractor={item => item}
       contentContainerStyle={styles.listContainer}
@@ -100,6 +122,24 @@ const styles = StyleSheet.create({
   },
   topRow: {
     marginBottom: 10,
+  },
+  joinedButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    marginLeft: 'auto',
+    backgroundColor: 'green',
+  },
+  notJoinedButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    marginLeft: 'auto',
+    backgroundColor: '#d3d3d3',
+  },
+  joinButtonText: {
+    color: '#000',
+    fontWeight: 'bold',
   },
   middleRow: {
     flexDirection: 'row',
