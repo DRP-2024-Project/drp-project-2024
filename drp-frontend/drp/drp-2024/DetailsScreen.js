@@ -1,8 +1,10 @@
 import React,  { useState, useEffect } from 'react';
-import { FlatList, ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Button, FlatList, ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import PhotoGrid from './PhotoGrid.js';
 import StarRating from './StarRating';
 import { REMOTE_HOST } from './Config.js';
+import GoogleMapReact from 'google-map-react';
+import SimpleMap from './map.js';
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   const [size, setSize] = useState(initialSize);
@@ -19,7 +21,7 @@ const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
 };
 
 
-export default function ItemDetailScreen({ route }) {
+export default function ItemDetailScreen({ route, navigation }) {
   const { item } = route.params;
 
   const [members, setData] = useState(undefined);
@@ -33,10 +35,10 @@ export default function ItemDetailScreen({ route }) {
     fetchData();
   }, []);
 
-  console.log(members)
-
   return (
-<ScrollView style={styles.container}>
+ <ScrollView style={styles.container}>
+  <View style={styles.container}>
+  </View>
   <View style={styles.topRow}>
     <Text style={styles.level}>Level: {item.level}</Text>
   </View>
@@ -50,6 +52,9 @@ export default function ItemDetailScreen({ route }) {
     <InteractiveBox initialSize={50} enlargedSize={100}>
       <Text style={styles.pricing}>{item.price} per {item.perTime}</Text>
     </InteractiveBox>
+  </View>
+  <View style={styles.mapRow}>
+  <Button title="View Map" onPress={() => navigation.navigate('Map')} />
   </View>
   <Text style={styles.description}>{item.description}</Text>
   <View style={styles.scheduleRow}>
@@ -190,4 +195,10 @@ const styles = StyleSheet.create({
     marginTop: 5,
     minHeight: 60, // Adjust height based on the design requirement
   },
+  mapRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',  // Center the content horizontally
+    alignItems: 'center',      // Center the content vertically (if needed)
+    padding: 10,
+  }
 });
