@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, Image, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
 import { REMOTE_HOST } from './Config';
 import Carousel from 'react-native-reanimated-carousel';
 
 const PhotoGrid = ({ community }) => {
   const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -17,6 +18,8 @@ const PhotoGrid = ({ community }) => {
         setImages(data.map(image => `data:image/jpeg;base64,${image}`));
       } catch (error) {
         console.error('Error fetching images:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -28,7 +31,11 @@ const PhotoGrid = ({ community }) => {
 
   return (
     <View style={styles.container}>
-      {images.length > 0 && (
+      {loading ? (
+        <View style={[styles.loadingContainer, { width: screenWidth - 40, height: imageHeight }]}>
+          <ActivityIndicator size="large" color="#D3D3D3" />
+        </View>
+      ) : (
         <Carousel
           loop
           width={screenWidth}
@@ -57,8 +64,13 @@ const styles = StyleSheet.create({
   },
   image: {
     resizeMode: 'cover',
-    marginHorizontal: 20,  // Add margin to the image
+    marginHorizontal: 20,
     borderRadius: 5,
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)', // Optional: Add a semi-transparent background
   },
 });
 
