@@ -1,61 +1,76 @@
-import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Image, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
+import { REMOTE_HOST } from './Config';
+import Carousel from 'react-native-reanimated-carousel';
 
 const PhotoGrid = ({ community }) => {
-  const url1 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
-  url1.searchParams.append('name', community);
-  url1.searchParams.append('id', '0');
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const url2 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
-  url2.searchParams.append('name', community);
-  url2.searchParams.append('id', '1');
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const url = new URL(`${REMOTE_HOST}/all-images`);
+        url.searchParams.append('name', community);
 
-  const url3 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
-  url3.searchParams.append('name', community);
-  url3.searchParams.append('id', '2');
+        const response = await fetch(url.toString());
+        const data = await response.json();
+        setImages(data.map(image => `data:image/jpeg;base64,${image}`));
+      } catch (error) {
+        console.error('Error fetching images:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const url4 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
-  url4.searchParams.append('name', community);
-  url4.searchParams.append('id', '3');
+    fetchImages();
+  }, [community]);
+
+  const screenWidth = Dimensions.get('screen').width;
+  const imageHeight = Dimensions.get('screen').height * 0.3;
 
   return (
     <View style={styles.container}>
-      <View style={styles.box}>
-        <View style={styles.row}>
-          <Image source={{ uri: url1.toString() }} style={styles.image} />
-          <Image source={{ uri: url2.toString() }} style={styles.image} />
+      {loading ? (
+        <View style={[styles.loadingContainer, { width: screenWidth - 40, height: imageHeight }]}>
+          <ActivityIndicator size="large" color="#D3D3D3" />
         </View>
-        <View style={styles.row}>
-          <Image source={{ uri: url3.toString() }} style={styles.image} />
-          <Image source={{ uri: url4.toString() }} style={styles.image} />
-        </View>
-      </View>  
+      ) : (
+        <Carousel
+          loop
+          width={screenWidth}
+          height={imageHeight}
+          data={[...new Array(images.length).keys()]}
+          scrollAnimationDuration={1000}
+          renderItem={({ index }) => (
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <Image source={{ uri: images[index] }} style={[styles.image, { width: screenWidth - 40, height: imageHeight }]} />
+            </View>
+          )}
+          mode="parallax"
+          parallaxScrollingScale={0.9}
+          parallaxScrollingOffset={50}
+        />
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  box: {
-    padding: 10,
-    marginHorizontal: 5,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5,
-    marginBottom: 20,
-  },
-  row: {
-    flexDirection: 'row',
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   image: {
-    width: 150,
-    height: 150,
-    margin: 5,
+    resizeMode: 'cover',
+    marginHorizontal: 20,
+    borderRadius: 5,
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)', // Optional: Add a semi-transparent background
   },
 });
 
