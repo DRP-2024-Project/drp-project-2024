@@ -1,8 +1,10 @@
 import React,  { useState, useEffect } from 'react';
 import { Button, FlatList, ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import PhotoGrid from './PhotoGrid.js';
 import StarRating from './StarRating';
 import { REMOTE_HOST } from './Config.js';
+import VirtualizedScrollView from './VirtualizedScrollView.js';
+import PhotoGrid from './PhotoGrid.js';
+
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   const [size, setSize] = useState(initialSize);
@@ -62,6 +64,7 @@ export default function ItemDetailScreen({ route, navigation }) {
     <StarRating rating={item.rating} maxRating={5} />
   </View>
   <View>
+    <PhotoGrid community={item.title}/>
   </View>
   <View style={styles.additionalInfoBox}>
     <Text style={styles.additionalInfo}>Additional Info:</Text>
@@ -74,12 +77,12 @@ export default function ItemDetailScreen({ route, navigation }) {
       <Text style={styles.equipmentList}>{item.links}</Text>
     </View>
   </View>
-  <View style={styles.membersSection}>
+  <View style={styles.commentsSection}>
     <Text style={styles.membersHeader}>Members:</Text>
     <FlatList
       data={members}
       renderItem={({ item }) => (<Text>{item}</Text>)}
-      keyExtractor={item => item.id}
+      keyExtractor={item => item}
       contentContainerStyle={styles.listContainer}
     />
   </View>
