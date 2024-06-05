@@ -27,8 +27,6 @@ export default function HomeScreen({ navigation }) {
     fetchData();
   }, [value, search]);
 
-  console.log(communities);
-
   return (
     <View style={styles.container}>
     <View style={styles.topRow}>
@@ -52,9 +50,9 @@ export default function HomeScreen({ navigation }) {
     <FlatList
       data={communities}
       renderItem={({ item }) => (
-        <ItemRecord item={item} navigation={navigation}/>
+        <ItemRecord key={item.communityId} item={item} navigation={navigation}/>
       )}
-      keyExtractor={item => item.id}
+      keyExtractor={item => item.communityId}
       contentContainerStyle={styles.listContainer}
     />
   </View>
