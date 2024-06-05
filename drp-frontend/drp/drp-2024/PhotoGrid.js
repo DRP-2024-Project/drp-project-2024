@@ -1,38 +1,63 @@
-import React, { useEffect, useState } from 'react';
-import ImageGallery from 'react-image-gallery';
-import { REMOTE_HOST } from './Config';
-import "react-image-gallery/styles/css/image-gallery.css";
-import './styles/PhotoGrid.css';
+import React from 'react';
+import { View, Image, StyleSheet } from 'react-native';
 
 const PhotoGrid = ({ community }) => {
-  const [images, setImages] = useState([]);
+  const url1 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
+  url1.searchParams.append('name', community);
+  url1.searchParams.append('id', '0');
+  console.log(url1.toString())
 
-  useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        const url = new URL(`${REMOTE_HOST}/all-images`);
-        url.searchParams.append('name', community);
+  const url2 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
+  url2.searchParams.append('name', community);
+  url2.searchParams.append('id', '1');
 
-        const response = await fetch(url.toString());
-        const data = await response.json();
-        const formattedImages = data.map(image => ({
-          original: `data:image/jpeg;base64,${image}`,
-          thumbnail: `data:image/jpeg;base64,${image}`,
-        }));
-        setImages(formattedImages);
-      } catch (error) {
-        console.error('Error fetching images:', error);
-      }
-    };
+  const url3 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
+  url3.searchParams.append('name', community);
+  url3.searchParams.append('id', '2');
 
-    fetchImages();
-  }, [community]);
+  const url4 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
+  url4.searchParams.append('name', community);
+  url4.searchParams.append('id', '3');
 
   return (
-    <div className="photo-grid-container">
-      <ImageGallery items={images} />
-    </div>
+    <View style={styles.container}>
+      <View style={styles.box}>
+        <View style={styles.row}>
+          <Image source={{ uri: url1.toString() }} style={styles.image} />
+          <Image source={{ uri: url2.toString() }} style={styles.image} />
+        </View>
+        <View style={styles.row}>
+          <Image source={{ uri: url3.toString() }} style={styles.image} />
+          <Image source={{ uri: url4.toString() }} style={styles.image} />
+        </View>
+      </View>  
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  box: {
+    padding: 10,
+    marginHorizontal: 5,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  image: {
+    width: 150,
+    height: 150,
+    margin: 5,
+  },
+});
 
 export default PhotoGrid;
