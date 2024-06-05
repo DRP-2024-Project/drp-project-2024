@@ -1,61 +1,98 @@
-import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Image, StyleSheet, Dimensions, TouchableOpacity, Text } from 'react-native';
+import Carousel from 'react-native-reanimated-carousel';
+import { REMOTE_HOST } from './Config';
+import 'react-native-reanimated';
 
 const PhotoGrid = ({ community }) => {
-  const url1 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
-  url1.searchParams.append('name', community);
-  url1.searchParams.append('id', '0');
+  const [images, setImages] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const url2 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
-  url2.searchParams.append('name', community);
-  url2.searchParams.append('id', '1');
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const url = new URL(`${REMOTE_HOST}/all-images`);
+        url.searchParams.append('name', community);
 
-  const url3 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
-  url3.searchParams.append('name', community);
-  url3.searchParams.append('id', '2');
+        const response = await fetch(url.toString());
+        const data = await response.json();
+        setImages(data.map(image => `data:image/jpeg;base64,${image}`));
+      } catch (error) {
+        console.error('Error fetching images:', error);
+      }
+    };
 
-  const url4 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
-  url4.searchParams.append('name', community);
-  url4.searchParams.append('id', '3');
+    fetchImages();
+  }, [community]);
+
+  const screenWidth = Dimensions.get('screen').width;
+  const imageHeight = Dimensions.get('screen').height * 0.3;
+
+  const handleNext = () => {
+    const nextIndex = (currentIndex + 1) % images.length;
+    setCurrentIndex(nextIndex);
+  };
+
+  const handlePrevious = () => {
+    const prevIndex = (currentIndex - 1 + images.length) % images.length;
+    setCurrentIndex(prevIndex);
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.box}>
-        <View style={styles.row}>
-          <Image source={{ uri: url1.toString() }} style={styles.image} />
-          <Image source={{ uri: url2.toString() }} style={styles.image} />
-        </View>
-        <View style={styles.row}>
-          <Image source={{ uri: url3.toString() }} style={styles.image} />
-          <Image source={{ uri: url4.toString() }} style={styles.image} />
-        </View>
-      </View>  
+      {images.length > 0 && (
+        <Carousel
+          loop
+          width={screenWidth}
+          height={imageHeight}
+          data={[...new Array(images.length).keys()]}
+          scrollAnimationDuration={1000}
+          renderItem={({ _ }) => (
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <Image source={{ uri: images[currentIndex] }} style={[styles.image, { width: screenWidth - 40, height: imageHeight }]} />
+            </View>
+          )}
+          onSnapToItem={(index) => setCurrentIndex(index)}
+        />
+      )}
+      <TouchableOpacity onPress={handlePrevious} style={[styles.button, styles.buttonLeft]}>
+        <Text style={styles.buttonText}>{'<'}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={handleNext} style={[styles.button, styles.buttonRight]}>
+        <Text style={styles.buttonText}>{'>'}</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  box: {
-    padding: 10,
-    marginHorizontal: 5,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5,
-    marginBottom: 20,
-  },
-  row: {
-    flexDirection: 'row',
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   image: {
-    width: 150,
-    height: 150,
-    margin: 5,
+    resizeMode: 'cover',
+    marginHorizontal: 20,  // Add margin to the image
+    borderRadius: 5,
+  },
+  button: {
+    position: 'absolute',
+    top: '50%',
+    transform: [{ translateY: -25 }],
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonLeft: {
+    left: 10,
+  },
+  buttonRight: {
+    right: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 20,  // Increase font size for better visibility
   },
 });
 
