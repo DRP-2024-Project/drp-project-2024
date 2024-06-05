@@ -33,8 +33,6 @@ export default function ItemDetailScreen({ route }) {
     fetchData();
   }, []);
 
-  console.log(members)
-
   return (
 <ScrollView style={styles.container}>
   <View style={styles.topRow}>
@@ -77,7 +75,7 @@ export default function ItemDetailScreen({ route }) {
     <FlatList
       data={members}
       renderItem={({ item }) => (<Text>{item}</Text>)}
-      keyExtractor={item => item.id}
+      keyExtractor={item => item}
       contentContainerStyle={styles.listContainer}
     />
   </View>
@@ -87,7 +85,7 @@ export default function ItemDetailScreen({ route }) {
       style={styles.commentsInput}
       placeholder="Write your comment..."
       multiline={true}
-      numberOfLines={4}
+      rows={4}
     />
   </View>
 </ScrollView>
