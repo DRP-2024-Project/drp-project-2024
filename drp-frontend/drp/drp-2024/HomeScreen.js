@@ -32,6 +32,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
     <View style={styles.topRow}>
+      <SearchBar searchPhrase={search} setSearchPhrase={setSearch} setClicked={() => {}}/>
     </View>
     <View style={styles.middleRow}>
       <Text style={styles.orderBy}>Order By: </Text>
