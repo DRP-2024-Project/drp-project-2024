@@ -53,7 +53,7 @@ export default function HomeScreen({ navigation }) {
       renderItem={({ item }) => (
         <ItemRecord item={item} navigation={navigation}/>
       )}
-      keyExtractor={item => item.id}
+      keyExtractor={item => item.communityId}
       contentContainerStyle={styles.listContainer}
     />
   </View>

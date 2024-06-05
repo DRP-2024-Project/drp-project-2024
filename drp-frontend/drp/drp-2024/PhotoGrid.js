@@ -29,9 +29,7 @@ const PhotoGrid = ({ community }) => {
   }, [community]);
 
   return (
-    <div className="photo-grid-container">
-      <ImageGallery items={images} />
-    </div>
+    <Text>Picture placeholder</Text>
   );
 };
 

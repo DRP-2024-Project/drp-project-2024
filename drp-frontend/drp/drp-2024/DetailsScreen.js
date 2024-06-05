@@ -3,8 +3,6 @@ import { Button, FlatList, ScrollView, View, Text, StyleSheet, TextInput, Toucha
 import PhotoGrid from './PhotoGrid.js';
 import StarRating from './StarRating';
 import { REMOTE_HOST } from './Config.js';
-import GoogleMapReact from 'google-map-react';
-import SimpleMap from './map.js';
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   const [size, setSize] = useState(initialSize);
@@ -64,7 +62,6 @@ export default function ItemDetailScreen({ route, navigation }) {
     <StarRating rating={item.rating} maxRating={5} />
   </View>
   <View>
-    <PhotoGrid community={item.title}/>
   </View>
   <View style={styles.additionalInfoBox}>
     <Text style={styles.additionalInfo}>Additional Info:</Text>
