@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, FlatList, Text, StyleSheet } from 'react-native';
 import SearchBar from './SearchBar';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { REMOTE_HOST } from './Config';
-import ItemRecord from './ItemRecord'
+import ItemRecord from './ItemRecord';
+import CreateButton from './CreateButton';
 
 export default function HomeScreen({ navigation }) {
 
@@ -46,6 +47,7 @@ export default function HomeScreen({ navigation }) {
         style={styles.dropdownStyle}
         dropDownContainerStyle={styles.dropDownContainerStyle}
       />
+      <CreateButton navigation={navigation}/>
     </View>
     <FlatList
       data={communities}

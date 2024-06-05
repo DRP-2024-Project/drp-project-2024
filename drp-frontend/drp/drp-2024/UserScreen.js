@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
+import { REMOTE_HOST } from './Config';
 
 export default function UserScreen({ navigation }) {
     const [username, setUsername] = useState('');
     const handlePress = async () => {
-        const response = await fetch(`https://drp2024-backend-84f8cdfad73b.herokuapp.com/addMember/?username=${username}`, {
+        const response = await fetch(`${REMOTE_HOST}/addMember/?username=${username}`, {
             method: 'POST',
         });
         // const response = await fetch(`http://localhost:3000/addMember/?username=${username}`, {

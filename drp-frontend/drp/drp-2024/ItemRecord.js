@@ -1,20 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, Text, View, StyleSheet, Image } from 'react-native';
+import { REMOTE_HOST } from './Config';
+import Tag from './Tag'
 
 const ItemRecord = ({ item, navigation }) => {
-  const urlIcon = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/icon');
+  const urlIcon = new URL(`${REMOTE_HOST}/icon`);
   urlIcon.searchParams.append('id', item.tag_id);
-
-  const [tag, setData] = useState(undefined);
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch(`https://drp2024-backend-84f8cdfad73b.herokuapp.com/tag?id=${item.tag_id}`);
-      const json = await response.json();
-      setData(json);
-    };
-
-    fetchData();
-  }, []);
 
   return (
     <TouchableOpacity 
@@ -24,14 +15,7 @@ const ItemRecord = ({ item, navigation }) => {
       <View>
         <Text style={styles.title}>{item.title}</Text>
       </View>
-      <View style={styles.tagIconContainer}>
-        <View style={styles.iconContainer}>
-          <Image source={{ uri: urlIcon.toString() }} style={styles.icon} />
-        </View>
-        <View style={styles.tagContainer}>
-          <Text style={styles.tag}>{item.tag}</Text>
-        </View>
-      </View>
+      <Tag tag_id={item.tag_id} tag_name={item.tag}/>
     </TouchableOpacity>
   );
 };

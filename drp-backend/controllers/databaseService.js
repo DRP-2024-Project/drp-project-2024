@@ -302,6 +302,26 @@ function createTag(data) {
     })
 }
 
+// translateTags: Puts the result of a query into a standard form
+function translateTags(data) {
+    return data.map(row => ({
+        id: row.id,
+        name: row.tag,
+     }));
+}
+
+// getAllTags: get all tag ids and names in the tags table
+// Returns: A list of objects of the form {
+//   id: ,
+//   name: ,
+// }
+function getAllTags() {
+    return new Promise(async (resolve, reject) => {
+        let res = await query(`SELECT id, tag FROM tags`);
+        return resolve(translateTags(res));
+    })
+}
+
 // deleteMemberFromCommunity: Removes a member from a community
 // Pre: The member name is not the owner
 //      The given member is a member of the community
@@ -441,6 +461,9 @@ module.exports = {
     getTagDetails,
     getCommunityMembers,
     createMember,
-    memberExists
+    memberExists, 
+    createCommunity,
+    addCommunityImage,
+    getAllTags,
 }
 
