@@ -92,7 +92,7 @@ export default function ItemDetailScreen({ route, navigation }) {
       style={styles.commentsInput}
       placeholder="Write your comment..."
       multiline={true}
-      numberOfLines={4}
+      rows={4}
     />
   </View>
 </ScrollView>
