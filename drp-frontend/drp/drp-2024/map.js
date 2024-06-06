@@ -5,15 +5,15 @@ import {SafeAreaView, StyleSheet, View} from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 
 
-export default SimpleMap = () => {
+export default SimpleMap = ({latitude, longitude}) => {
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={styles.container}>
         <MapView
           style={styles.mapStyle}
           initialRegion={{
-            latitude: 37.78825,
-            longitude: -122.4324,
+            latitude: latitude,
+            longitude: longitude,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           }}
@@ -21,8 +21,8 @@ export default SimpleMap = () => {
           <Marker
             draggable
             coordinate={{
-              latitude: 37.78825,
-              longitude: -122.4324,
+              latitude: latitude,
+              longitude: longitude,
             }}
             onDragEnd={
               (e) => alert(JSON.stringify(e.nativeEvent.coordinate))

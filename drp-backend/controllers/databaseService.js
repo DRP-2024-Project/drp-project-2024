@@ -354,6 +354,8 @@ function translateResult(data) {
        level: row.level,
        tag_id: row.tag_id,
        tag: row.tag,
+       latitude: row.latitude,
+       longitude: row.longitude
     }));
 }
 

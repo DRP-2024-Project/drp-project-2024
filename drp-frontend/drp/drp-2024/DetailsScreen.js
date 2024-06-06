@@ -51,7 +51,7 @@ export default function ItemDetailScreen({ route, navigation }) {
         </InteractiveBox>
       </View>
       <View style={styles.mapRow}>
-        <Button title="View Map" onPress={() => navigation.navigate('Map')} />
+        <Button title="View Map" onPress={() => navigation.navigate('Map', {latitude: item.latitude, longitude: item.longitude})} />
       </View>
       <Text style={styles.description}>{item.description}</Text>
       <View style={styles.scheduleRow}>
