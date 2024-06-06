@@ -5,23 +5,20 @@ import {
     Button, 
     StyleSheet, 
     Text, 
-    ScrollView 
+    ScrollView,
+    TouchableOpacity,
+    Image
 } from 'react-native';
 import Tag from './Tag'
-import { REMOTE_HOST } from './Config';
+import SelectedTag from './SelectedTag'
+import { REMOTE_HOST, TAGS } from './Config';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 export default function HomeScreen({ navigation }) {
-
-    const [tags, setData] = useState([]);
-    useEffect(() => {
-      const fetchData = async () => {
-        const response = await fetch(`${REMOTE_HOST}/tags`);
-        const json = await response.json();
-        setData(json);
-      };
-  
-      fetchData();
-    }, []);
+    const beginState = Object.keys(TAGS).reduce((acc, currentItem) => {
+      acc[currentItem] = false; 
+      return acc;
+    }, {});
   
   const [formData, setFormData] = useState({
         title: '',
@@ -37,6 +34,30 @@ export default function HomeScreen({ navigation }) {
         level: '',
   });
 
+  // For the tag Buttons
+  // tag: Represents the id of the selected tag
+  // selected: Represents whether a tag is selected at all
+  // tagStates: Represents whether each item is selected
+  const [tag, setTag] = useState('');
+  const [tagStates, setTagStates] = useState(beginState);
+  const handlePress = (currTag) => {
+    // Selecting a new tag
+    if (currTag != tag) {
+      setTagStates(prevState => ({
+        ...prevState,
+        [tag]: false,
+        [currTag]: true,
+      }));
+    } else {
+      setTagStates(prevState => ({
+        ...prevState,
+        [currTag]: false,
+      }));
+    }
+    setTag(currTag);
+  };
+
+  // For the text data
   const handleChange = (name, value) => {
     setFormData({
       ...formData,
@@ -44,12 +65,63 @@ export default function HomeScreen({ navigation }) {
     });
   };
 
-  const handleSubmit = () => {
-    // Handle submission logic here, e.g., sending data to a server
-    console.log('Form Data:', formData);
+  // For choosing an image
+  const [imageSource, setImageSource] = useState(null);
+  const selectImage = () => {
+    const options = {
+      mediaType: 'photo',
+      maxWidth: 300,
+      maxHeight: 300,
+      quality: 1,
+    };
+
+    launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+        console.log('ImagePicker Error: ', response.errorMessage);
+      } else {
+        const source = { uri: response.assets[0].uri };
+        setImageSource(source.uri, 'base64');
+      }
+    });
   };
 
-//   console.log(tags);
+  const handleSubmit = async () => {
+    const comm = {
+      title: formData.title,
+      description: formData.description,
+      price: formData.price,
+      perTime: formData['per Time'],
+      location: formData.location,
+      schedule: formData.schedule,
+      contactInfo: formData['contact Info'],
+      equipmentRequired: formData['required Equipment'],
+      links: formData.links,
+      rating: formData.rating,
+      level: formData.level,
+      tag_id: TAGS[tag],
+    };
+    const data = {
+      comm: comm,
+      imgs: [imageSource],
+    };
+
+    try {
+      const response = await fetch(`${REMOTE_HOST}/createCommunity`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      // TODO: Logic for if the name is taken
+    } catch (error) {
+      console.error('Error:', error);
+    }
+    navigation.navigate("Communities", {})
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -67,11 +139,18 @@ export default function HomeScreen({ navigation }) {
       ))}
       <Text style={styles.title}>Choose Activity Type</Text>
       <View style={styles.iconsContainer}>
-        {tags.map((tag) => (
-            <Tag tag_id={tag.id} tag_name={tag.name}/>
+        {Object.keys(TAGS).map((tag) => (
+            <TouchableOpacity 
+              style={styles.tagContainer} 
+              onPress={() => handlePress(tag)}
+              key={tag}
+            >
+                {tagStates[tag] ? <SelectedTag name={tag}/> : <Tag tag_name={tag}/>}
+            </TouchableOpacity>
         ))}
-        {/* <Tag tag_id={1} tag_name={'Rugby'}/>
-        <Tag tag_id={2} tag_name={'jfdsug'}/> */}
+      </View>
+      <View style={styles.imageButton}>
+        <Button title="Select Image" onPress={selectImage} />
       </View>
       <Button title="Submit" onPress={handleSubmit} />
     </ScrollView>
@@ -121,4 +200,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
+  tagContainer: {
+    margin: 10,
+  },
+  imageButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 10,
+  },
+  image: {
+    width: 200,
+    height: 200,
+  },
 });
+
+// TODO:
+// Make it so that on a press the correct tag id is sent
+// Make it so that only one tag can be pressed at a time
+// Handle submit

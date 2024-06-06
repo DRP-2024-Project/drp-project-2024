@@ -13,9 +13,10 @@ const {
     createCommunity,
     getAllTags,
 } = require('./controllers/databaseService.js');
+
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 
 const port = process.env.PORT || 3000;
 
@@ -73,22 +74,22 @@ app.post('/addMember', async (req, res) => {
 
 // Returns true if the community is made correctly or false otherwise
 app.post('/createCommunity', async (req, res) => {
-    console.log("Creating Community");
-    // const title = req.body.comm.title;
-    // try {
-    //     const made = await createCommunity(req.body.comm);
-    //     if (made) {
-    //         req.body.imgs.map(async (img) => {
-    //             await addCommunityImage(title, img);
-    //             res.send(true);
-    //         });
-    //     } else {
-    //         res.send(false);
-    //     }
-    // } catch (error) {
-    //     res.status(500).send(error.message);
-    // }
-})
+
+    const title = req.body.comm.title;
+    try {
+        const made = await createCommunity(req.body.comm);
+        if (made) {
+            req.body.imgs.map(async (img) => {
+                await addCommunityImage(title, Buffer.from(img));
+            });
+            res.send(true);
+        } else {
+            res.send(false);
+        }
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
 
 app.get('/tags', async (req, res) => {
     try {

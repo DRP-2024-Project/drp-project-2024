@@ -15,7 +15,7 @@ const ItemRecord = ({ item, navigation }) => {
       <View>
         <Text style={styles.title}>{item.title}</Text>
       </View>
-      <Tag tag_id={item.tag_id} tag_name={item.tag}/>
+      <Tag tag_name={item.tag}/>
     </TouchableOpacity>
   );
 };

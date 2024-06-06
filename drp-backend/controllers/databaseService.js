@@ -111,7 +111,10 @@ function communityExists(name) {
 //     location: 'Greenwood Park', 
 //     schedule: 'Mon, Wed, Fri at 6 AM', 
 //     contactInfo: 'joggingclub@example.com', 
-//     requiredEquipment: 'Running shoes'
+//     requiredEquipment: 'Running shoes',
+//     tag_id: 5,
+//     links: 
+//     equipmentRequired: 
 // }
 // Return: Returns a Promise that will have the value True if the community is 
 //         created successfully and False otherwise
@@ -126,7 +129,12 @@ async function createCommunity(data) {
         schedule: data.schedule, 
         contactInfo: data.schedule, 
         requiredEquipment: data.requiredEquipment,
-        owner: 'Harvey Densem'
+        owner: 'Harvey Densem',
+        tag_id: data.tag_id,
+        links: data.links,
+        rating: data.rating,
+        level: data.level,
+        equipmentRequired: data.equipmentRequired
     }
     return new Promise(async (resolve, reject) => {
         let exists = await communityExists(data.title);
@@ -307,6 +315,7 @@ function translateTags(data) {
     return data.map(row => ({
         id: row.id,
         name: row.tag,
+        icon: row.icon,
      }));
 }
 
@@ -317,7 +326,7 @@ function translateTags(data) {
 // }
 function getAllTags() {
     return new Promise(async (resolve, reject) => {
-        let res = await query(`SELECT id, tag FROM tags`);
+        let res = await query(`SELECT * FROM tags`);
         return resolve(translateTags(res));
     })
 }
@@ -433,14 +442,15 @@ const dataToAdd = {
 async function exImageAdd() {
     const fs = require('fs').promises;
 
-    const binaryData = await fs.readFile("../../images1/icon14.png");
+    const binaryData = await fs.readFile("../../images2/City.jpg");
+    console.log(binaryData);
 
-    await connect();
-    await createTag({
-        'tag': 'Gym',
-        'icon': binaryData
-    })
-    disconnect();
+    // await connect();
+    // await createTag({
+    //     'tag': 'Gym',
+    //     'icon': binaryData
+    // })
+    // disconnect();
 }
 
 async function exImageStore() {
@@ -448,10 +458,11 @@ async function exImageStore() {
 
     await connect();
 
-    const imgs = await getCommunityImages("Rugby Team");
+    const imgs = await getCommunityImages("Test2");
     disconnect();
+    console.log(imgs[0])
     
-    await fs.writeFile("../../images2/City.jpg", imgs[0]);
+    await fs.writeFile("../../images2/test2.jpg", imgs[0]);
 }
 
 module.exports = {
