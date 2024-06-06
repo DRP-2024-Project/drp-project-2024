@@ -7,12 +7,13 @@ import {
     Text, 
     ScrollView,
     TouchableOpacity,
-    Image
+    Image,
+    Platform
 } from 'react-native';
 import Tag from './Tag'
 import SelectedTag from './SelectedTag'
 import { REMOTE_HOST, TAGS } from './Config';
-import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function HomeScreen({ navigation }) {
     const beginState = Object.keys(TAGS).reduce((acc, currentItem) => {
@@ -67,24 +68,30 @@ export default function HomeScreen({ navigation }) {
 
   // For choosing an image
   const [imageSource, setImageSource] = useState(null);
-  const selectImage = () => {
-    const options = {
-      mediaType: 'photo',
-      maxWidth: 300,
-      maxHeight: 300,
-      quality: 1,
-    };
-
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorCode) {
-        console.log('ImagePicker Error: ', response.errorMessage);
-      } else {
-        const source = { uri: response.assets[0].uri };
-        setImageSource(source.uri, 'base64');
+  const selectImage = async () => {
+    // Request permission to access media library
+    if (Platform.OS !== 'web') {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to make this work!');
+        return;
       }
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1], // For square aspect ratio
+      quality: 1,
     });
+
+    if (!result.canceled) {
+      setImageSource(result.assets[0].uri);
+    } else if (result.cancelled) {
+      console.log('User cancelled image picker');
+    } else if (result.error) {
+      console.log('ImagePicker Error: ', result.error);
+    }
   };
 
   const handleSubmit = async () => {
@@ -106,6 +113,7 @@ export default function HomeScreen({ navigation }) {
       comm: comm,
       imgs: [imageSource],
     };
+    console.log(imageSource);
 
     try {
       const response = await fetch(`${REMOTE_HOST}/createCommunity`, {
