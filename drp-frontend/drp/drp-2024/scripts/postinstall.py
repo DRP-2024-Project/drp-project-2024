@@ -21,7 +21,7 @@ try:
     subprocess.run(["npx", "expo", "install", "react-native-reanimated"], check=True)
 except subprocess.CalledProcessError as e:
     print(f"Command '{e.cmd}' returned non-zero exit status {e.returncode}.")
-    sys.exit(1)
+    sys.exit(0)
 finally:
     # Remove the lock file
     if os.path.isfile(LOCK_FILE):
