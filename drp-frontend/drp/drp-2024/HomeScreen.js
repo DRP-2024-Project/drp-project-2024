@@ -64,7 +64,7 @@ export default function HomeScreen({ route }) {
         <FlatList
           data={communities}
           renderItem={({ item }) => <ItemRecord item={item} navigation={navigation} user={user}/>}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.communityId}
           contentContainerStyle={styles.listContainer}
         />
       )}
