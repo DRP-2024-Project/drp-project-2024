@@ -26,15 +26,21 @@ export default function ItemDetailScreen({ route }) {
 
   const [memberNames, setMembers] = useState(undefined);
   const [memberUsernames, setMemberUsernames] = useState(undefined);
-  const [joined, setJoined] = useState(undefined);
+  const [joined, setJoined] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
-      // const response = await fetch(`http://localhost:3000/getCommunityMembers?community=${commName}`);
-      const json = await response.json();
-      setMembers(json.names);
-      setMemberUsernames(json.usernames);
-      setJoined(memberUsernames.includes(user));
+      try {
+      // const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
+        const response = await fetch(`http://localhost:3000/getCommunityMembers?community=${commName}`);
+        const json = await response.json();
+        setMembers(json.names);
+        setMemberUsernames(json.usernames);
+        if (json.usernames.includes(user)) {
+          setJoined(true);
+        }
+      } catch(error) {
+        console.error('Failed to fetch community members:', error);
+      }
     };
 
     fetchData();
@@ -44,12 +50,12 @@ export default function ItemDetailScreen({ route }) {
     console.log(memberUsernames);
     console.log(memberNames);
     setJoined(!joined);
-  //   const response = await fetch(`http://localhost:3000/toggleMemberInCommunity/?commName=${commName}&username=${user}`, {
-  //     method: 'POST',
-  // });
-    const response = await fetch(`${REMOTE_HOST}/toggleMemberInCommunity/?commName=${commName}&username=${user}`, {
+    const response = await fetch(`http://localhost:3000/toggleMemberInCommunity/?commName=${commName}&username=${user}`, {
       method: 'POST',
-  });
+    });
+    // const response = await fetch(`${REMOTE_HOST}/toggleMemberInCommunity/?commName=${commName}&username=${user}`, {
+    //     method: 'POST',
+    // });
     
   };
 
