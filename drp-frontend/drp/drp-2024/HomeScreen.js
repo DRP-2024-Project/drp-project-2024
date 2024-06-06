@@ -10,6 +10,7 @@ export default function HomeScreen({ route }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('title');
   const [search, setSearch] = useState('');
+  const [clicked, setClicked] = useState(false);
   const [items, setItems] = useState([
     {label: 'Name', value: 'title'},
     {label: 'Rating', value: 'rating'}

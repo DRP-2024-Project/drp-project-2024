@@ -187,21 +187,42 @@ function getAllCommunities() {
 
 function getSearchOrderedBy(search, col) {
     const orderCols = ['title', 'rating'];
-    const ascDesc = ['ASC', 'DESC']
+    const ascDesc = ['ASC', 'DESC'];
+
     if (!orderCols.includes(col)) {
         throw new Error("Invalid column name");
     }
-    let sqlQuery = `SELECT * FROM communities WHERE title LIKE ? OR description LIKE ? ORDER BY ${col} ${ascDesc[orderCols.indexOf(col)]}`;
+
+    // Construct the SQL query with DISTINCT UNION
+    let sqlQuery = `
+        SELECT DISTINCT * FROM (
+            SELECT * FROM communities WHERE title LIKE ?
+            UNION
+            SELECT * FROM communities WHERE description LIKE ?
+        ) AS unioned_communities
+        ORDER BY ${col} ${ascDesc[orderCols.indexOf(col)]}
+    `;
 
     return new Promise(async (resolve, reject) => {
-        let result = await query(sqlQuery, [`%${search}%`, `%${search}%`]);
-        await Promise.all(result.map(async (row) => {
-            let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.tag_id]);
-            row.tag = tag[0].tag;
-        }));
-        return resolve(translateResult(result));
-    })
+        try {
+            // Execute the main query
+            let result = await query(sqlQuery, [`%${search}%`, `%${search}%`]);
+            
+            // Fetch and attach tags
+            await Promise.all(result.map(async (row) => {
+                let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.tag_id]);
+                row.tag = tag[0].tag;
+            }));
+
+            // Resolve with the translated result
+            resolve(translateResult(result));
+        } catch (error) {
+            // Handle errors
+            reject(error);
+        }
+    });
 }
+
 
 
 // getCommunityMembers: get a list of all names of members of a community
@@ -336,6 +357,8 @@ function translateResult(data) {
        level: row.level,
        tag_id: row.tag_id,
        tag: row.tag,
+       latitude: row.latitude,
+       longitude: row.longitude
     }));
 }
 
