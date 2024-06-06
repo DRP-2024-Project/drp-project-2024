@@ -12,6 +12,9 @@ const {
     addCommunityImage,
     createCommunity,
     getAllTags,
+    addMemberToCommunity,
+    deleteMemberFromCommunity,
+    memberAlreadyInCommunity
 } = require('./controllers/databaseService.js');
 
 const app = express();
@@ -91,11 +94,19 @@ app.post('/createCommunity', async (req, res) => {
     }
 });
 
-app.get('/tags', async (req, res) => {
+// If the member is already in the community, they will be removed
+// If the memnber is not already in the community, they will be added
+app.post('/toggleMemberInCommunity', async (req, res) => {
+    const commName = req.query.commName;
+    const username = req.query.username;
+    const joined = await memberAlreadyInCommunity(username, commName);
     try {
-        const data = await getAllTags();
-        res.set('Content-type', 'application/json');
-        res.send(JSON.stringify(data));
+        if (joined) {
+            deleteMemberFromCommunity(commName, username);
+        } else {
+            await addMemberToCommunity(commName, username);
+        }
+        res.status(200).send("OK");
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -105,8 +116,8 @@ app.get('/tags', async (req, res) => {
 app.get('/getCommunityMembers', async (req, res) => {
     const community = req.query.community;
     try {
-        const data = await getCommunityMembers(community);
-        res.json(data);
+        const [names, usernames] = await getCommunityMembers(community);
+        res.json({names, usernames});
     } catch (error) {
         res.status(500).send(error.message);
     }

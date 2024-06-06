@@ -195,32 +195,53 @@ function getAllCommunities() {
 
 function getSearchOrderedBy(search, col) {
     const orderCols = ['title', 'rating'];
-    const ascDesc = ['ASC', 'DESC']
+    const ascDesc = ['ASC', 'DESC'];
+
     if (!orderCols.includes(col)) {
         throw new Error("Invalid column name");
     }
-    let sqlQuery = `SELECT * FROM communities WHERE title LIKE ? OR description LIKE ? ORDER BY ${col} ${ascDesc[orderCols.indexOf(col)]}`;
+
+    // Construct the SQL query with DISTINCT UNION
+    let sqlQuery = `
+        SELECT DISTINCT * FROM (
+            SELECT * FROM communities WHERE title LIKE ?
+            UNION
+            SELECT * FROM communities WHERE description LIKE ?
+        ) AS unioned_communities
+        ORDER BY ${col} ${ascDesc[orderCols.indexOf(col)]}
+    `;
 
     return new Promise(async (resolve, reject) => {
-        let result = await query(sqlQuery, [`%${search}%`, `%${search}%`]);
-        await Promise.all(result.map(async (row) => {
-            let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.tag_id]);
-            row.tag = tag[0].tag;
-        }));
-        return resolve(translateResult(result));
-    })
+        try {
+            // Execute the main query
+            let result = await query(sqlQuery, [`%${search}%`, `%${search}%`]);
+            
+            // Fetch and attach tags
+            await Promise.all(result.map(async (row) => {
+                let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.tag_id]);
+                row.tag = tag[0].tag;
+            }));
+
+            // Resolve with the translated result
+            resolve(translateResult(result));
+        } catch (error) {
+            // Handle errors
+            reject(error);
+        }
+    });
 }
 
 
+
 // getCommunityMembers: get a list of all names of members of a community
-// Return: returns an array of names: ['Harvey Densem', 'John Doe']
+// Return: returns an array of names and an array of usernames.
 function getCommunityMembers(title) {
     return new Promise(async (resolve, reject) => {
         let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [title])
         let memResult = await query(`SELECT member_id FROM commMembers WHERE community_id = ?`, [commResult[0].id]);
         const idList = memResult.map(row => row.member_id);
-        let res = await query(`SELECT name FROM members WHERE id IN (?)`, [idList]);
-        return resolve(res.map(row => row.name));
+        let res = await query(`SELECT name, username FROM members WHERE id IN (?)`, [idList]);
+        return resolve([res.map(row => row.name), res.map(row => row.username)]);
     })
 }
 
@@ -250,14 +271,17 @@ function memberExists(username) {
 }
 
 
-// memberAlreadyInCommunity: Checks if a member given by member_id is already
-//                           in the community given by community_id
+// memberAlreadyInCommunity: Checks if a member given by username is already
+//                           in the community given by commName
 // Return: Returns a Promise object of True if the member is in the community
 //         and False if the member is not in the community
-function memberAlreadyInCommunity(member_id, community_id) {
+function memberAlreadyInCommunity(username, commName) {
     return new Promise(async (resolve, reject) => {
+        let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
+        let memResult = await query(`SELECT id FROM members WHERE username = ?`, [username]);
+
         let res = await query(`SELECT * FROM commMembers WHERE member_id = ? AND community_id = ?`, 
-            [member_id, community_id]);
+            [memResult[0].id, commResult[0].id]);
         return resolve(res.length > 0);
     });
 }
@@ -266,11 +290,11 @@ function memberAlreadyInCommunity(member_id, community_id) {
 // Return: Returns a Promise object of True if the member added to the 
 //         community successfully or False if the given member was already
 //         a part of the community
-function addMemberToCommunity(commName, memberName) {
+function addMemberToCommunity(commName, username) {
     return new Promise(async (resolve, reject) => {
         let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
-        let memResult = await query(`SELECT id FROM members WHERE name = ?`, [memberName]);
-        let memExists = await memberAlreadyInCommunity(memResult[0].id, commResult[0].id);
+        let memResult = await query(`SELECT id FROM members WHERE username = ?`, [username]);
+        let memExists = await memberAlreadyInCommunity(username, commName);
         
         if (memExists) {
             return resolve(false);
@@ -334,9 +358,9 @@ function getAllTags() {
 // deleteMemberFromCommunity: Removes a member from a community
 // Pre: The member name is not the owner
 //      The given member is a member of the community
-async function deleteMemberFromCommunity(commName, memName) {
+async function deleteMemberFromCommunity(commName, username) {
     let commRes = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
-    let memRes = await query(`SELECT id FROM members WHERE name = ?`, [memName]);
+    let memRes = await query(`SELECT id FROM members WHERE username = ?`, [username]);
     await query(`DELETE FROM commMembers WHERE member_id = ? AND community_id = ?`, 
         [
             memRes[0].id,
@@ -362,6 +386,8 @@ function translateResult(data) {
        level: row.level,
        tag_id: row.tag_id,
        tag: row.tag,
+       latitude: row.latitude,
+       longitude: row.longitude
     }));
 }
 
@@ -476,5 +502,9 @@ module.exports = {
     createCommunity,
     addCommunityImage,
     getAllTags,
+    memberExists,
+    addMemberToCommunity,
+    deleteMemberFromCommunity,
+    memberAlreadyInCommunity
 }
 

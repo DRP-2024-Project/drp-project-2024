@@ -10,7 +10,7 @@ const ItemRecord = ({ item, navigation }) => {
   return (
     <TouchableOpacity 
         style={styles.item} 
-        onPress={() => navigation.navigate('Details', { item })}
+        onPress={() => navigation.navigate('Details', { item, user })}
     >
       <View>
         <Text style={styles.title}>{item.title}</Text>

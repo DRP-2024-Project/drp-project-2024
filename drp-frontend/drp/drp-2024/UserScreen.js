@@ -8,11 +8,9 @@ export default function UserScreen({ navigation }) {
         const response = await fetch(`${REMOTE_HOST}/addMember/?username=${username}`, {
             method: 'POST',
         });
-        // const response = await fetch(`http://localhost:3000/addMember/?username=${username}`, {
-        //     method: 'POST',
-        // });
+
         const user = await response.text();
-        navigation.navigate("Communities");
+        navigation.navigate("Communities", { navigation, user });
     };
     
     return (

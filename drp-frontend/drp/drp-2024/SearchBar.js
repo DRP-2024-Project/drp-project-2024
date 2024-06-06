@@ -27,7 +27,7 @@ const SearchBar = ({clicked, searchPhrase, setSearchPhrase, setClicked}) => {
           value={searchPhrase}
           onChangeText={setSearchPhrase}
           onFocus={() => {
-            setClicked(true);
+            // setClicked(true);
           }}
         />
         {/* cross Icon, depending on whether the search bar is clicked or not */}
@@ -44,7 +44,7 @@ const SearchBar = ({clicked, searchPhrase, setSearchPhrase, setClicked}) => {
             title="Cancel"
             onPress={() => {
               Keyboard.dismiss();
-              setClicked(false);
+              // setClicked(false);
             }}
           ></Button>
         </View>
