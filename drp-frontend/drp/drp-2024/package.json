@@ -8,7 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "postinstall": "./scripts/postinstall.sh"
+    "postinstall": "python3 scripts/postinstall.py"
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.1",
