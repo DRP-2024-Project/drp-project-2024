@@ -1,14 +1,15 @@
 import React,  { useState, useEffect } from 'react';
-import { FlatList, ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import PhotoGrid from './PhotoGrid.js';
+import { Button, FlatList, View, Text, StyleSheet, TextInput, TouchableOpacity,SafeAreaView, DraggableList  } from 'react-native';
 import StarRating from './StarRating';
 import { REMOTE_HOST } from './Config.js';
+import PhotoGrid from './PhotoGrid.js';
+
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
-  const [size, setSize] = useState(initialSize);
+  const [size, setSize] = useState(enlargedSize);
 
   const toggleSize = () => {
-    setSize(currentSize => (currentSize === initialSize ? enlargedSize : initialSize));
+    // setSize(currentSize => (currentSize === initialSize ? enlargedSize : initialSize));
   };
 
   return (
@@ -19,7 +20,7 @@ const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
 };
 
 
-export default function ItemDetailScreen({ route }) {
+export default function ItemDetailScreen({ route, navigation }) {
   const { item } = route.params;
 
   const [members, setData] = useState(undefined);
@@ -33,62 +34,76 @@ export default function ItemDetailScreen({ route }) {
     fetchData();
   }, []);
 
+  const renderHeader = () => (
+    <View>
+      <View style={styles.topRow}>
+        <Text style={styles.level}>Level: {item.level}</Text>
+      </View>
+      <View style={styles.middleRow}>
+        <InteractiveBox initialSize={50} enlargedSize={100}>
+          <Text style={styles.location}>{item.location}</Text>
+        </InteractiveBox>
+        <InteractiveBox initialSize={50} enlargedSize={100}>
+          <Text style={styles.contactInfo}>{item.contactInfo}</Text>
+        </InteractiveBox>
+        <InteractiveBox initialSize={50} enlargedSize={100}>
+          <Text style={styles.pricing}>{item.price} per {item.perTime}</Text>
+        </InteractiveBox>
+      </View>
+      <View style={styles.mapRow}>
+        <Button title="View Map" onPress={() => navigation.navigate('Map')} />
+      </View>
+      <Text style={styles.description}>{item.description}</Text>
+      <View style={styles.scheduleRow}>
+        <Text style={styles.schedule}>{item.schedule}</Text>
+      </View>
+      <View style={styles.ratingRow}>
+        <StarRating rating={item.rating} maxRating={5} />
+      </View>
+      <View>
+        <PhotoGrid community={item.title}></PhotoGrid>
+      </View>
+      <View style={styles.additionalInfoBox}>
+        <Text style={styles.additionalInfo}>Additional Info:</Text>
+        <View style={styles.equipmentBox}>
+          <Text style={styles.equipmentRequired}>Equipment Required:</Text>
+          <Text style={styles.equipmentList}>{item.requiredEquipment}</Text>
+        </View>
+        <View style={styles.equipmentBox}>
+          <Text style={styles.equipmentRequired}>Additional Links:</Text>
+          <Text style={styles.equipmentList}>{item.links}</Text>
+        </View>
+      </View>
+      <Text style={styles.membersHeader}>Members:</Text>
+    </View>
+  );
+
+  const renderFooter = () => (
+    <View style={styles.commentsSection}>
+      <Text style={styles.commentsHeader}>Comments:</Text>
+      <TextInput
+        style={styles.commentsInput}
+        placeholder="Write your comment..."
+        multiline={true}
+        numberOfLines={4}
+      />
+    </View>
+  );
+
   return (
-<ScrollView style={styles.container}>
-  <View style={styles.topRow}>
-    <Text style={styles.level}>Level: {item.level}</Text>
-  </View>
-  <View style={styles.middleRow}>
-  <InteractiveBox initialSize={50} enlargedSize={100}>
-      <Text style={styles.location}>{item.location}</Text>
-    </InteractiveBox>
-    <InteractiveBox initialSize={50} enlargedSize={100}>
-      <Text style={styles.contactInfo}>{item.contactInfo}</Text>
-    </InteractiveBox>
-    <InteractiveBox initialSize={50} enlargedSize={100}>
-      <Text style={styles.pricing}>{item.price} per {item.perTime}</Text>
-    </InteractiveBox>
-  </View>
-  <Text style={styles.description}>{item.description}</Text>
-  <View style={styles.scheduleRow}>
-    <Text style={styles.schedule}>{item.schedule}</Text>
-  </View>
-  <View style={styles.ratingRow}>
-    <StarRating rating={item.rating} maxRating={5} />
-  </View>
-  <View>
-    <PhotoGrid community={item.title}/>
-  </View>
-  <View style={styles.additionalInfoBox}>
-    <Text style={styles.additionalInfo}>Additional Info:</Text>
-    <View style={styles.equipmentBox}>
-      <Text style={styles.equipmentRequired}>Equipment Required:</Text>
-      <Text style={styles.equipmentList}>{item.requiredEquipment}</Text>
-    </View>
-    <View style={styles.equipmentBox}>
-      <Text style={styles.equipmentRequired}>Additional Links:</Text>
-      <Text style={styles.equipmentList}>{item.links}</Text>
-    </View>
-  </View>
-  <View style={styles.membersSection}>
-    <Text style={styles.membersHeader}>Members:</Text>
     <FlatList
+      ListHeaderComponent={renderHeader}
+      ListFooterComponent={renderFooter}
       data={members}
-      renderItem={({ item }) => (<Text>{item}</Text>)}
+      renderItem={({ item }) => (
+        <View>
+          <Text>{item}</Text>
+        </View>
+      )}
       keyExtractor={item => item}
       contentContainerStyle={styles.listContainer}
+      style={styles.container}
     />
-  </View>
-  <View style={styles.commentsSection}>
-    <Text style={styles.commentsHeader}>Comments:</Text>
-    <TextInput
-      style={styles.commentsInput}
-      placeholder="Write your comment..."
-      multiline={true}
-      rows={4}
-    />
-  </View>
-</ScrollView>
   );
 }
 
@@ -188,4 +203,10 @@ const styles = StyleSheet.create({
     marginTop: 5,
     minHeight: 60, // Adjust height based on the design requirement
   },
+  mapRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',  // Center the content horizontally
+    alignItems: 'center',      // Center the content vertically (if needed)
+    padding: 10,
+  }
 });

@@ -7,6 +7,7 @@ import UserScreen  from './UserScreen';
 import HomeScreen from './HomeScreen';
 import DetailsScreen from './DetailsScreen';
 import SearchBar from './SearchBar';
+import SimpleMap from './map';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,6 +19,7 @@ export default function App() {
         <Stack.Screen name="User ID" component={UserScreen} />
         <Stack.Screen name="Communities" component={HomeScreen} />
         <Stack.Screen name="Details" component={DetailsScreen} />
+        <Stack.Screen name="Map" component={SimpleMap} />
       </Stack.Navigator>
     </NavigationContainer>
   );

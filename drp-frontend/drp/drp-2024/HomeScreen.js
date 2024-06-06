@@ -5,11 +5,13 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { REMOTE_HOST } from './Config';
 import ItemRecord from './ItemRecord'
 
+
 export default function HomeScreen({ navigation }) {
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('title');
   const [search, setSearch] = useState('');
+  const [clicked, setClicked] = useState(false);
   const [items, setItems] = useState([
     {label: 'Name', value: 'title'},
     {label: 'Rating', value: 'rating'}
