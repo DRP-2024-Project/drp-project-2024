@@ -30,8 +30,7 @@ export default function ItemDetailScreen({ route }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-      // const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
-        const response = await fetch(`http://localhost:3000/getCommunityMembers?community=${commName}`);
+        const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
         const json = await response.json();
         setMembers(json.names);
         setMemberUsernames(json.usernames);
@@ -50,13 +49,15 @@ export default function ItemDetailScreen({ route }) {
     console.log(memberUsernames);
     console.log(memberNames);
     setJoined(!joined);
-    const response = await fetch(`http://localhost:3000/toggleMemberInCommunity/?commName=${commName}&username=${user}`, {
+    await fetch(`${REMOTE_HOST}/toggleMemberInCommunity/?commName=${commName}&username=${user}`, {
       method: 'POST',
     });
-    // const response = await fetch(`${REMOTE_HOST}/toggleMemberInCommunity/?commName=${commName}&username=${user}`, {
-    //     method: 'POST',
-    // });
-    
+
+    const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
+    const json = await response.json();
+    console.log(json.names);
+    setMembers(json.names);
+    setMemberUsernames(json.usernames);
   };
 
   return (

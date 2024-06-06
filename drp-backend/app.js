@@ -78,10 +78,11 @@ app.post('/toggleMemberInCommunity', async (req, res) => {
     const joined = await memberAlreadyInCommunity(username, commName);
     try {
         if (joined) {
-            deleteMemberFromCommunity(commName, username)
+            deleteMemberFromCommunity(commName, username);
         } else {
-            addMemberToCommunity(commName, username);
+            await addMemberToCommunity(commName, username);
         }
+        res.status(200).send("OK");
     } catch (error) {
         res.status(500).send(error.message);
     }

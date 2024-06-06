@@ -1,20 +1,21 @@
 import React from 'react';
 import { View, Image, StyleSheet } from 'react-native';
+import { REMOTE_HOST } from './Config';
 
 const PhotoGrid = ({ community }) => {
-  const url1 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
+  const url1 = new URL(`${REMOTE_HOST}/images`);
   url1.searchParams.append('name', community);
   url1.searchParams.append('id', '0');
 
-  const url2 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
+  const url2 =  new URL(`${REMOTE_HOST}/images`);
   url2.searchParams.append('name', community);
   url2.searchParams.append('id', '1');
 
-  const url3 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
+  const url3 = new URL(`${REMOTE_HOST}/images`);
   url3.searchParams.append('name', community);
   url3.searchParams.append('id', '2');
 
-  const url4 = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/images');
+  const url4 =  new URL(`${REMOTE_HOST}/images`);
   url4.searchParams.append('name', community);
   url4.searchParams.append('id', '3');
 

@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, Text, View, StyleSheet, Image } from 'react-native';
+import { REMOTE_HOST } from './Config';
 
 const ItemRecord = ({ item, user, navigation }) => {
-  const urlIcon = new URL('https://drp2024-backend-84f8cdfad73b.herokuapp.com/icon');
+  const urlIcon = new URL(`${REMOTE_HOST}/icon`);
   urlIcon.searchParams.append('id', item.tag_id);
 
   const [tag, setData] = useState(undefined);
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(`https://drp2024-backend-84f8cdfad73b.herokuapp.com/tag?id=${item.tag_id}`);
+      const response = await fetch(`${REMOTE_HOST}/tag?id=${item.tag_id}`);
       const json = await response.json();
       setData(json);
     };
