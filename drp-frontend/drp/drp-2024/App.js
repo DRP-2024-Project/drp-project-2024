@@ -14,7 +14,7 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Communities">
+      <Stack.Navigator initialRouteName="User ID">
       <Stack.Screen name="Find your community" component={SearchBar} />
         <Stack.Screen name="User ID" component={UserScreen} />
         <Stack.Screen name="Communities" component={HomeScreen} />

@@ -1,5 +1,5 @@
 import React,  { useState, useEffect } from 'react';
-import { Button, FlatList, ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity,SafeAreaView, DraggableList  } from 'react-native';
+import { Button, FlatList, View, Text, StyleSheet, TextInput, TouchableOpacity,SafeAreaView, DraggableList  } from 'react-native';
 import StarRating from './StarRating';
 import { REMOTE_HOST } from './Config.js';
 import PhotoGrid from './PhotoGrid.js';
