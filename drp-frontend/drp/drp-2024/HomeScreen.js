@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, FlatList, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import SearchBar from './SearchBar';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { REMOTE_HOST } from './Config';
-import ItemRecord from './ItemRecord'
+import ItemRecord from './ItemRecord';
 
 export default function HomeScreen({ route }) {
 
@@ -12,18 +12,25 @@ export default function HomeScreen({ route }) {
   const [search, setSearch] = useState('');
   const [clicked, setClicked] = useState(false);
   const [items, setItems] = useState([
-    {label: 'Name', value: 'title'},
-    {label: 'Rating', value: 'rating'}
+    { label: 'Name', value: 'title' },
+    { label: 'Rating', value: 'rating' }
   ]);
   const { navigation, user } = route.params;
 
+  const [loading, setLoading] = useState(true);
+  const [communities, setCommunities] = useState([]);
 
-  const [communities, setData] = useState(undefined);
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(`${REMOTE_HOST}/search/?orderBy=${value}&searchTerm=${search}`);
-      const json = await response.json();
-      setData(json);
+      try {
+        const response = await fetch(`${REMOTE_HOST}/search/?orderBy=${value}&searchTerm=${search}`);
+        const json = await response.json();
+        setCommunities(json);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false); // Set loading to false after data is fetched
+      }
     };
 
     fetchData();
@@ -31,33 +38,35 @@ export default function HomeScreen({ route }) {
 
   return (
     <View style={styles.container}>
-    <View style={styles.topRow}>
-      <SearchBar searchPhrase={search} setSearchPhrase={setSearch} setClicked={() => {}}/>
-    </View>
-    <View style={styles.middleRow}>
-      <Text style={styles.orderBy}>Order By: </Text>
-      <DropDownPicker
-        open={open}
-        value={value}
-        items={items}
-        setOpen={setOpen}
-        setValue={setValue}
-        setItems={setItems}
-        zIndex={3000}
-        containerStyle={styles.dropdownContainer}
-        style={styles.dropdownStyle}
-        dropDownContainerStyle={styles.dropDownContainerStyle}
-      />
-    </View>
-    <FlatList
-      data={communities}
-      renderItem={({ item }) => (
-        <ItemRecord key={item.communityId} item={item} user={user} navigation={navigation}/>
+      <View style={styles.topRow}>
+        <SearchBar searchPhrase={search} setSearchPhrase={setSearch} setClicked={() => { }} />
+      </View>
+      <View style={styles.middleRow}>
+        <Text style={styles.orderBy}>Order By: </Text>
+        <DropDownPicker
+          open={open}
+          value={value}
+          items={items}
+          setOpen={setOpen}
+          setValue={setValue}
+          setItems={setItems}
+          zIndex={3000}
+          containerStyle={styles.dropdownContainer}
+          style={styles.dropdownStyle}
+          dropDownContainerStyle={styles.dropDownContainerStyle}
+        />
+      </View>
+      {loading ? (
+        <ActivityIndicator size="large" color="#D3D3D3" style={styles.loader} />
+      ) : (
+        <FlatList
+          data={communities}
+          renderItem={({ item }) => <ItemRecord item={item} navigation={navigation} />}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.listContainer}
+        />
       )}
-      keyExtractor={item => item.communityId}
-      contentContainerStyle={styles.listContainer}
-    />
-  </View>
+    </View>
   );
 }
 
@@ -68,29 +77,16 @@ const styles = StyleSheet.create({
   },
   topRow: {
     padding: 10,
-    zIndex: 1, // Lower zIndex than middleRow
+    zIndex: 1,
     flexDirection: 'row',
-    alignItems: 'center',  // Aligns vertically center
-    justifyContent: 'flex-start'  // Aligns items to the left
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   middleRow: {
     flexDirection: 'row',
     paddingBottom: 35,
     paddingLeft: 20,
-    zIndex: 3000, // Highest zIndex to ensure dropdown is on top
-  },
-  item: {
-    backgroundColor: '#D3D3D3',
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    borderRadius: 10,
-    zIndex: 0, // Ensure this is the lowest in the stacking context
-  },
-  title: {
-    fontSize: 20,
-    color: '#000',
-    fontWeight: 'bold',
+    zIndex: 3000,
   },
   listContainer: {
     paddingVertical: 20,
@@ -104,13 +100,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#fafafa',
   },
   orderBy: {
-    fontSize: 16, // Adjust to match the dropdown text size if necessary
-    marginRight: 10, // Space between label and dropdown
-    alignSelf: 'center' // Further ensures vertical alignment
+    fontSize: 16,
+    marginRight: 10,
+    alignSelf: 'center'
   },
   dropDownContainerStyle: {
     backgroundColor: '#fafafa',
-    zIndex: 5000, // Significantly high zIndex for dropdown items
-    elevation: 20, // For Android elevation
-  }
+    zIndex: 5000,
+    elevation: 20,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
