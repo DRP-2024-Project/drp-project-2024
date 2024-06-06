@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from 'react';
-<<<<<<< HEAD
-import { View, FlatList, Text, StyleSheet } from 'react-native';
-=======
 import { View, FlatList, Text, ActivityIndicator, StyleSheet } from 'react-native';
->>>>>>> 57c497b8550bc1b83ab9ca1ecd75cee12733d38a
 import SearchBar from './SearchBar';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { REMOTE_HOST } from './Config';
 import ItemRecord from './ItemRecord';
-<<<<<<< HEAD
 import CreateButton from './CreateButton';
-=======
->>>>>>> 57c497b8550bc1b83ab9ca1ecd75cee12733d38a
 
 export default function HomeScreen({ route }) {
 
@@ -46,7 +39,6 @@ export default function HomeScreen({ route }) {
 
   return (
     <View style={styles.container}>
-<<<<<<< HEAD
     <View style={styles.topRow}>
       <SearchBar searchPhrase={search} setSearchPhrase={setSearch} setClicked={() => {}}/>
     </View>
@@ -66,39 +58,15 @@ export default function HomeScreen({ route }) {
       />
       <CreateButton navigation={navigation}/>
     </View>
-    <FlatList
-      data={communities}
-      renderItem={({ item }) => (
-        <ItemRecord key={item.communityId} item={item} user={user} navigation={navigation}/>
-=======
-      <View style={styles.topRow}>
-        <SearchBar searchPhrase={search} setSearchPhrase={setSearch} setClicked={() => { }} />
-      </View>
-      <View style={styles.middleRow}>
-        <Text style={styles.orderBy}>Order By: </Text>
-        <DropDownPicker
-          open={open}
-          value={value}
-          items={items}
-          setOpen={setOpen}
-          setValue={setValue}
-          setItems={setItems}
-          zIndex={3000}
-          containerStyle={styles.dropdownContainer}
-          style={styles.dropdownStyle}
-          dropDownContainerStyle={styles.dropDownContainerStyle}
-        />
-      </View>
-      {loading ? (
+    {loading ? (
         <ActivityIndicator size="large" color="#D3D3D3" style={styles.loader} />
       ) : (
         <FlatList
           data={communities}
-          renderItem={({ item }) => <ItemRecord item={item} navigation={navigation} />}
+          renderItem={({ item }) => <ItemRecord item={item} navigation={navigation} user={user}/>}
           keyExtractor={item => item.id}
           contentContainerStyle={styles.listContainer}
         />
->>>>>>> 57c497b8550bc1b83ab9ca1ecd75cee12733d38a
       )}
     </View>
   );

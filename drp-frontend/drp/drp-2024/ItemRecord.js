@@ -3,7 +3,7 @@ import { TouchableOpacity, Text, View, StyleSheet, Image } from 'react-native';
 import { REMOTE_HOST } from './Config';
 import Tag from './Tag'
 
-const ItemRecord = ({ item, navigation }) => {
+const ItemRecord = ({ item, navigation, user }) => {
   const urlIcon = new URL(`${REMOTE_HOST}/icon`);
   urlIcon.searchParams.append('id', item.tag_id);
 

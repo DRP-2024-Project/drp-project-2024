@@ -18,7 +18,7 @@ try:
     subprocess.run(["node", "react-native-map-web-fix.js"], check=True)
 
     # Run the expo install command
-    subprocess.run(["npx", "expo", "install", "react-native-reanimated"], check=True)
+    subprocess.run(["npx", "expo", "install", "react-native-reanimated"], check=True, shell=True)
 except subprocess.CalledProcessError as e:
     print(f"Command '{e.cmd}' returned non-zero exit status {e.returncode}.")
     sys.exit(0)
