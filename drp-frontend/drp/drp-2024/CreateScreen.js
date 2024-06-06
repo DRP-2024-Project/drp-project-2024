@@ -83,10 +83,11 @@ export default function HomeScreen({ navigation }) {
       allowsEditing: true,
       aspect: [1, 1], // For square aspect ratio
       quality: 1,
+      base64: true,
     });
 
     if (!result.canceled) {
-      setImageSource(result.assets[0].uri);
+      setImageSource(result.assets[0].base64);
     } else if (result.cancelled) {
       console.log('User cancelled image picker');
     } else if (result.error) {
@@ -113,7 +114,6 @@ export default function HomeScreen({ navigation }) {
       comm: comm,
       imgs: [imageSource],
     };
-    console.log(imageSource);
 
     try {
       const response = await fetch(`${REMOTE_HOST}/createCommunity`, {
