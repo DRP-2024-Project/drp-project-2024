@@ -34,6 +34,8 @@ export default function ItemDetailScreen({ route, navigation }) {
     fetchData();
   }, []);
 
+  console.log(item)
+
   const renderHeader = () => (
     <View>
       <View style={styles.topRow}>
