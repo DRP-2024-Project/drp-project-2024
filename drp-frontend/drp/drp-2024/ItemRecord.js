@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, Text, View, StyleSheet, Image } from 'react-native';
 import { REMOTE_HOST } from './Config';
 
-const ItemRecord = ({ item, navigation }) => {
+const ItemRecord = ({ item, user, navigation }) => {
+
   const urlIcon = new URL(`${REMOTE_HOST}/icon`);
   urlIcon.searchParams.append('id', item.tag_id);
 
@@ -20,7 +21,7 @@ const ItemRecord = ({ item, navigation }) => {
   return (
     <TouchableOpacity 
         style={styles.item} 
-        onPress={() => navigation.navigate('Details', { item })}
+        onPress={() => navigation.navigate('Details', { item, user })}
     >
       <View>
         <Text style={styles.title}>{item.title}</Text>

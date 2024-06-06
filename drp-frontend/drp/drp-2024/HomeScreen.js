@@ -5,8 +5,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { REMOTE_HOST } from './Config';
 import ItemRecord from './ItemRecord'
 
-
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen({ route }) {
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('title');
@@ -16,6 +15,7 @@ export default function HomeScreen({ navigation }) {
     {label: 'Name', value: 'title'},
     {label: 'Rating', value: 'rating'}
   ]);
+  const { navigation, user } = route.params;
 
 
   const [communities, setData] = useState(undefined);
@@ -52,7 +52,7 @@ export default function HomeScreen({ navigation }) {
     <FlatList
       data={communities}
       renderItem={({ item }) => (
-        <ItemRecord key={item.communityId} item={item} navigation={navigation}/>
+        <ItemRecord key={item.communityId} item={item} user={user} navigation={navigation}/>
       )}
       keyExtractor={item => item.communityId}
       contentContainerStyle={styles.listContainer}

@@ -21,26 +21,57 @@ const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
 
 
 export default function ItemDetailScreen({ route, navigation }) {
-  const { item } = route.params;
+  const { item, user } = route.params;
 
-  const [members, setData] = useState(undefined);
+  const commName = item.title
+
+  const [memberNames, setMembers] = useState(undefined);
+  const [memberUsernames, setMemberUsernames] = useState(undefined);
+  const [joined, setJoined] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${item.title}`);
-      const json = await response.json();
-      setData(json);
+      try {
+        const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
+        const json = await response.json();
+        setMembers(json.names);
+        setMemberUsernames(json.usernames);
+        if (json.usernames.includes(user)) {
+          setJoined(true);
+        }
+      } catch(error) {
+        console.error('Failed to fetch community members:', error);
+      }
     };
 
     fetchData();
   }, []);
 
-  console.log(item)
 
+  const handleJoin = async () => {
+    console.log(memberUsernames);
+    console.log(memberNames);
+    setJoined(!joined);
+    await fetch(`${REMOTE_HOST}/toggleMemberInCommunity/?commName=${commName}&username=${user}`, {
+      method: 'POST',
+    });
+
+    const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
+    const json = await response.json();
+    console.log(json.names);
+    setMembers(json.names);
+    setMemberUsernames(json.usernames);
+  };
+  
   const renderHeader = () => (
     <View>
       <View style={styles.topRow}>
-        <Text style={styles.level}>Level: {item.level}</Text>
-      </View>
+      <Text style={styles.level}>Level: {item.level}</Text>
+      <TouchableOpacity 
+      style={[joined ? styles.joinedButton : styles.notJoinedButton]}
+      onPress={handleJoin}>
+        <Text style={styles.joinButtonText}>{joined ? 'Joined' : 'Join'}</Text>
+    </TouchableOpacity>
+    </View>
       <View style={styles.middleRow}>
         <InteractiveBox initialSize={50} enlargedSize={100}>
           <Text style={styles.location}>{item.location}</Text>
@@ -96,7 +127,7 @@ export default function ItemDetailScreen({ route, navigation }) {
     <FlatList
       ListHeaderComponent={renderHeader}
       ListFooterComponent={renderFooter}
-      data={members}
+      data={memberNames}
       renderItem={({ item }) => (
         <View>
           <Text>{item}</Text>
@@ -117,6 +148,24 @@ const styles = StyleSheet.create({
   },
   topRow: {
     marginBottom: 10,
+  },
+  joinedButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    marginLeft: 'auto',
+    backgroundColor: 'green',
+  },
+  notJoinedButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    marginLeft: 'auto',
+    backgroundColor: '#d3d3d3',
+  },
+  joinButtonText: {
+    color: '#000',
+    fontWeight: 'bold',
   },
   middleRow: {
     flexDirection: 'row',
