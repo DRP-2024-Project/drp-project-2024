@@ -48,8 +48,6 @@ export default function ItemDetailScreen({ route, navigation }) {
 
 
   const handleJoin = async () => {
-    console.log(memberUsernames);
-    console.log(memberNames);
     setJoined(!joined);
     await fetch(`${REMOTE_HOST}/toggleMemberInCommunity/?commName=${commName}&username=${user}`, {
       method: 'POST',
@@ -57,7 +55,6 @@ export default function ItemDetailScreen({ route, navigation }) {
 
     const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
     const json = await response.json();
-    console.log(json.names);
     setMembers(json.names);
     setMemberUsernames(json.usernames);
   };
@@ -106,6 +103,7 @@ export default function ItemDetailScreen({ route, navigation }) {
           <Text style={styles.equipmentRequired}>Additional Links:</Text>
           <Text style={styles.equipmentList}>{item.links}</Text>
         </View>
+      
       </View>
       <Text style={styles.membersHeader}>Members:</Text>
     </View>
