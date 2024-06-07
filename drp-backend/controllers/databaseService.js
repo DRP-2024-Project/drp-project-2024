@@ -115,11 +115,13 @@ function communityExists(name) {
 //     tag_id: 5,
 //     links: 
 //     equipmentRequired: 
+//     ownerUser: hd922
 // }
 // Return: Returns a Promise that will have the value True if the community is 
 //         created successfully and False otherwise
 // Note: Only allows for one community of a given name
 async function createCommunity(data) {
+    const name = await getMemberName(data.ownerUser);
     const communityData = {
         title: data.title, 
         description: data.description,
@@ -129,12 +131,12 @@ async function createCommunity(data) {
         schedule: data.schedule, 
         contactInfo: data.schedule, 
         requiredEquipment: data.requiredEquipment,
-        owner: 'Harvey Densem',
+        owner: name,
         tag_id: data.tag_id,
         links: data.links,
         rating: data.rating,
         level: data.level,
-        equipmentRequired: data.equipmentRequired
+        equipmentRequired: data.equipmentRequired,
     }
     return new Promise(async (resolve, reject) => {
         let exists = await communityExists(data.title);
@@ -305,6 +307,15 @@ function addMemberToCommunity(commName, username) {
             community_id: commResult[0].id
         });
         return resolve(true);
+    });
+}
+
+// getMemberName: Gets the name of a member given their username
+// Pre: The user exists
+function getMemberName(user) {
+    return new Promise(async (resolve, reject) => {
+        let memResult = await query(`SELECT name FROM members WHERE username=?`, [user]);
+        return resolve(memResult[0].name);
     });
 }
 

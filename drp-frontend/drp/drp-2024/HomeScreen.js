@@ -56,7 +56,7 @@ export default function HomeScreen({ route }) {
         style={styles.dropdownStyle}
         dropDownContainerStyle={styles.dropDownContainerStyle}
       />
-      <CreateButton navigation={navigation}/>
+      <CreateButton navigation={navigation} user={user}/>
     </View>
     {loading ? (
         <ActivityIndicator size="large" color="#D3D3D3" style={styles.loader} />

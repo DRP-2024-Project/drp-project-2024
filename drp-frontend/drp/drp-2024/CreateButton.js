@@ -2,9 +2,9 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const CreateButton = ({ navigation }) => {
+const CreateButton = ({ navigation, user }) => {
   const handlePress = async () => {
-    navigation.navigate("Create", {})
+    navigation.navigate("Create", {navigation, user})
   };
 
   return (

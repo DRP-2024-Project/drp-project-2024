@@ -77,7 +77,6 @@ app.post('/addMember', async (req, res) => {
 
 // Returns true if the community is made correctly or false otherwise
 app.post('/createCommunity', async (req, res) => {
-    const fs = require('fs').promises;
     const title = req.body.comm.title;
     try {
         const made = await createCommunity(req.body.comm);

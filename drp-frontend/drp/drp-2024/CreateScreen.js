@@ -15,7 +15,9 @@ import SelectedTag from './SelectedTag'
 import { REMOTE_HOST, TAGS } from './Config';
 import * as ImagePicker from 'expo-image-picker';
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen({ route }) {
+    const { navigation, user } = route.params;
+
     const beginState = Object.keys(TAGS).reduce((acc, currentItem) => {
       acc[currentItem] = false; 
       return acc;
@@ -108,8 +110,10 @@ export default function HomeScreen({ navigation }) {
       links: formData.links,
       rating: formData.rating,
       level: formData.level,
+      ownerUser: user,
       tag_id: TAGS[tag],
     };
+    console.log();
     const data = {
       comm: comm,
       imgs: [imageSource],
