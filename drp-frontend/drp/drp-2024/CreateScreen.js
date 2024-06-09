@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
     View, 
     TextInput, 
@@ -7,13 +7,45 @@ import {
     Text, 
     ScrollView,
     TouchableOpacity,
-    Image,
-    Platform
+    Platform,
+    Modal,
 } from 'react-native';
 import Tag from './Tag'
 import SelectedTag from './SelectedTag'
 import { REMOTE_HOST, TAGS } from './Config';
 import * as ImagePicker from 'expo-image-picker';
+
+// verifyCommData: verifies that all data for creating a community is of the correct form
+// Return: returns "" if all data is valid or errMessage if there is some invalid data
+function verifyCommData(data) {
+  if (!data.title) {
+    return "Please enter a Title.";
+  } else if (!data.description) {
+    return "Please enter a Description.";
+  } else if (!data.price) {
+    return "Please enter a Price.";
+  } else if (!data.perTime && data.price) {
+    return "Please enter a payment time frame.";
+  } else if (!data.location) {
+    return "Please enter a Location.";
+  } else if (!data.schedule) {
+    return "Please enter a Schedule.";
+  } else if (!data.contactInfo) {
+    return "Please enter contact info.";
+  } else if (!data.level) {
+    return "Please enter a level of standard.";
+  } else if (!data.tag_id) {
+    return "Please choose an activity type."
+  } else if (!/^£\d+$/.test(data.price)) {
+    return `Please eneter a valid price, £{number}.`
+  } else if (data.level != "Beginner" &&
+             data.level != "Intermediate" &&
+             data.level != "Advanced"
+            ) {
+    return "Please enter a valid level of standard, 'Beginner', " +
+           "'Intermediate', 'Advanced'"
+  }
+}
 
 export default function HomeScreen({ route }) {
     const { navigation, user } = route.params;
@@ -33,7 +65,6 @@ export default function HomeScreen({ route }) {
         'contact Info': '',
         'required Equipment': '',
         links: '',
-        rating: '',
         level: '',
   });
 
@@ -97,6 +128,8 @@ export default function HomeScreen({ route }) {
     }
   };
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [errMessage, setErrMessage] = useState('');
   const handleSubmit = async () => {
     const comm = {
       title: formData.title,
@@ -108,16 +141,20 @@ export default function HomeScreen({ route }) {
       contactInfo: formData['contact Info'],
       equipmentRequired: formData['required Equipment'],
       links: formData.links,
-      rating: formData.rating,
+      rating: 0,
       level: formData.level,
       ownerUser: user,
       tag_id: TAGS[tag],
     };
-    console.log();
     const data = {
       comm: comm,
       imgs: [imageSource],
     };
+
+    if (!checkInputs(data)) {
+      return;
+    }
+    console.log("here");
 
     try {
       const response = await fetch(`${REMOTE_HOST}/createCommunity`, {
@@ -134,6 +171,24 @@ export default function HomeScreen({ route }) {
     }
     navigation.navigate("Communities", {})
   };
+
+  const checkInputs = (data) => {
+    const msg = verifyCommData(data.comm)
+    if (msg) {
+      setErrMessage(msg);
+      setModalVisible(true);
+      return false;
+    } else if (!data.imgs[0]) {
+      setErrMessage("Please select a photo.");
+      setModalVisible(true);
+      return false;
+    }
+    return true;
+  }
+
+  const closeModal = () => {
+    setModalVisible(false);
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -165,6 +220,19 @@ export default function HomeScreen({ route }) {
         <Button title="Select Image" onPress={selectImage} />
       </View>
       <Button title="Submit" onPress={handleSubmit} />
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={modalVisible}
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>{errMessage}</Text>
+            <Button title="Close" onPress={closeModal} />
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -221,9 +289,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 10,
   },
-  image: {
-    width: 200,
-    height: 200,
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalView: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
   },
 });
 
