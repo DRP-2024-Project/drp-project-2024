@@ -22,7 +22,7 @@ export default function UserScreen({ navigation }) {
                 value={username}
                 onChangeText={setUsername}
             />
-            <Button title="Submit" onPress={handlePress} />
+            <Button title="Submit" color="#3d649b" borderRadius="10" onPress={handlePress} />
         </View>
       );
 }
@@ -64,9 +64,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     button: {
-        backgroundColor: '#007bff',
+        backgroundColor: '#E3EAF4',
         paddingVertical: 10,
-        borderRadius: 4,
+        borderRadius: 10,
         alignItems: 'center',
     },
     buttonText: {
