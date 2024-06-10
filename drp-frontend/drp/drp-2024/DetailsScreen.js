@@ -3,6 +3,7 @@ import { Button, FlatList, View, Text, StyleSheet, TextInput, TouchableOpacity, 
 import StarRating from './StarRating';
 import { REMOTE_HOST } from './Config.js';
 import PhotoGrid from './PhotoGrid.js';
+import { MaterialIcons } from 'react-native-vector-icons'
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   const [size, setSize] = useState(enlargedSize);
@@ -56,6 +57,10 @@ export default function ItemDetailScreen({ route, navigation }) {
     setMemberUsernames(json.usernames);
   };
 
+  const handleMessage = () => {
+    navigation.navigate("MessageBoard", {navigation, item, user});
+  }
+
   const renderHeader = () => (
     <View>
       <View style={styles.commNameBox}>
@@ -63,6 +68,9 @@ export default function ItemDetailScreen({ route, navigation }) {
       </View>
       <View style={styles.topRow}>
         <Text style={styles.level}>Level: {item.level}</Text>
+        <TouchableOpacity style={styles.messageButton} onPress={handleMessage}>
+          <MaterialIcons name="message" size={24} color="white" />
+        </TouchableOpacity>
         <TouchableOpacity
           style={[joined ? styles.joinedButton : styles.notJoinedButton]}
           onPress={handleJoin}
@@ -159,6 +167,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 10,
+    alignItems: 'center',
+    flex: 1,
   },
   joinedButton: {
     paddingVertical: 8,
@@ -268,5 +278,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
+  },
+  messageButton: {
+    backgroundColor: '#d3d3d3',
+    padding: 10,
+    borderRadius: 50,
+    transform: [{ translateX: -25 }],
   },
 });
