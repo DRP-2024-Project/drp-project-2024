@@ -1,16 +1,15 @@
 import React,  { useState, useEffect } from 'react';
-import { Button, FlatList, View, Text, StyleSheet, TextInput, TouchableOpacity,SafeAreaView, DraggableList  } from 'react-native';
+import { Button, FlatList, View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, DraggableList  } from 'react-native';
 import { REMOTE_HOST } from './Config.js';
 import PhotoGrid from './PhotoGrid.js';
 import RatingComponent from './Rating.js';
 import FixedRating from './FixedRating.js'
 
-
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   const [size, setSize] = useState(enlargedSize);
 
   const toggleSize = () => {
-    // setSize(currentSize => (currentSize === initialSize ? enlargedSize : initialSize));
+    setSize(currentSize => (currentSize === initialSize ? enlargedSize : initialSize));
   };
 
   return (
@@ -20,11 +19,10 @@ const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   );
 };
 
-
 export default function ItemDetailScreen({ route, navigation }) {
   const { item, user } = route.params;
 
-  const commName = item.title
+  const commName = item.title;
 
   const [memberNames, setMembers] = useState(undefined);
   const [memberUsernames, setMemberUsernames] = useState(undefined);
@@ -42,29 +40,13 @@ export default function ItemDetailScreen({ route, navigation }) {
         if (json.usernames.includes(user)) {
           setJoined(true);
         }
-      } catch(error) {
+      } catch (error) {
         console.error('Failed to fetch community members:', error);
       }
     };
 
     fetchData();
   }, []);
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${REMOTE_HOST}/getRating?community=${commName}`);
-        const text = await response.text();
-        const new_rating = parseFloat(text);
-        setRating(new_rating);
-      } catch(error) {
-        console.error('Failed to fetch rating', error);
-      }
-    };
-    fetchData();
-  }, []);
-
 
   const handleJoin = async () => {
     setJoined(!joined);
@@ -77,17 +59,29 @@ export default function ItemDetailScreen({ route, navigation }) {
     setMembers(json.names);
     setMemberUsernames(json.usernames);
   };
-  
+
+  const handleMessage = () => {
+    navigation.navigate("MessageBoard", {navigation, item, user});
+  }
+
   const renderHeader = () => (
     <View>
+      <View style={styles.commNameBox}>
+        <Text style={styles.commName}>{commName}</Text>
+      </View>
       <View style={styles.topRow}>
-      <Text style={styles.level}>Level: {item.level}</Text>
-      <TouchableOpacity 
-      style={[joined ? styles.joinedButton : styles.notJoinedButton]}
-      onPress={handleJoin}>
-        <Text style={styles.joinButtonText}>{joined ? 'Joined' : 'Join'}</Text>
-    </TouchableOpacity>
-    </View>
+        <Text style={styles.level}>Level: {item.level}</Text>
+        {joined ? (
+          <TouchableOpacity style={styles.messageButton} onPress={handleMessage}>
+            <MaterialIcons name="message" size={24} color="white" />
+          </TouchableOpacity>): null}
+        <TouchableOpacity
+          style={[joined ? styles.joinedButton : styles.notJoinedButton]}
+          onPress={handleJoin}
+        >
+          <Text style={styles.joinButtonText}>{joined ? 'Joined' : 'Join'}</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.middleRow}>
         <InteractiveBox initialSize={50} enlargedSize={100}>
           <Text style={styles.location}>{item.location}</Text>
@@ -100,7 +94,7 @@ export default function ItemDetailScreen({ route, navigation }) {
         </InteractiveBox>
       </View>
       <View style={styles.mapRow}>
-        <Button title="View Map" onPress={() => navigation.navigate('Map', {latitude: item.latitude, longitude: item.longitude})} />
+        <Button title="View Map" color="#3d649b" borderRadius="10" onPress={() => navigation.navigate('Map', { latitude: item.latitude, longitude: item.longitude })} />
         <RatingComponent commName={item.title} user={user} />
       </View>
       <Text style={styles.description}>{item.description}</Text>
@@ -111,7 +105,7 @@ export default function ItemDetailScreen({ route, navigation }) {
         <FixedRating rating={rating} />
       </View>
       <View>
-        <PhotoGrid community={item.title}></PhotoGrid>
+        <PhotoGrid community={item.title} />
       </View>
       <View style={styles.additionalInfoBox}>
         <Text style={styles.additionalInfo}>Additional Info:</Text>
@@ -123,7 +117,6 @@ export default function ItemDetailScreen({ route, navigation }) {
           <Text style={styles.equipmentRequired}>Additional Links:</Text>
           <Text style={styles.equipmentList}>{item.links}</Text>
         </View>
-      
       </View>
       <Text style={styles.membersHeader}>Members:</Text>
     </View>
@@ -164,21 +157,34 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
   },
-  topRow: {
+  commNameBox: {
+    backgroundColor: '#e8e8e8',
+    padding: 15,
+    borderRadius: 10,
     marginBottom: 10,
+  },
+  commName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    alignItems: 'center',
+    flex: 1,
   },
   joinedButton: {
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 5,
-    marginLeft: 'auto',
-    backgroundColor: 'green',
+    backgroundColor: '#32a852',
   },
   notJoinedButton: {
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 5,
-    marginLeft: 'auto',
     backgroundColor: '#d3d3d3',
   },
   joinButtonText: {
@@ -270,12 +276,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 8,
     marginTop: 5,
-    minHeight: 60, // Adjust height based on the design requirement
+    minHeight: 60,
   },
   mapRow: {
     flexDirection: 'row',
-    justifyContent: 'center',  // Center the content horizontally
-    alignItems: 'center',      // Center the content vertically (if needed)
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 10,
-  }
+  },
+  messageButton: {
+    backgroundColor: '#d3d3d3',
+    padding: 10,
+    borderRadius: 50,
+    transform: [{ translateX: -25 }],
+  },
 });

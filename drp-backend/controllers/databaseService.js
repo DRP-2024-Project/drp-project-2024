@@ -115,11 +115,13 @@ function communityExists(name) {
 //     tag_id: 5,
 //     links: 
 //     equipmentRequired: 
+//     ownerUser: hd922
 // }
 // Return: Returns a Promise that will have the value True if the community is 
 //         created successfully and False otherwise
 // Note: Only allows for one community of a given name
 async function createCommunity(data) {
+    const name = await getMemberName(data.ownerUser);
     const communityData = {
         title: data.title, 
         description: data.description,
@@ -127,14 +129,14 @@ async function createCommunity(data) {
         perTime: data.perTime, 
         location: data.location, 
         schedule: data.schedule, 
+        scheduled: data.scheduled,
         contactInfo: data.schedule, 
-        requiredEquipment: data.requiredEquipment,
-        owner: 'Harvey Densem',
+        requiredEquipment: data.equipmentRequired,
+        owner: name,
         tag_id: data.tag_id,
         links: data.links,
         rating: data.rating,
         level: data.level,
-        equipmentRequired: data.equipmentRequired
     }
     return new Promise(async (resolve, reject) => {
         let exists = await communityExists(data.title);
@@ -308,6 +310,15 @@ function addMemberToCommunity(commName, username) {
     });
 }
 
+// getMemberName: Gets the name of a member given their username
+// Pre: The user exists
+function getMemberName(user) {
+    return new Promise(async (resolve, reject) => {
+        let memResult = await query(`SELECT name FROM members WHERE username=?`, [user]);
+        return resolve(memResult[0].name);
+    });
+}
+
 // getTagDetails: Returns the name and icon of a tag
 function getTagDetails(tag_id) {
     return new Promise(async (resolve, reject) => {
@@ -419,6 +430,65 @@ function getCommunityImages(commName) {
     })
 }
 
+async function translateEvents(events) {
+    for (const event of events) {
+        let name = await query(`SELECT name FROM members WHERE id = ?`, [event.creator_id]);
+        event.creator_name = name[0].name;
+    }
+}
+
+function getAllEvents(commId) {
+    return new Promise(async (resolve, reject) => {
+        let result = await query(`SELECT * FROM events WHERE community_id = ?`, [commId]);
+        await translateEvents(result);
+        return resolve(result);
+    })
+}
+
+async function translateAttendanceList(lst) {
+    if (lst.length == 0) {
+        return [];
+    }
+    const idList = lst.map(row => row.member_id);
+    let res = await query(`SELECT name, username FROM members WHERE id IN (?)`, [idList]);
+    return res;
+}
+
+function getAttending(eventId) {
+    return new Promise(async (resolve, reject) => {
+        let attending = await query(`SELECT * FROM eventAttendance 
+            WHERE event_id = ? AND attending = TRUE`, [eventId]);
+        let notAttending = await query(`SELECT * FROM eventAttendance
+            WHERE event_id = ? AND attending = FALSE`, [eventId]);
+        let data = {
+            attending: await translateAttendanceList(attending),
+            notAttending: await translateAttendanceList(notAttending),
+        };
+        return resolve(data);
+    })
+}
+
+async function setAttendance(eventId, user, attend) {
+    let memberId = (await query(`SELECT id FROM members WHERE username = ?`, [user]))[0].id;
+    let res = await query(`UPDATE eventAttendance SET attending = ?
+                           WHERE event_id = ? AND
+                                 member_id = ?`, [attend, eventId, memberId]);
+    if (res.affectedRows == 0) {
+        await query(`INSERT INTO eventAttendance SET ?`, {
+            event_id: eventId,
+            member_id: memberId,
+            attending: attend,
+        });
+    };
+}
+
+async function removeAttendance(eventId, username) {
+    let memberId = (await query(`SELECT id FROM members WHERE username = ?`, [username]))[0].id;
+    await query(
+        `DELETE FROM eventAttendance WHERE event_id = ? AND member_id = ?`,
+        [eventId, memberId]
+    );
+};
 
 function rateCommunity(communityName, userName, rating) {
     return new Promise(async (resolve, reject) => {
@@ -529,7 +599,14 @@ module.exports = {
     addMemberToCommunity,
     deleteMemberFromCommunity,
     memberAlreadyInCommunity,
+<<<<<<< HEAD
     rateCommunity,
     getAverageRating
+=======
+    setAttendance,
+    getAllEvents,
+    removeAttendance,
+    getAttending,
+>>>>>>> 11cf4326a52c6024b5094c5c2ee6e61cfceca8bb
 }
 

@@ -27,7 +27,6 @@ const Tag = ({ tag_name }) => {
   return (
     <View style={styles.tagIconContainer}>
       <View style={styles.iconContainer}>
-        {/* <Image source={require(`./assets/icons/${tag_path}.png`)} style={styles.icon} /> */}
         <Image source={img_source} style={styles.icon} />
       </View>
       <View style={styles.tagContainer}>
@@ -36,34 +35,36 @@ const Tag = ({ tag_name }) => {
     </View>
     )
 };
-  
+
 const styles = StyleSheet.create({
   tagIconContainer: {
     flexDirection: 'row',
-    borderColor: 'black',
+    borderColor: '#ddd',
     borderWidth: 1,
     borderRadius: 10,
     alignSelf: 'flex-start',
     alignItems: 'center',
-    backgroundColor: '#D3D3D3',
+    backgroundColor: '#F0F4F8',
+    padding: 5,
   },
   iconContainer: {
-    marginRight: 0,
+    marginRight: 8,
   },
   icon: {
-    width: 30,
-    height: 30,
+    width: 24,
+    height: 24,
   },
   tagContainer: {
-    backgroundColor: '#D3D3D3',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    backgroundColor: '#F0F4F8',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderRadius: 15,
   },
   tag: {
-    fontSize: 12,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#555',
   },
 });
-  
+
 export default Tag;

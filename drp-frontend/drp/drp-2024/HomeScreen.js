@@ -7,7 +7,6 @@ import ItemRecord from './ItemRecord';
 import CreateButton from './CreateButton';
 
 export default function HomeScreen({ route }) {
-
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('title');
   const [search, setSearch] = useState('');
@@ -30,7 +29,7 @@ export default function HomeScreen({ route }) {
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
-        setLoading(false); // Set loading to false after data is fetched
+        setLoading(false);
       }
     };
 
@@ -39,27 +38,27 @@ export default function HomeScreen({ route }) {
 
   return (
     <View style={styles.container}>
-    <View style={styles.topRow}>
-      <SearchBar searchPhrase={search} setSearchPhrase={setSearch} setClicked={() => {}}/>
-    </View>
-    <View style={styles.middleRow}>
-      <Text style={styles.orderBy}>Order By: </Text>
-      <DropDownPicker
-        open={open}
-        value={value}
-        items={items}
-        setOpen={setOpen}
-        setValue={setValue}
-        setItems={setItems}
-        zIndex={3000}
-        containerStyle={styles.dropdownContainer}
-        style={styles.dropdownStyle}
-        dropDownContainerStyle={styles.dropDownContainerStyle}
-      />
-      <CreateButton navigation={navigation}/>
-    </View>
-    {loading ? (
-        <ActivityIndicator size="large" color="#D3D3D3" style={styles.loader} />
+      <View style={styles.topRow}>
+        <SearchBar searchPhrase={search} setSearchPhrase={setSearch} setClicked={() => {}}/>
+      </View>
+      <View style={styles.middleRow}>
+        <Text style={styles.orderBy}>Order By: </Text>
+        <DropDownPicker
+          open={open}
+          value={value}
+          items={items}
+          setOpen={setOpen}
+          setValue={setValue}
+          setItems={setItems}
+          zIndex={3000}
+          containerStyle={styles.dropdownContainer}
+          style={styles.dropdownStyle}
+          dropDownContainerStyle={styles.dropDownContainerStyle}
+        />
+        <CreateButton navigation={navigation} user={user}/>
+      </View>
+      {loading ? (
+        <ActivityIndicator size="large" color="#4A90E2" style={styles.loader} />
       ) : (
         <FlatList
           data={communities}
@@ -75,7 +74,7 @@ export default function HomeScreen({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F7F7F7',
   },
   topRow: {
     padding: 10,
@@ -86,30 +85,33 @@ const styles = StyleSheet.create({
   },
   middleRow: {
     flexDirection: 'row',
-    paddingBottom: 35,
+    paddingBottom: 15,
     paddingLeft: 20,
     zIndex: 3000,
-  },
-  listContainer: {
-    paddingVertical: 20,
-  },
-  dropdownContainer: {
-    alignItems: "center",
-    width: "50%",
-    height: 40,
-  },
-  dropdownStyle: {
-    backgroundColor: '#fafafa',
+    alignItems: 'center',
   },
   orderBy: {
     fontSize: 16,
     marginRight: 10,
     alignSelf: 'center'
   },
+  dropdownContainer: {
+    alignItems: "center",
+    width: "40%",
+    height: 40,
+  },
+  dropdownStyle: {
+    backgroundColor: '#fff',
+    borderColor: '#ddd',
+  },
   dropDownContainerStyle: {
-    backgroundColor: '#fafafa',
+    backgroundColor: '#fff',
+    borderColor: '#ddd',
     zIndex: 5000,
     elevation: 20,
+  },
+  listContainer: {
+    paddingVertical: 10,
   },
   loader: {
     flex: 1,

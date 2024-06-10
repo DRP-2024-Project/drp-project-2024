@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { TouchableOpacity, Text, View, StyleSheet, Image } from 'react-native';
 import { REMOTE_HOST } from './Config';
-import Tag from './Tag'
+import Tag from './Tag';
 
 const ItemRecord = ({ item, navigation, user }) => {
   const urlIcon = new URL(`${REMOTE_HOST}/icon`);
@@ -22,42 +22,21 @@ const ItemRecord = ({ item, navigation, user }) => {
 
 const styles = StyleSheet.create({
   item: {
-    backgroundColor: '#D3D3D3',
-    padding: 20,
+    backgroundColor: '#E3EAF4',
+    padding: 15,
     marginVertical: 8,
     marginHorizontal: 16,
-    borderRadius: 10,
-    zIndex: 0, // Ensure this is the lowest in the stacking context
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+    elevation: 3,
   },
   title: {
-    fontSize: 20,
-    color: '#000',
-    fontWeight: 'bold',
-  },
-  tagIconContainer: {
-    flexDirection: 'row',
-    borderColor: 'black',
-    borderWidth: 1,
-    borderRadius: 10,
-    alignSelf: 'flex-start',
-    alignItems: 'center',
-  },
-  iconContainer: {
-    marginRight: 0,
-  },
-  icon: {
-    width: 30,
-    height: 30,
-  },
-  tagContainer: {
-    backgroundColor: '#D3D3D3',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 15,
-  },
-  tag: {
-    fontSize: 12,
-    fontWeight: 'bold',
+    fontSize: 18,
+    color: '#333',
+    fontWeight: '600',
   },
 });
 

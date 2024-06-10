@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
     View, 
     TextInput, 
@@ -7,15 +7,50 @@ import {
     Text, 
     ScrollView,
     TouchableOpacity,
-    Image,
-    Platform
+    Platform,
+    Modal,
 } from 'react-native';
+import { CheckBox } from 'react-native-elements';
 import Tag from './Tag'
 import SelectedTag from './SelectedTag'
 import { REMOTE_HOST, TAGS } from './Config';
 import * as ImagePicker from 'expo-image-picker';
 
-export default function HomeScreen({ navigation }) {
+// verifyCommData: verifies that all data for creating a community is of the correct form
+// Return: returns "" if all data is valid or errMessage if there is some invalid data
+function verifyCommData(data) {
+  if (!data.title) {
+    return "Please enter a Title.";
+  } else if (!data.description) {
+    return "Please enter a Description.";
+  } else if (!data.price) {
+    return "Please enter a Price.";
+  } else if (!data.perTime && data.price) {
+    return "Please enter a payment time frame.";
+  } else if (!data.location) {
+    return "Please enter a Location.";
+  } else if (data.scheduled && !data.schedule) {
+    return "Please enter a Schedule.";
+  } else if (!data.contactInfo) {
+    return "Please enter contact info.";
+  } else if (!data.level) {
+    return "Please enter a level of standard.";
+  } else if (!data.tag_id) {
+    return "Please choose an activity type."
+  } else if (!/^£\d+$/.test(data.price)) {
+    return `Please eneter a valid price, £{number}.`
+  } else if (data.level != "Beginner" &&
+             data.level != "Intermediate" &&
+             data.level != "Advanced"
+            ) {
+    return "Please enter a valid level of standard, 'Beginner', " +
+           "'Intermediate', 'Advanced'"
+  }
+}
+
+export default function HomeScreen({ route }) {
+    const { navigation, user } = route.params;
+
     const beginState = Object.keys(TAGS).reduce((acc, currentItem) => {
       acc[currentItem] = false; 
       return acc;
@@ -27,11 +62,9 @@ export default function HomeScreen({ navigation }) {
         price: '',
         'per Time': '',
         location: '',
-        schedule: '',
         'contact Info': '',
         'required Equipment': '',
         links: '',
-        rating: '',
         level: '',
   });
 
@@ -66,6 +99,10 @@ export default function HomeScreen({ navigation }) {
     });
   };
 
+  // For the schedule toggle
+  const [scheduled, setScheduled] = useState(false);
+  const [schedule, setSchedule] = useState('');
+
   // For choosing an image
   const [imageSource, setImageSource] = useState(null);
   const selectImage = async () => {
@@ -95,6 +132,8 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [errMessage, setErrMessage] = useState('');
   const handleSubmit = async () => {
     const comm = {
       title: formData.title,
@@ -102,18 +141,25 @@ export default function HomeScreen({ navigation }) {
       price: formData.price,
       perTime: formData['per Time'],
       location: formData.location,
-      schedule: formData.schedule,
+      scheduled: scheduled,
+      schedule: schedule,
       contactInfo: formData['contact Info'],
       equipmentRequired: formData['required Equipment'],
       links: formData.links,
-      rating: formData.rating,
+      rating: 0,
       level: formData.level,
+      ownerUser: user,
       tag_id: TAGS[tag],
     };
     const data = {
       comm: comm,
       imgs: [imageSource],
     };
+
+    if (!checkInputs(data)) {
+      return;
+    }
+    console.log("here");
 
     try {
       const response = await fetch(`${REMOTE_HOST}/createCommunity`, {
@@ -131,6 +177,24 @@ export default function HomeScreen({ navigation }) {
     navigation.navigate("Communities", {})
   };
 
+  const checkInputs = (data) => {
+    const msg = verifyCommData(data.comm)
+    if (msg) {
+      setErrMessage(msg);
+      setModalVisible(true);
+      return false;
+    } else if (!data.imgs[0]) {
+      setErrMessage("Please select a photo.");
+      setModalVisible(true);
+      return false;
+    }
+    return true;
+  }
+
+  const closeModal = () => {
+    setModalVisible(false);
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {Object.keys(formData).map((key) => (
@@ -145,6 +209,29 @@ export default function HomeScreen({ navigation }) {
         </View>
       </View>
       ))}
+      <View style={styles.inputRow}>
+      <View style={styles.labelInputContainer}>
+        <Text style={styles.label}>
+          Are there fixed organised sessions/events?
+        </Text>
+        <CheckBox
+          checked={scheduled}
+          onPress={() => setScheduled(!scheduled)}
+        />
+      </View>
+      </View>
+
+      {scheduled && <View style={styles.inputRow}>
+        <View style={styles.labelInputContainer}>
+          <Text style={styles.label}>Schedule</Text>
+          <TextInput
+            style={styles.input}
+            value={schedule}
+            onChangeText={(value) => setSchedule(value)}
+          />
+        </View>
+      </View>}
+
       <Text style={styles.title}>Choose Activity Type</Text>
       <View style={styles.iconsContainer}>
         {Object.keys(TAGS).map((tag) => (
@@ -161,6 +248,19 @@ export default function HomeScreen({ navigation }) {
         <Button title="Select Image" onPress={selectImage} />
       </View>
       <Button title="Submit" onPress={handleSubmit} />
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={modalVisible}
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>{errMessage}</Text>
+            <Button title="Close" onPress={closeModal} />
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -217,13 +317,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 10,
   },
-  image: {
-    width: 200,
-    height: 200,
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalView: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
   },
 });
-
-// TODO:
-// Make it so that on a press the correct tag id is sent
-// Make it so that only one tag can be pressed at a time
-// Handle submit
