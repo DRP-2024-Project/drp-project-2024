@@ -9,7 +9,6 @@ const Message = ({ user, event }) => {
       eventId: event.id,
       user: user,
     };
-    console.log(event);
 
     const [accepted, setAccepted] = useState(null);
     const handleAccept = async () => {
@@ -81,6 +80,7 @@ const Message = ({ user, event }) => {
     return (
         <View style={styles.container}>
           <Text style={styles.name}>{event.creator_name}</Text>
+          <Text style={styles.description}>{event.description}</Text>
           <View style={styles.contentContainer}>
             <Text style={styles.dateText}>{event.date}, {event.time}</Text>
             <View style={styles.buttonsContainer}>
@@ -137,6 +137,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+  },
+  description: {
+    fontSize: 16,
   },
   buttonsContainer: {
     flexDirection: 'row',
