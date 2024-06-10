@@ -14,7 +14,9 @@ const {
     getAllTags,
     addMemberToCommunity,
     deleteMemberFromCommunity,
-    memberAlreadyInCommunity
+    memberAlreadyInCommunity,
+    rateCommunity,
+    getAverageRating
 } = require('./controllers/databaseService.js');
 
 const app = express();
@@ -59,6 +61,29 @@ app.get('/search', async (req, res) => {
     }
 });
 
+
+app.post('/rate', async (req, res) => {
+    const community = req.query.commName;
+    const user = req.query.username;
+    const rating = parseFloat(req.query.rating);
+    try {
+        await rateCommunity(community, user, rating);
+        res.status(200).send("Rating Added")
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+app.get('/getRating', async (req, res) => {
+    const community = req.query.community;
+    try {
+        const result = await getAverageRating(community);
+        res.send(result.toString());
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
 app.post('/addMember', async (req, res) => {
     const name = req.query.name || ""
     const username = req.query.username
@@ -74,6 +99,7 @@ app.post('/addMember', async (req, res) => {
         res.status(500).send(error.message);
     }
 })
+
 
 // Returns true if the community is made correctly or false otherwise
 app.post('/createCommunity', async (req, res) => {

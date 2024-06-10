@@ -420,6 +420,29 @@ function getCommunityImages(commName) {
 }
 
 
+function rateCommunity(communityName, userName, rating) {
+    return new Promise(async (resolve, reject) => {
+        let communityID = (await query(`SELECT id from communities WHERE title = ?`, [communityName]))[0].id;
+        let userID = (await query(`SELECT id from members WHERE username = ?`, [userName]))[0].id;
+        await query(`INSERT INTO communityRatings (community_id, user_id, rating) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE rating = VALUES(rating)`, [communityID, userID, rating]);
+        return resolve(true);
+    })
+}
+
+
+function getAverageRating(communityName) {
+    return new Promise(async (resolve, reject) => {
+        let communityID = (await query(`SELECT id from communities WHERE title = ?`, [communityName]))[0].id;
+        let result = await query(`SELECT AVG(rating) AS averageRating FROM communityRatings WHERE community_id = ?`, [communityID]);
+        if (result.length === 0 || result[0].averageRating === null) {
+            return resolve(3);  // No ratings found, return 0 as the average rating
+        }
+        return resolve(result[0].averageRating);
+    })
+}
+
+
+
 // createTables();
 // dropTables();
 const dataToAdd = {
@@ -505,6 +528,8 @@ module.exports = {
     memberExists,
     addMemberToCommunity,
     deleteMemberFromCommunity,
-    memberAlreadyInCommunity
+    memberAlreadyInCommunity,
+    rateCommunity,
+    getAverageRating
 }
 

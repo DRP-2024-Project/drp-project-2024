@@ -1,8 +1,9 @@
 import React,  { useState, useEffect } from 'react';
 import { Button, FlatList, View, Text, StyleSheet, TextInput, TouchableOpacity,SafeAreaView, DraggableList  } from 'react-native';
-import StarRating from './StarRating';
 import { REMOTE_HOST } from './Config.js';
 import PhotoGrid from './PhotoGrid.js';
+import RatingComponent from './Rating.js';
+import FixedRating from './FixedRating.js'
 
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
@@ -28,6 +29,9 @@ export default function ItemDetailScreen({ route, navigation }) {
   const [memberNames, setMembers] = useState(undefined);
   const [memberUsernames, setMemberUsernames] = useState(undefined);
   const [joined, setJoined] = useState(false);
+  const [rating, setRating] = useState(3.0);
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -43,6 +47,21 @@ export default function ItemDetailScreen({ route, navigation }) {
       }
     };
 
+    fetchData();
+  }, []);
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${REMOTE_HOST}/getRating?community=${commName}`);
+        const text = await response.text();
+        const new_rating = parseFloat(text);
+        setRating(new_rating);
+      } catch(error) {
+        console.error('Failed to fetch rating', error);
+      }
+    };
     fetchData();
   }, []);
 
@@ -82,13 +101,14 @@ export default function ItemDetailScreen({ route, navigation }) {
       </View>
       <View style={styles.mapRow}>
         <Button title="View Map" onPress={() => navigation.navigate('Map', {latitude: item.latitude, longitude: item.longitude})} />
+        <RatingComponent commName={item.title} user={user} />
       </View>
       <Text style={styles.description}>{item.description}</Text>
       <View style={styles.scheduleRow}>
         <Text style={styles.schedule}>{item.schedule}</Text>
       </View>
       <View style={styles.ratingRow}>
-        <StarRating rating={item.rating} maxRating={5} />
+        <FixedRating rating={rating} />
       </View>
       <View>
         <PhotoGrid community={item.title}></PhotoGrid>
