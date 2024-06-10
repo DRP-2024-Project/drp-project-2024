@@ -11,10 +11,17 @@ const {
     getTagDetails,
     addCommunityImage,
     createCommunity,
+    createProposal,
     getAllTags,
     addMemberToCommunity,
     deleteMemberFromCommunity,
-    memberAlreadyInCommunity
+    memberAlreadyInCommunity,
+    rateCommunity,
+    getAverageRating,
+    setAttendance,
+    getAllEvents,
+    removeAttendance,
+    getAttending,
 } = require('./controllers/databaseService.js');
 
 const app = express();
@@ -59,6 +66,29 @@ app.get('/search', async (req, res) => {
     }
 });
 
+
+app.post('/rate', async (req, res) => {
+    const community = req.query.commName;
+    const user = req.query.username;
+    const rating = parseFloat(req.query.rating);
+    try {
+        await rateCommunity(community, user, rating);
+        res.status(200).send("Rating Added")
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+app.get('/getRating', async (req, res) => {
+    const community = req.query.community;
+    try {
+        const result = await getAverageRating(community);
+        res.send(result.toString());
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
 app.post('/addMember', async (req, res) => {
     const name = req.query.name || ""
     const username = req.query.username
@@ -74,6 +104,7 @@ app.post('/addMember', async (req, res) => {
         res.status(500).send(error.message);
     }
 })
+
 
 // Returns true if the community is made correctly or false otherwise
 app.post('/createCommunity', async (req, res) => {
@@ -97,7 +128,7 @@ app.post('/createCommunity', async (req, res) => {
 
 app.post('/createProposal', async (req, res) => {
     try {
-        res.send(await createPropoosal(req.proposal));
+        res.send(await createProposal(req.body));
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -122,6 +153,33 @@ app.post('/toggleMemberInCommunity', async (req, res) => {
     }
 })
 
+app.post("/attend", async (req, res) => {
+    const eventId = req.body.eventId;
+    const user = req.body.user;
+    const attend = req.body.attend;
+    try {
+        if (attend != null) {
+            await setAttendance(eventId, user, attend);
+        } else {
+            await removeAttendance(eventId, user);
+        }
+        res.status(200).send("OK");
+    } catch (error) {
+        req.status(500).send(error.message);
+    }
+});
+
+app.get("/getEvents", async (req, res) => {
+    const commId = req.query.commId;
+    const result = await getAllEvents(commId);
+    res.json(result);
+});
+
+app.get("/attending", async (req, res) => {
+    const eventId = req.query.eventId;
+    const result = await getAttending(eventId);
+    res.json(result);
+})
 
 app.get('/getCommunityMembers', async (req, res) => {
     const community = req.query.community;
@@ -132,11 +190,6 @@ app.get('/getCommunityMembers', async (req, res) => {
         res.status(500).send(error.message);
     }
 });
-
-
-app.get('/debug', (req,res) => {
-    res.send("V1");
-})
   
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);

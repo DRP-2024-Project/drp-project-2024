@@ -10,41 +10,20 @@ import {
     Platform,
     Modal,
 } from 'react-native';
-import { CheckBox } from 'react-native-elements';
 import Tag from './Tag'
 import SelectedTag from './SelectedTag'
 import { REMOTE_HOST, TAGS } from './Config';
-import * as ImagePicker from 'expo-image-picker';
 
 // verifyCommData: verifies that all data for creating a community is of the correct form
 // Return: returns "" if all data is valid or errMessage if there is some invalid data
-function verifyCommData(data) {
+function verifyProposalData(data) {
+  console.log(data);
   if (!data.title) {
     return "Please enter a Title.";
   } else if (!data.description) {
     return "Please enter a Description.";
-  } else if (!data.price) {
-    return "Please enter a Price.";
-  } else if (!data.perTime && data.price) {
-    return "Please enter a payment time frame.";
-  } else if (!data.location) {
-    return "Please enter a Location.";
-  } else if (data.scheduled && !data.schedule) {
-    return "Please enter a Schedule.";
-  } else if (!data.contactInfo) {
-    return "Please enter contact info.";
-  } else if (!data.level) {
-    return "Please enter a level of standard.";
   } else if (!data.tag_id) {
     return "Please choose an activity type."
-  } else if (!/^£\d+$/.test(data.price)) {
-    return `Please eneter a valid price, £{number}.`
-  } else if (data.level != "Beginner" &&
-             data.level != "Intermediate" &&
-             data.level != "Advanced"
-            ) {
-    return "Please enter a valid level of standard, 'Beginner', " +
-           "'Intermediate', 'Advanced'"
   }
 }
 
@@ -59,13 +38,6 @@ export default function HomeScreen({ route }) {
   const [formData, setFormData] = useState({
         title: '',
         description: '',
-        price: '',
-        'per Time': '',
-        location: '',
-        'contact Info': '',
-        'required Equipment': '',
-        links: '',
-        level: '',
   });
 
   // For the tag Buttons
@@ -99,70 +71,22 @@ export default function HomeScreen({ route }) {
     });
   };
 
-  // For the schedule toggle
-  const [scheduled, setScheduled] = useState(false);
-  const [schedule, setSchedule] = useState('');
-
-  // For choosing an image
-  const [imageSource, setImageSource] = useState(null);
-  const selectImage = async () => {
-    // Request permission to access media library
-    if (Platform.OS !== 'web') {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        alert('Sorry, we need camera roll permissions to make this work!');
-        return;
-      }
-    }
-
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1], // For square aspect ratio
-      quality: 1,
-      base64: true,
-    });
-
-    if (!result.canceled) {
-      setImageSource(result.assets[0].base64);
-    } else if (result.cancelled) {
-      console.log('User cancelled image picker');
-    } else if (result.error) {
-      console.log('ImagePicker Error: ', result.error);
-    }
-  };
-
   const [modalVisible, setModalVisible] = useState(false);
   const [errMessage, setErrMessage] = useState('');
   const handleSubmit = async () => {
-    const comm = {
+    const data = {
       title: formData.title,
       description: formData.description,
-      price: formData.price,
-      perTime: formData['per Time'],
-      location: formData.location,
-      scheduled: scheduled,
-      schedule: schedule,
-      contactInfo: formData['contact Info'],
-      equipmentRequired: formData['required Equipment'],
-      links: formData.links,
-      rating: 0,
-      level: formData.level,
-      ownerUser: user,
       tag_id: TAGS[tag],
-    };
-    const data = {
-      comm: comm,
-      imgs: [imageSource],
+      ownerUser: user
     };
 
     if (!checkInputs(data)) {
       return;
     }
-    console.log("here");
 
     try {
-      const response = await fetch(`${REMOTE_HOST}/createCommunity`, {
+      const response = await fetch(`${REMOTE_HOST}/createProposal`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -178,16 +102,12 @@ export default function HomeScreen({ route }) {
   };
 
   const checkInputs = (data) => {
-    const msg = verifyCommData(data.comm)
+    const msg = verifyProposalData(data)
     if (msg) {
       setErrMessage(msg);
       setModalVisible(true);
       return false;
-    } else if (!data.imgs[0]) {
-      setErrMessage("Please select a photo.");
-      setModalVisible(true);
-      return false;
-    }
+    } 
     return true;
   }
 
@@ -209,28 +129,6 @@ export default function HomeScreen({ route }) {
         </View>
       </View>
       ))}
-      <View style={styles.inputRow}>
-      <View style={styles.labelInputContainer}>
-        <Text style={styles.label}>
-          Are there fixed organised sessions/events?
-        </Text>
-        <CheckBox
-          checked={scheduled}
-          onPress={() => setScheduled(!scheduled)}
-        />
-      </View>
-      </View>
-
-      {scheduled && <View style={styles.inputRow}>
-        <View style={styles.labelInputContainer}>
-          <Text style={styles.label}>Schedule</Text>
-          <TextInput
-            style={styles.input}
-            value={schedule}
-            onChangeText={(value) => setSchedule(value)}
-          />
-        </View>
-      </View>}
 
       <Text style={styles.title}>Choose Activity Type</Text>
       <View style={styles.iconsContainer}>
@@ -244,9 +142,7 @@ export default function HomeScreen({ route }) {
             </TouchableOpacity>
         ))}
       </View>
-      <View style={styles.imageButton}>
-        <Button title="Select Image" onPress={selectImage} />
-      </View>
+      
       <Button title="Submit" onPress={handleSubmit} />
       <Modal
         transparent={true}
