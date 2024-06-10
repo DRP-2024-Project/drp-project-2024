@@ -10,6 +10,7 @@ import {
     Platform,
     Modal,
 } from 'react-native';
+import { CheckBox } from 'react-native-elements';
 import Tag from './Tag'
 import SelectedTag from './SelectedTag'
 import { REMOTE_HOST, TAGS } from './Config';
@@ -28,7 +29,7 @@ function verifyCommData(data) {
     return "Please enter a payment time frame.";
   } else if (!data.location) {
     return "Please enter a Location.";
-  } else if (!data.schedule) {
+  } else if (data.scheduled && !data.schedule) {
     return "Please enter a Schedule.";
   } else if (!data.contactInfo) {
     return "Please enter contact info.";
@@ -61,7 +62,6 @@ export default function HomeScreen({ route }) {
         price: '',
         'per Time': '',
         location: '',
-        schedule: '',
         'contact Info': '',
         'required Equipment': '',
         links: '',
@@ -98,6 +98,10 @@ export default function HomeScreen({ route }) {
       [name]: value,
     });
   };
+
+  // For the schedule toggle
+  const [scheduled, setScheduled] = useState(false);
+  const [schedule, setSchedule] = useState('');
 
   // For choosing an image
   const [imageSource, setImageSource] = useState(null);
@@ -137,7 +141,8 @@ export default function HomeScreen({ route }) {
       price: formData.price,
       perTime: formData['per Time'],
       location: formData.location,
-      schedule: formData.schedule,
+      scheduled: scheduled,
+      schedule: schedule,
       contactInfo: formData['contact Info'],
       equipmentRequired: formData['required Equipment'],
       links: formData.links,
@@ -204,6 +209,29 @@ export default function HomeScreen({ route }) {
         </View>
       </View>
       ))}
+      <View style={styles.inputRow}>
+      <View style={styles.labelInputContainer}>
+        <Text style={styles.label}>
+          Are there fixed organised sessions/events?
+        </Text>
+        <CheckBox
+          checked={scheduled}
+          onPress={() => setScheduled(!scheduled)}
+        />
+      </View>
+      </View>
+
+      {scheduled && <View style={styles.inputRow}>
+        <View style={styles.labelInputContainer}>
+          <Text style={styles.label}>Schedule</Text>
+          <TextInput
+            style={styles.input}
+            value={schedule}
+            onChangeText={(value) => setSchedule(value)}
+          />
+        </View>
+      </View>}
+
       <Text style={styles.title}>Choose Activity Type</Text>
       <View style={styles.iconsContainer}>
         {Object.keys(TAGS).map((tag) => (
@@ -315,8 +343,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-
-// TODO:
-// Make it so that on a press the correct tag id is sent
-// Make it so that only one tag can be pressed at a time
-// Handle submit
