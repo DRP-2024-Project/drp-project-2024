@@ -17,7 +17,7 @@ export default function RatingComponent( {commName, user} ) {
 
   return (
     <View style={styles.container}>
-      <Button title="Rate" onPress={() => setShowRating(true)} />
+      <Button title="Rate" onPress={() => setShowRating(true)} color="#3d649b" borderRadius="10" />
 
       <Modal
         animationType="slide"
