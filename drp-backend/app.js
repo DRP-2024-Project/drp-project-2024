@@ -95,6 +95,15 @@ app.post('/createCommunity', async (req, res) => {
     }
 });
 
+app.post('/createProposal', async (req, res) => {
+    try {
+        res.send(await createPropoosal(req.proposal));
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+
 // If the member is already in the community, they will be removed
 // If the memnber is not already in the community, they will be added
 app.post('/toggleMemberInCommunity', async (req, res) => {
