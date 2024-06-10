@@ -131,13 +131,12 @@ async function createCommunity(data) {
         schedule: data.schedule, 
         scheduled: data.scheduled,
         contactInfo: data.schedule, 
-        requiredEquipment: data.requiredEquipment,
+        requiredEquipment: data.equipmentRequired,
         owner: name,
         tag_id: data.tag_id,
         links: data.links,
         rating: data.rating,
         level: data.level,
-        equipmentRequired: data.equipmentRequired,
     }
     return new Promise(async (resolve, reject) => {
         let exists = await communityExists(data.title);
