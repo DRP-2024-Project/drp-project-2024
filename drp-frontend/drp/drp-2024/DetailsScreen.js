@@ -48,6 +48,22 @@ export default function ItemDetailScreen({ route, navigation }) {
     fetchData();
   }, []);
 
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${REMOTE_HOST}/getRating?community=${commName}`);
+        const text = await response.text();
+        const new_rating = parseFloat(text);
+        setRating(new_rating);
+      } catch(error) {
+        console.error('Failed to fetch rating', error);
+      }
+    };
+    fetchData();
+  }, []);
+
+
   const handleJoin = async () => {
     setJoined(!joined);
     await fetch(`${REMOTE_HOST}/toggleMemberInCommunity/?commName=${commName}&username=${user}`, {

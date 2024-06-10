@@ -15,15 +15,12 @@ const {
     addMemberToCommunity,
     deleteMemberFromCommunity,
     memberAlreadyInCommunity,
-<<<<<<< HEAD
     rateCommunity,
-    getAverageRating
-=======
+    getAverageRating,
     setAttendance,
     getAllEvents,
     removeAttendance,
     getAttending,
->>>>>>> 11cf4326a52c6024b5094c5c2ee6e61cfceca8bb
 } = require('./controllers/databaseService.js');
 
 const app = express();
