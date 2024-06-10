@@ -68,9 +68,10 @@ export default function ItemDetailScreen({ route, navigation }) {
       </View>
       <View style={styles.topRow}>
         <Text style={styles.level}>Level: {item.level}</Text>
-        <TouchableOpacity style={styles.messageButton} onPress={handleMessage}>
-          <MaterialIcons name="message" size={24} color="white" />
-        </TouchableOpacity>
+        {joined ? (
+          <TouchableOpacity style={styles.messageButton} onPress={handleMessage}>
+            <MaterialIcons name="message" size={24} color="white" />
+          </TouchableOpacity>): null}
         <TouchableOpacity
           style={[joined ? styles.joinedButton : styles.notJoinedButton]}
           onPress={handleJoin}
