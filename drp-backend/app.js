@@ -150,6 +150,7 @@ app.post('/createProposal', async (req, res) => {
 app.post('/toggleMemberInCommunity', async (req, res) => {
     const commName = req.query.commName;
     const username = req.query.username;
+
     const joined = await memberAlreadyInCommunity(username, commName);
     try {
         if (joined) {
