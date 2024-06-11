@@ -201,6 +201,8 @@ export default function ItemDetailScreen({ route, navigation }) {
         onRequestClose={() => {
           setModalVisible(false);
         }}>
+
+        <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={styles.commName}>Create an event</Text>
           <View style={styles.inputRow}>
@@ -244,6 +246,7 @@ export default function ItemDetailScreen({ route, navigation }) {
                 <Text style={styles.buttonText}>Create</Text>
               </TouchableOpacity>
             </View>
+      </View>
       </View>
       </Modal>
     </View>
@@ -289,6 +292,12 @@ const styles = StyleSheet.create({
   joinButtonText: {
     color: '#000',
     fontWeight: 'bold',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalView: {
     margin: 20,
