@@ -6,7 +6,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import UserScreen  from './UserScreen';
 import HomeScreen from './HomeScreen';
 import DetailsScreen from './DetailsScreen';
+import DetailsProposal from './DetailsProposal';
 import CreateScreen from './CreateScreen';
+import CreateCommunityScreen from './CreateCommunityScreen';
+import CreateProposalScreen from './CreateProposalScreen';
 import SearchBar from './SearchBar';
 import SimpleMap from './map';
 import RatingComponent from './Rating';
@@ -23,7 +26,10 @@ export default function App() {
         <Stack.Screen name="User ID" component={UserScreen} />
         <Stack.Screen name="Communities" component={HomeScreen} />
         <Stack.Screen name="Details" component={DetailsScreen} />
+        <Stack.Screen name="DetailsProposal" component={DetailsProposal} />
         <Stack.Screen name="Create" component={CreateScreen} />
+        <Stack.Screen name="Create Community" component={CreateCommunityScreen} />
+        <Stack.Screen name="Create Proposal" component={CreateProposalScreen} />
         <Stack.Screen name="Map" component={SimpleMap} />
         <Stack.Screen name="Rating" component={RatingComponent} />
         <Stack.Screen name="MessageBoard" component={MessageBoard} />

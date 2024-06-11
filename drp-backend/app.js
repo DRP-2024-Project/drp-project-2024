@@ -11,6 +11,8 @@ const {
     getTagDetails,
     addCommunityImage,
     createCommunity,
+    createEvent,
+    createProposal,
     getAllTags,
     addMemberToCommunity,
     deleteMemberFromCommunity,
@@ -77,6 +79,30 @@ app.get('/search', async (req, res) => {
     }
 });
 
+app.post('/login', async (req, res) => {
+    const username = req.query.username;
+    try {
+        const exists = await memberExists(username);
+        if (exists) {
+            res.json({username: username, exists: true});
+        } else {
+            res.json({username: username, exists: false});
+        }
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
+
+app.post('/addUser', async (req, res) => {
+    const name = req.query.name
+    const username = req.query.username
+    try {
+        createMember(name, username);
+        res.status(200).send("OK")
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
 
 app.post('/rate', async (req, res) => {
     const community = req.query.commName;
@@ -100,21 +126,7 @@ app.get('/getRating', async (req, res) => {
     }
 });
 
-app.post('/addMember', async (req, res) => {
-    const name = req.query.name || ""
-    const username = req.query.username
-    try {
-        const exists = await memberExists(username)
-        if (exists) {
-            res.send(username);
-        } else {
-            createMember(name, username);
-            res.send(username);
-        }
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
-})
+
 
 
 // Returns true if the community is made correctly or false otherwise
@@ -137,11 +149,29 @@ app.post('/createCommunity', async (req, res) => {
     }
 });
 
+app.post('/createEvent', async (req,res) => {
+    try {
+        const made = await createEvent(req.body);
+        res.send(made);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
+app.post('/createProposal', async (req, res) => {
+    try {
+        res.send(await createProposal(req.body));
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+
 // If the member is already in the community, they will be removed
 // If the memnber is not already in the community, they will be added
 app.post('/toggleMemberInCommunity', async (req, res) => {
     const commName = req.query.commName;
     const username = req.query.username;
+
     const joined = await memberAlreadyInCommunity(username, commName);
     try {
         if (joined) {

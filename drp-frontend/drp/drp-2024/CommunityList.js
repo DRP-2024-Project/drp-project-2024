@@ -2,10 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { View, FlatList, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { REMOTE_HOST } from './Config';
 import ItemRecord from './ItemRecord';
+import ItemProposalRecord from './ItemProposalRecord';
 
 const CommunityList = ({ value, search, navigation, user, myCommunities }) => {
   const [loading, setLoading] = useState(true);
   const [communities, setCommunities] = useState([]);
+
+
+  const renderItem = ({ item }) => {
+    if (item.type === 'proposal') {
+      return <ItemProposalRecord item={item.data} navigation={navigation} user={user} />;
+    } else {
+      return <ItemRecord item={item.data} navigation={navigation} user={user} />;
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,7 +40,7 @@ const CommunityList = ({ value, search, navigation, user, myCommunities }) => {
       ) : (
         <FlatList
           data={communities}
-          renderItem={({ item }) => <ItemRecord item={item} navigation={navigation} user={user} />}
+          renderItem={renderItem}
           keyExtractor={item => item.communityId}
           contentContainerStyle={styles.listContainer}
         />

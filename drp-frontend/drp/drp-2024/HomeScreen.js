@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, FlatList, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import SearchBar from './SearchBar';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { REMOTE_HOST } from './Config';
+import ItemRecord from './ItemRecord';
+import ItemProposalRecord from './ItemProposalRecord'; // Import the ItemProposalRecord component
 import CreateButton from './CreateButton';
 import CommunityList from './CommunityList';
 
@@ -19,7 +22,7 @@ export default function HomeScreen({ route }) {
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
-        <SearchBar searchPhrase={search} setSearchPhrase={setSearch} setClicked={() => {}}/>
+        <SearchBar searchPhrase={search} setSearchPhrase={setSearch} setClicked={() => {}} />
       </View>
       <View style={styles.middleRow}>
         <Text style={styles.orderBy}>Order By: </Text>
@@ -35,7 +38,7 @@ export default function HomeScreen({ route }) {
           style={styles.dropdownStyle}
           dropDownContainerStyle={styles.dropDownContainerStyle}
         />
-        <CreateButton navigation={navigation} user={user}/>
+        <CreateButton navigation={navigation} user={user} />
       </View>
       <CommunityList value={value} search={search} navigation={navigation} user={user} myCommunities={false}/>
     </View>
@@ -88,5 +91,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  greenCard: {
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 8,
   },
 });

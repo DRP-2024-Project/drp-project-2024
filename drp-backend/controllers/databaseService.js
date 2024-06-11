@@ -155,6 +155,50 @@ async function createCommunity(data) {
     })
 }
 
+// createEvent: Inserts a new event into the database corresponding to the given data.
+// data is supplied in the form
+// {
+//     date: '30 June',
+//     time: '4 PM',
+//     user: 'tvt22',
+//     comm: 'Tennis with Toan',
+//     desc: 'Casual tennis, no fixed events'
+// }
+// Return: Returns a Promise that will have the value True if the event is 
+//         created successfully and False otherwise
+
+async function createEvent(data) {
+    const creator = await getMemberId(data.user);
+    const community = await getCommunityId(data.comm);
+    const eventData = {
+        date: data.date,
+        time: data.time,
+        timestamp: Date.now().toString(),
+        creator_id: creator,
+        community_id: community,
+        description: data.desc
+    }
+
+    const attendanceData = {
+        event_id: 0,
+        member_id: eventData.creator_id,
+        attending: true
+    }
+    
+    return new Promise(async (resolve, reject) => {
+        try {
+            let result = await query(`INSERT INTO events SET ?`, eventData);
+            attendanceData.event_id = result.insertId;
+            await query(`INSERT INTO eventAttendance SET ?`, attendanceData);
+        } catch (error) {
+            return resolve(false);
+        }
+        return resolve(true);
+
+    })
+
+}
+
 // deleteCommunity: Deletes the community given by name from the communities table
 // Pre: The community is in the communities table
 // Note: The commMembers entries must be removed first as they have the community
@@ -185,6 +229,14 @@ function getCommunityDetails(title) {
     });
 }
 
+// getCommunityId: Gets the id of a community given the title
+function getCommunityId(title) {
+    return new Promise(async (resolve, reject) => {
+        let result = await query(`SELECT id FROM communities WHERE title = ?`, [title]);
+        return resolve(result[0].id);
+    });
+}
+
 // getAllCommunities: Returns a list of all details of all communities in the
 //                    communities database
 function getAllCommunities() {
@@ -203,35 +255,58 @@ function getSearchOrderedBy(search, col) {
         throw new Error("Invalid column name");
     }
 
-    // Construct the SQL query with DISTINCT UNION
-    let sqlQuery = `
-        SELECT DISTINCT * FROM (
-            SELECT * FROM communities WHERE title LIKE ?
-            UNION
-            SELECT * FROM communities WHERE description LIKE ?
-        ) AS unioned_communities
-        ORDER BY ${col} ${ascDesc[orderCols.indexOf(col)]}
+    let communitiesQuery = `
+    SELECT DISTINCT * FROM (
+        SELECT * FROM communities WHERE title LIKE ?
+        UNION
+        SELECT * FROM communities WHERE description LIKE ?
+    ) AS unioned_communities`;
+    
+    let proposalsQuery = `
+        SELECT id, title, description, tag_id, 0 AS rating, 'proposal' AS type 
+        FROM proposals 
+        WHERE title LIKE ?
     `;
 
     return new Promise(async (resolve, reject) => {
         try {
-            // Execute the main query
-            let result = await query(sqlQuery, [`%${search}%`, `%${search}%`]);
-            
+            // Execute the queries
+            let communitiesResult = await query(communitiesQuery, [`%${search}%`, `%${search}%`]);
+            let proposalsResult = await query(proposalsQuery, [`%${search}%`]);
+
+            // Combine results
+            let combinedResult = [
+                ...communitiesResult.map(row => ({ data: row, type: "community" })),
+                ...proposalsResult.map(row => ({ data: row, type: "proposal" }))
+            ];
+
             // Fetch and attach tags
-            await Promise.all(result.map(async (row) => {
-                let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.tag_id]);
-                row.tag = tag[0].tag;
+            await Promise.all(combinedResult.map(async (row) => {
+                let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.data.tag_id]);
+                row.data.tag = tag[0].tag;
             }));
 
-            // Resolve with the translated result
-            resolve(translateResult(result));
+            // Sort combined results based on the specified column and direction
+            combinedResult.sort((a, b) => {
+                if (col === 'rating') {
+                    return ascDesc[orderCols.indexOf(col)] === 'ASC' ? a.data.rating - b.data.rating : b.data.rating - a.data.rating;
+                } else {
+                    return ascDesc[orderCols.indexOf(col)] === 'ASC'
+                        ? a.data.title.localeCompare(b.data.title)
+                        : b.data.title.localeCompare(a.data.title);
+                }
+            });
+
+            // Resolve with the sorted result
+            resolve(combinedResult);
         } catch (error) {
             // Handle errors
             reject(error);
         }
     });
 }
+
+
 
 
 
@@ -316,6 +391,15 @@ function getMemberName(user) {
     return new Promise(async (resolve, reject) => {
         let memResult = await query(`SELECT name FROM members WHERE username=?`, [user]);
         return resolve(memResult[0].name);
+    });
+}
+
+// getMemberId: Gets the id of a member given their username
+// Pre: The user exists
+function getMemberId(user) {
+    return new Promise(async (resolve, reject) => {
+        let memResult = await query(`SELECT id FROM members WHERE username=?`, [user]);
+        return resolve(memResult[0].id);
     });
 }
 
@@ -609,6 +693,55 @@ async function exImageStore() {
     await fs.writeFile("../../images2/test2.jpg", imgs[0]);
 }
 
+// Return: Returns a Promise that will have the value True if the community is 
+//         created successfully and False otherwise
+// Note: Only allows for one community of a given name
+async function createProposal(data) {
+    const user = await getMemberName(data.ownerUser);
+
+    const communityData = {
+        title: data.title, 
+        description: data.description,
+        tag_id: data.tag_id
+    }
+
+    return new Promise(async (resolve, reject) => {
+        let exists = await proposalExists(data.title);
+        if (exists) {
+            return resolve(false);
+        }
+        
+        let propResult = await query(`INSERT INTO proposals SET ?`, communityData);
+        let memResult = await query(`SELECT * FROM members WHERE name = ?`, [user]);
+        await query(`INSERT INTO proposalsInterests SET ?`, {
+            proposal_id: propResult.insertId,
+            member_id: memResult[0].id
+        });
+
+        return resolve(true);
+    })
+}
+
+// deleteCommunity: Deletes the community given by name from the communities table
+// Pre: The community is in the communities table
+// Note: The commMembers entries must be removed first as they have the community
+//       as a foreign key
+async function deleteProposal(title) {
+    let commRes = await query(`SELECT id FROM proposals WHERE title = ?`, [title]);
+    await query(`DELETE FROM proposalsInterests WHERE proposal_id = ?`, [commRes[0].id]);
+    await query(`DELETE FROM proposals WHERE title = ?`, [title]);
+}
+
+// communityExists: Checks if a community already exists with the given name on
+//                  the communities table
+// Pre: Function located between connect and disconnect calls
+function proposalExists(name) {
+    return new Promise(async (resolve, reject) => {
+        let res = await query(`SELECT * FROM proposals WHERE title = ?`, [name]);
+        return resolve(res.length > 0);
+    });
+}
+
 module.exports = {
     getAllCommunities,
     getCommunityImages,
@@ -618,12 +751,14 @@ module.exports = {
     createMember,
     memberExists, 
     createCommunity,
+    createEvent,
     addCommunityImage,
     getAllTags,
     memberExists,
     addMemberToCommunity,
     deleteMemberFromCommunity,
     memberAlreadyInCommunity,
+    createProposal,
     rateCommunity,
     getAverageRating,
     setAttendance,
