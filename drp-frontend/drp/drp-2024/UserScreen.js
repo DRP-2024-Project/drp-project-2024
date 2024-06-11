@@ -10,7 +10,7 @@ export default function UserScreen({ navigation }) {
         });
 
         const user = await response.text();
-        navigation.navigate("Communities", { navigation, user });
+        navigation.navigate("HomePageScreen", { navigation, user });
     };
     
     return (

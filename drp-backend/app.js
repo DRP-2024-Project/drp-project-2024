@@ -21,6 +21,7 @@ const {
     getAllEvents,
     removeAttendance,
     getAttending,
+    getMyCommunities
 } = require('./controllers/databaseService.js');
 
 const app = express();
@@ -57,11 +58,22 @@ app.get('/homePage', async (req, res) => {
 app.get('/search', async (req, res) => {
     const search = req.query.searchTerm || ''; 
     const orderBy = req.query.orderBy || 'title';
-    try {
-        const data = await getSearchOrderedBy(search, orderBy);
-        res.json(data);
-    } catch (error) {
-        res.status(500).send(error.message);
+    const myCommunities = req.query.myCommunities || 'false';
+    if (myCommunities == 'true') {
+        try {
+            const user = req.query.user || '';
+            const data = await getMyCommunities(user);
+            res.json(data);
+        } catch (error) {
+            res.status(500).send(error.message);
+        }
+    } else {
+        try {
+            const data = await getSearchOrderedBy(search, orderBy);
+            res.json(data);
+        } catch (error) {
+            res.status(500).send(error.message);
+        }
     }
 });
 

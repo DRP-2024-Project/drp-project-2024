@@ -2,39 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { View, FlatList, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import SearchBar from './SearchBar';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { REMOTE_HOST } from './Config';
-import ItemRecord from './ItemRecord';
 import CreateButton from './CreateButton';
+import CommunityList from './CommunityList';
 
 export default function HomeScreen({ route }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('title');
   const [search, setSearch] = useState('');
-  const [clicked, setClicked] = useState(false);
   const [items, setItems] = useState([
     { label: 'Name', value: 'title' },
     { label: 'Rating', value: 'rating' }
   ]);
   const { navigation, user } = route.params;
 
-  const [loading, setLoading] = useState(true);
-  const [communities, setCommunities] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${REMOTE_HOST}/search/?orderBy=${value}&searchTerm=${search}`);
-        const json = await response.json();
-        setCommunities(json);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [value, search]);
 
   return (
     <View style={styles.container}>
@@ -57,16 +37,7 @@ export default function HomeScreen({ route }) {
         />
         <CreateButton navigation={navigation} user={user}/>
       </View>
-      {loading ? (
-        <ActivityIndicator size="large" color="#4A90E2" style={styles.loader} />
-      ) : (
-        <FlatList
-          data={communities}
-          renderItem={({ item }) => <ItemRecord item={item} navigation={navigation} user={user}/>}
-          keyExtractor={item => item.communityId}
-          contentContainerStyle={styles.listContainer}
-        />
-      )}
+      <CommunityList value={value} search={search} navigation={navigation} user={user} myCommunities={false}/>
     </View>
   );
 }
