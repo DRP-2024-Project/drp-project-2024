@@ -4,6 +4,7 @@ import SearchBar from './SearchBar';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { REMOTE_HOST } from './Config';
 import ItemRecord from './ItemRecord';
+import ItemProposalRecord from './ItemProposalRecord'; // Import the ItemProposalRecord component
 import CreateButton from './CreateButton';
 
 export default function HomeScreen({ route }) {
@@ -25,6 +26,7 @@ export default function HomeScreen({ route }) {
       try {
         const response = await fetch(`${REMOTE_HOST}/search/?orderBy=${value}&searchTerm=${search}`);
         const json = await response.json();
+        console.log(json);
         setCommunities(json);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -36,10 +38,18 @@ export default function HomeScreen({ route }) {
     fetchData();
   }, [value, search]);
 
+  const renderItem = ({ item }) => {
+    if (item.type === 'proposal') {
+      return <ItemProposalRecord item={item.data} navigation={navigation} user={user} />;
+    } else {
+      return <ItemRecord item={item.data} navigation={navigation} user={user} />;
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
-        <SearchBar searchPhrase={search} setSearchPhrase={setSearch} setClicked={() => {}}/>
+        <SearchBar searchPhrase={search} setSearchPhrase={setSearch} setClicked={() => {}} />
       </View>
       <View style={styles.middleRow}>
         <Text style={styles.orderBy}>Order By: </Text>
@@ -55,15 +65,15 @@ export default function HomeScreen({ route }) {
           style={styles.dropdownStyle}
           dropDownContainerStyle={styles.dropDownContainerStyle}
         />
-        <CreateButton navigation={navigation} user={user}/>
+        <CreateButton navigation={navigation} user={user} />
       </View>
       {loading ? (
         <ActivityIndicator size="large" color="#4A90E2" style={styles.loader} />
       ) : (
         <FlatList
           data={communities}
-          renderItem={({ item }) => <ItemRecord item={item} navigation={navigation} user={user}/>}
           keyExtractor={item => item.communityId}
+          renderItem={renderItem}
           contentContainerStyle={styles.listContainer}
         />
       )}
@@ -117,5 +127,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  greenCard: {
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 8,
   },
 });
