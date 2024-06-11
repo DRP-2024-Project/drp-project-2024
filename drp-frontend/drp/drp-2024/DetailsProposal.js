@@ -6,44 +6,35 @@ export default function ItemDetailScreen({ route, navigation }) {
   const { item, user } = route.params;
 
   const commName = item.title;
+  const [interested, setInterested] = useState(false);
 
-  const [memberNames, setMembers] = useState(undefined);
-  const [memberUsernames, setMemberUsernames] = useState(undefined);
-  const [joined, setJoined] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${REMOTE_HOST}/getProposalMembers?proposal=${commName}`);
+        const json = await response.json();
+        console.log(json);
+        if (json.usernames.includes(user)) {
+            setInterested(true);
+        }
+      } catch (error) {
+        console.error('Failed to fetch proposal members:', error);
+      }
+    };
 
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
-//         const json = await response.json();
-//         setMembers(json.names);
-//         setMemberUsernames(json.usernames);
-//         if (json.usernames.includes(user)) {
-//           setJoined(true);
-//         }
-//       } catch (error) {
-//         console.error('Failed to fetch community members:', error);
-//       }
-//     };
-
-//     fetchData();
-//   }, []);
+    fetchData();
+  }, []);
 
 
 const handleMessage = () => {
     navigation.navigate("MessageBoard", {navigation, item, user});
   }
 
-  const handleJoin = async () => {
-    // setJoined(!joined);
-    // await fetch(`${REMOTE_HOST}/toggleMemberInCommunity/?commName=${commName}&username=${user}`, {
-    //   method: 'POST',
-    // });
-
-    // const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
-    // const json = await response.json();
-    // setMembers(json.names);
-    // setMemberUsernames(json.usernames);
+  const handleInterested = async () => {
+    setInterested(!interested);
+    await fetch(`${REMOTE_HOST}/toggleInterested/?propName=${commName}&username=${user}`, {
+      method: 'POST',
+    });
   };
 
   const renderHeader = () => (
@@ -52,15 +43,17 @@ const handleMessage = () => {
         <Text style={styles.commName}>{commName}</Text>
       </View>
       <View style={styles.topRow}>
-        {joined ? (
+        {interested ? (
           <TouchableOpacity style={styles.messageButton} onPress={handleMessage}>
-            <MaterialIcons name="message" size={24} color="white" />
+            {/* <MaterialIcons name="message" size={24} color="white" /> */}
+            <Text style={{ color: 'white', fontSize: 24 }}>Message</Text>
+
           </TouchableOpacity>) : null}
         <TouchableOpacity
-          style={[joined ? styles.joinedButton : styles.notJoinedButton]}
-          onPress={handleJoin}
+          style={[interested ? styles.interestedButton : styles.notInterestedButton]}
+          onPress={handleInterested}
         >
-          <Text style={styles.joinButtonText}>{joined ? 'Joined' : 'Join'}</Text>
+          <Text style={styles.interestedButtonText}>{interested ? 'Interested' : 'Add to Interests'}</Text>
         </TouchableOpacity>
       </View>
       <Text style={styles.description}>{item.description}</Text>
@@ -70,12 +63,8 @@ const handleMessage = () => {
   return (
     <FlatList
       ListHeaderComponent={renderHeader}
-      data={memberNames}
-      renderItem={({ item }) => (
-        <View>
-          <Text>{item}</Text>
-        </View>
-      )}
+      data={[]}
+      renderItem={() => <></>}
       keyExtractor={item => item}
       contentContainerStyle={styles.listContainer}
       style={styles.container}
@@ -107,19 +96,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
-  joinedButton: {
+  interestedButton: {
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 5,
     backgroundColor: '#32a852',
   },
-  notJoinedButton: {
+  notInterestedButton: {
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 5,
     backgroundColor: '#d3d3d3',
   },
-  joinButtonText: {
+  interestedButtonText: {
     color: '#000',
     fontWeight: 'bold',
   },

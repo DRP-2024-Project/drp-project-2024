@@ -25,7 +25,7 @@ export default function App() {
         <Stack.Screen name="User ID" component={UserScreen} />
         <Stack.Screen name="Communities" component={HomeScreen} />
         <Stack.Screen name="Details" component={DetailsScreen} />
-        <Stack.Screen name="DetailsProposal" component={DetailsProposal} />
+        <Stack.Screen name="Details Proposal" component={DetailsProposal} />
         <Stack.Screen name="Create" component={CreateScreen} />
         <Stack.Screen name="Create Community" component={CreateCommunityScreen} />
         <Stack.Screen name="Create Proposal" component={CreateProposalScreen} />

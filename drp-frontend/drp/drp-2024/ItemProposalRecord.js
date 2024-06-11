@@ -10,7 +10,7 @@ const ItemProposalRecord = ({ item, navigation, user }) => {
   return (
     <TouchableOpacity 
         style={styles.item} 
-        onPress={() => navigation.navigate('DetailsProposal', { item, user })}
+        onPress={() => navigation.navigate('Details Proposal', { item, user })}
     >
       <View style={styles.header}>
         <View style={styles.content}>

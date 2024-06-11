@@ -255,9 +255,6 @@ function getSearchOrderedBy(search, col) {
 }
 
 
-
-
-
 // getCommunityMembers: get a list of all names of members of a community
 // Return: returns an array of names and an array of usernames.
 function getCommunityMembers(title) {
@@ -265,6 +262,28 @@ function getCommunityMembers(title) {
         let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [title])
         let memResult = await query(`SELECT member_id FROM commMembers WHERE community_id = ?`, [commResult[0].id]);
         const idList = memResult.map(row => row.member_id);
+        
+        if (idList.length == 0) {
+            return resolve([[], []]);
+        }
+        
+        let res = await query(`SELECT name, username FROM members WHERE id IN (?)`, [idList]);
+        return resolve([res.map(row => row.name), res.map(row => row.username)]);
+    })
+}
+
+// getProposalMembers: get a list of all names of members of a community
+// Return: returns an array of names and an array of usernames.
+function getProposalMembers(title) {
+    return new Promise(async (resolve, reject) => {
+        let commResult = await query(`SELECT id FROM proposals WHERE title = ?`, [title])
+        let memResult = await query(`SELECT member_id FROM proposalInterests WHERE proposal_id = ?`, [commResult[0].id]);
+        const idList = memResult.map(row => row.member_id);
+
+        if (idList.length == 0) {
+            return resolve([[], []]);
+        }
+        
         let res = await query(`SELECT name, username FROM members WHERE id IN (?)`, [idList]);
         return resolve([res.map(row => row.name), res.map(row => row.username)]);
     })
@@ -333,6 +352,45 @@ function addMemberToCommunity(commName, username) {
     });
 }
 
+// addMemberToCommunity: Adds an existing member to an existing community
+// Return: Returns a Promise object of True if the member added to the 
+//         community successfully or False if the given member was already
+//         a part of the community
+function addMemberToProposal(propName, username) {
+    return new Promise(async (resolve, reject) => {
+        let propResult = await query(`SELECT id FROM proposals WHERE title = ?`, [propName]);
+        let memResult = await query(`SELECT id FROM members WHERE username = ?`, [username]);
+        let memExists = await memberAlreadyInProposal(username, propName);
+        console.log("HIHI");
+        console.log(memExists);
+        
+        if (memExists) {
+            return resolve(false);
+        }
+
+        await query(`INSERT INTO proposalInterests SET ?`, {
+            member_id: memResult[0].id,
+            proposal_id: propResult[0].id
+        });
+        return resolve(true);
+    });
+}
+
+// memberAlreadyInCommunity: Checks if a member given by username is already
+//                           in the community given by commName
+// Return: Returns a Promise object of True if the member is in the community
+//         and False if the member is not in the community
+function memberAlreadyInProposal(username, propName) {
+    return new Promise(async (resolve, reject) => {
+        let propResult = await query(`SELECT id FROM proposals WHERE title = ?`, [propName]);
+        let memResult = await query(`SELECT id FROM members WHERE username = ?`, [username]);
+        let res = await query(`SELECT * FROM proposalInterests WHERE member_id = ? AND proposal_id = ?`, 
+            [memResult[0].id, propResult[0].id]);
+        return resolve(res.length > 0);
+    });
+}
+
+
 // getMemberName: Gets the name of a member given their username
 // Pre: The user exists
 function getMemberName(user) {
@@ -396,6 +454,19 @@ async function deleteMemberFromCommunity(commName, username) {
     let commRes = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
     let memRes = await query(`SELECT id FROM members WHERE username = ?`, [username]);
     await query(`DELETE FROM commMembers WHERE member_id = ? AND community_id = ?`, 
+        [
+            memRes[0].id,
+            commRes[0].id
+        ]);
+}
+
+// deleteMemberFromCommunity: Removes a member from a community
+// Pre: The member name is not the owner
+//      The given member is a member of the community
+async function deleteMemberFromProposal(propName, username) {
+    let commRes = await query(`SELECT id FROM proposals WHERE title = ?`, [propName]);
+    let memRes = await query(`SELECT id FROM members WHERE username = ?`, [username]);
+    await query(`DELETE FROM proposalInterests WHERE member_id = ? AND proposal_id = ?`, 
         [
             memRes[0].id,
             commRes[0].id
@@ -672,6 +743,10 @@ module.exports = {
     deleteMemberFromCommunity,
     memberAlreadyInCommunity,
     createProposal,
+    deleteMemberFromProposal,
+    addMemberToProposal,
+    memberAlreadyInProposal,
+    getProposalMembers,
     rateCommunity,
     getAverageRating,
     setAttendance,

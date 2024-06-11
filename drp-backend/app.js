@@ -13,6 +13,10 @@ const {
     createCommunity,
     createProposal,
     getAllTags,
+    memberAlreadyInProposal,
+    deleteMemberFromProposal,
+    getProposalMembers,
+    addMemberToProposal,
     addMemberToCommunity,
     deleteMemberFromCommunity,
     memberAlreadyInCommunity,
@@ -163,6 +167,24 @@ app.post('/toggleMemberInCommunity', async (req, res) => {
     }
 })
 
+// If the member is already in the community, they will be removed
+// If the memnber is not already in the community, they will be added
+app.post('/toggleInterested', async (req, res) => {
+    const propName = req.query.propName;
+    const username = req.query.username;
+    const interested = await memberAlreadyInProposal(username, propName);
+    try {
+        if (interested) {
+            deleteMemberFromProposal(propName, username);
+        } else {
+            await addMemberToProposal(propName, username);
+        }
+        res.status(200).send("OK");
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
+
 app.post("/attend", async (req, res) => {
     const eventId = req.body.eventId;
     const user = req.body.user;
@@ -195,6 +217,16 @@ app.get('/getCommunityMembers', async (req, res) => {
     const community = req.query.community;
     try {
         const [names, usernames] = await getCommunityMembers(community);
+        res.json({names, usernames});
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+app.get('/getProposalMembers', async (req, res) => {
+    const prop = req.query.proposal;
+    try {
+        const [names, usernames] = await getProposalMembers(prop);
         res.json({names, usernames});
     } catch (error) {
         res.status(500).send(error.message);
