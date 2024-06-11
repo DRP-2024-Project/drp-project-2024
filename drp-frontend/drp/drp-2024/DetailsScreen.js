@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Button, FlatList, View, Text, StyleSheet, TextInput, TouchableOpacity, Keyboard } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Button, FlatList, View, Text, StyleSheet, TextInput, TouchableOpacity, Keyboard, Modal, Pressable } from 'react-native';
 import StarRating from './StarRating';
 import { REMOTE_HOST } from './Config.js';
 import PhotoGrid from './PhotoGrid.js';
@@ -26,6 +26,13 @@ export default function ItemDetailScreen({ route, navigation }) {
   const [memberNames, setMembers] = useState(undefined);
   const [memberUsernames, setMemberUsernames] = useState(undefined);
   const [joined, setJoined] = useState(false);
+
+  //For creating a new event in an unscheduled community
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newDate, setNewDate] = useState('')
+  const [newTime, setNewTime] = useState('')
+  const [newDesc, setNewDesc] = useState('')
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -56,7 +63,25 @@ export default function ItemDetailScreen({ route, navigation }) {
     setMemberUsernames(json.usernames);
   };
 
-  const renderHeader = () => (
+  const handleCreateEvent = async() => {
+    const data = {
+      date: newDate,
+      time: newTime,
+      user: user,
+      comm: commName,
+      desc: newDesc
+    }
+    setModalVisible(false);
+    await fetch(`${REMOTE_HOST}/createEvent`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+  }
+
+  const renderHeader = useCallback(() => (
     <View>
       <View style={styles.commNameBox}>
         <Text style={styles.commName}>{commName}</Text>
@@ -75,7 +100,11 @@ export default function ItemDetailScreen({ route, navigation }) {
           <Text style={styles.location}>{item.location}</Text>
         </InteractiveBox>
         <InteractiveBox initialSize={50} enlargedSize={100}>
-          <Text style={styles.contactInfo}>{item.contactInfo}</Text>
+          <Text style={styles.schedule}>{item.schedule === '' ? "No fixed schedule" : item.schedule}</Text>
+          {item.schedule === '' && <Button 
+          style={styles.organiseButton}
+          title="Organise a session"
+          onPress={() => setModalVisible(true)}/>}
         </InteractiveBox>
         <InteractiveBox initialSize={50} enlargedSize={100}>
           <Text style={styles.pricing}>{item.price} per {item.perTime}</Text>
@@ -107,7 +136,7 @@ export default function ItemDetailScreen({ route, navigation }) {
       </View>
       <Text style={styles.membersHeader}>Members:</Text>
     </View>
-  );
+  ), [memberNames, memberUsernames, joined]);
 
   const renderFooter = () => (
     <View style={styles.commentsSection}>
@@ -122,6 +151,7 @@ export default function ItemDetailScreen({ route, navigation }) {
   );
 
   return (
+    <View>
     <FlatList
       ListHeaderComponent={renderHeader}
       ListFooterComponent={renderFooter}
@@ -135,6 +165,59 @@ export default function ItemDetailScreen({ route, navigation }) {
       contentContainerStyle={styles.listContainer}
       style={styles.container}
     />
+    <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(false);
+        }}>
+        <View style={styles.modalView}>
+          <Text style={styles.commName}>Create an event</Text>
+          <View style={styles.inputRow}>
+            <View style={styles.labelInputContainer}> 
+              <Text style={styles.label}>Date</Text>
+              <TextInput
+                style={styles.input}
+                value={newDate}
+                onChangeText={setNewDate}
+              />
+            </View>
+          </View>
+
+          <View style={styles.inputRow}>
+            <View style={styles.labelInputContainer}> 
+              <Text style={styles.label}>Time</Text>
+              <TextInput
+                style={styles.input}
+                value={newTime}
+                onChangeText={setNewTime}
+              />
+            </View>
+          </View>
+
+          <View style={styles.inputRow}>
+            <View style={styles.labelInputContainer}> 
+              <Text style={styles.label}>Description</Text>
+              <TextInput
+                style={styles.input}
+                value={newDesc}
+                onChangeText={setNewDesc}
+              />
+            </View>
+          </View>
+
+          <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.createButton} onPress={handleCreateEvent}>
+                <Text style={styles.buttonText}>Create</Text>
+              </TouchableOpacity>
+            </View>
+      </View>
+      </Modal>
+    </View>
   );
 }
 
@@ -176,6 +259,69 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: 'bold',
   },
+  modalView: {
+    margin: 20,
+    backgroundColor: '#e8e8e8',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  organiseButton: {
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  input: {
+    flex: 2,
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    paddingHorizontal: 5,
+    borderRadius: 10,
+  },
+  labelInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#d9dbda',
+    borderRadius: 10,
+    padding: 10, 
+  },
+  label: {
+    flex: 1,
+    fontSize: 16,
+    marginRight: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 20,
+  },
+  cancelButton: {
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  createButton: {
+    backgroundColor: '#007BFF',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+  },
   middleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -194,7 +340,7 @@ const styles = StyleSheet.create({
   location: {
     fontSize: 14,
   },
-  contactInfo: {
+  schedule: {
     fontSize: 14,
   },
   pricing: {

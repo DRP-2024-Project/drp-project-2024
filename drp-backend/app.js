@@ -11,6 +11,7 @@ const {
     getTagDetails,
     addCommunityImage,
     createCommunity,
+    createEvent,
     getAllTags,
     addMemberToCommunity,
     deleteMemberFromCommunity,
@@ -94,6 +95,15 @@ app.post('/createCommunity', async (req, res) => {
         res.status(500).send(error.message);
     }
 });
+
+app.post('/createEvent', async (req,res) => {
+    try {
+        const made = await createEvent(req.body);
+        res.send(made);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
 
 // If the member is already in the community, they will be removed
 // If the memnber is not already in the community, they will be added

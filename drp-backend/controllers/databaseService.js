@@ -155,6 +155,50 @@ async function createCommunity(data) {
     })
 }
 
+// createEvent: Inserts a new event into the database corresponding to the given data.
+// data is supplied in the form
+// {
+//     date: '30 June',
+//     time: '4 PM',
+//     user: 'tvt22',
+//     comm: 'Tennis with Toan',
+//     desc: 'Casual tennis, no fixed events'
+// }
+// Return: Returns a Promise that will have the value True if the event is 
+//         created successfully and False otherwise
+
+async function createEvent(data) {
+    const creator = await getMemberId(data.user);
+    const community = await getCommunityId(data.comm);
+    const eventData = {
+        date: data.date,
+        time: data.time,
+        timestamp: Date.now().toString(),
+        creator_id: creator,
+        community_id: community,
+        description: data.desc
+    }
+
+    const attendanceData = {
+        event_id: 0,
+        member_id: eventData.creator_id,
+        attending: true
+    }
+    
+    return new Promise(async (resolve, reject) => {
+        try {
+            let result = await query(`INSERT INTO events SET ?`, eventData);
+            attendanceData.event_id = result.insertId;
+            await query(`INSERT INTO eventAttendance SET ?`, attendanceData);
+        } catch (error) {
+            return resolve(false);
+        }
+        return resolve(true);
+
+    })
+
+}
+
 // deleteCommunity: Deletes the community given by name from the communities table
 // Pre: The community is in the communities table
 // Note: The commMembers entries must be removed first as they have the community
@@ -182,6 +226,14 @@ function getCommunityDetails(title) {
     return new Promise(async (resolve, reject) => {
         let result = await query(`SELECT * FROM communities WHERE title = ?`, [title]);
         return resolve(result[0]);
+    });
+}
+
+// getCommunityId: Gets the id of a community given the title
+function getCommunityId(title) {
+    return new Promise(async (resolve, reject) => {
+        let result = await query(`SELECT id FROM communities WHERE title = ?`, [title]);
+        return resolve(result[0].id);
     });
 }
 
@@ -316,6 +368,15 @@ function getMemberName(user) {
     return new Promise(async (resolve, reject) => {
         let memResult = await query(`SELECT name FROM members WHERE username=?`, [user]);
         return resolve(memResult[0].name);
+    });
+}
+
+// getMemberId: Gets the id of a member given their username
+// Pre: The user exists
+function getMemberId(user) {
+    return new Promise(async (resolve, reject) => {
+        let memResult = await query(`SELECT id FROM members WHERE username=?`, [user]);
+        return resolve(memResult[0].id);
     });
 }
 
@@ -511,6 +572,7 @@ module.exports = {
     createMember,
     memberExists, 
     createCommunity,
+    createEvent,
     addCommunityImage,
     getAllTags,
     memberExists,
