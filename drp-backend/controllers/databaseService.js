@@ -255,35 +255,58 @@ function getSearchOrderedBy(search, col) {
         throw new Error("Invalid column name");
     }
 
-    // Construct the SQL query with DISTINCT UNION
-    let sqlQuery = `
-        SELECT DISTINCT * FROM (
-            SELECT * FROM communities WHERE title LIKE ?
-            UNION
-            SELECT * FROM communities WHERE description LIKE ?
-        ) AS unioned_communities
-        ORDER BY ${col} ${ascDesc[orderCols.indexOf(col)]}
+    let communitiesQuery = `
+    SELECT DISTINCT * FROM (
+        SELECT * FROM communities WHERE title LIKE ?
+        UNION
+        SELECT * FROM communities WHERE description LIKE ?
+    ) AS unioned_communities`;
+    
+    let proposalsQuery = `
+        SELECT id, title, description, tag_id, 0 AS rating, 'proposal' AS type 
+        FROM proposals 
+        WHERE title LIKE ?
     `;
 
     return new Promise(async (resolve, reject) => {
         try {
-            // Execute the main query
-            let result = await query(sqlQuery, [`%${search}%`, `%${search}%`]);
-            
+            // Execute the queries
+            let communitiesResult = await query(communitiesQuery, [`%${search}%`, `%${search}%`]);
+            let proposalsResult = await query(proposalsQuery, [`%${search}%`]);
+
+            // Combine results
+            let combinedResult = [
+                ...communitiesResult.map(row => ({ data: row, type: "community" })),
+                ...proposalsResult.map(row => ({ data: row, type: "proposal" }))
+            ];
+
             // Fetch and attach tags
-            await Promise.all(result.map(async (row) => {
-                let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.tag_id]);
-                row.tag = tag[0].tag;
+            await Promise.all(combinedResult.map(async (row) => {
+                let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.data.tag_id]);
+                row.data.tag = tag[0].tag;
             }));
 
-            // Resolve with the translated result
-            resolve(translateResult(result));
+            // Sort combined results based on the specified column and direction
+            combinedResult.sort((a, b) => {
+                if (col === 'rating') {
+                    return ascDesc[orderCols.indexOf(col)] === 'ASC' ? a.data.rating - b.data.rating : b.data.rating - a.data.rating;
+                } else {
+                    return ascDesc[orderCols.indexOf(col)] === 'ASC'
+                        ? a.data.title.localeCompare(b.data.title)
+                        : b.data.title.localeCompare(a.data.title);
+                }
+            });
+
+            // Resolve with the sorted result
+            resolve(combinedResult);
         } catch (error) {
             // Handle errors
             reject(error);
         }
     });
 }
+
+
 
 
 
@@ -491,6 +514,88 @@ function getCommunityImages(commName) {
     })
 }
 
+async function translateEvents(events) {
+    for (const event of events) {
+        let name = await query(`SELECT name FROM members WHERE id = ?`, [event.creator_id]);
+        event.creator_name = name[0].name;
+    }
+}
+
+function getAllEvents(commId) {
+    return new Promise(async (resolve, reject) => {
+        let result = await query(`SELECT * FROM events WHERE community_id = ?`, [commId]);
+        await translateEvents(result);
+        return resolve(result);
+    })
+}
+
+async function translateAttendanceList(lst) {
+    if (lst.length == 0) {
+        return [];
+    }
+    const idList = lst.map(row => row.member_id);
+    let res = await query(`SELECT name, username FROM members WHERE id IN (?)`, [idList]);
+    return res;
+}
+
+function getAttending(eventId) {
+    return new Promise(async (resolve, reject) => {
+        let attending = await query(`SELECT * FROM eventAttendance 
+            WHERE event_id = ? AND attending = TRUE`, [eventId]);
+        let notAttending = await query(`SELECT * FROM eventAttendance
+            WHERE event_id = ? AND attending = FALSE`, [eventId]);
+        let data = {
+            attending: await translateAttendanceList(attending),
+            notAttending: await translateAttendanceList(notAttending),
+        };
+        return resolve(data);
+    })
+}
+
+async function setAttendance(eventId, user, attend) {
+    let memberId = (await query(`SELECT id FROM members WHERE username = ?`, [user]))[0].id;
+    let res = await query(`UPDATE eventAttendance SET attending = ?
+                           WHERE event_id = ? AND
+                                 member_id = ?`, [attend, eventId, memberId]);
+    if (res.affectedRows == 0) {
+        await query(`INSERT INTO eventAttendance SET ?`, {
+            event_id: eventId,
+            member_id: memberId,
+            attending: attend,
+        });
+    };
+}
+
+async function removeAttendance(eventId, username) {
+    let memberId = (await query(`SELECT id FROM members WHERE username = ?`, [username]))[0].id;
+    await query(
+        `DELETE FROM eventAttendance WHERE event_id = ? AND member_id = ?`,
+        [eventId, memberId]
+    );
+};
+
+function rateCommunity(communityName, userName, rating) {
+    return new Promise(async (resolve, reject) => {
+        let communityID = (await query(`SELECT id from communities WHERE title = ?`, [communityName]))[0].id;
+        let userID = (await query(`SELECT id from members WHERE username = ?`, [userName]))[0].id;
+        await query(`INSERT INTO communityRatings (community_id, user_id, rating) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE rating = VALUES(rating)`, [communityID, userID, rating]);
+        return resolve(true);
+    })
+}
+
+
+function getAverageRating(communityName) {
+    return new Promise(async (resolve, reject) => {
+        let communityID = (await query(`SELECT id from communities WHERE title = ?`, [communityName]))[0].id;
+        let result = await query(`SELECT AVG(rating) AS averageRating FROM communityRatings WHERE community_id = ?`, [communityID]);
+        if (result.length === 0 || result[0].averageRating === null) {
+            return resolve(3);  // No ratings found, return 0 as the average rating
+        }
+        return resolve(result[0].averageRating);
+    })
+}
+
+
 
 // createTables();
 // dropTables();
@@ -563,6 +668,55 @@ async function exImageStore() {
     await fs.writeFile("../../images2/test2.jpg", imgs[0]);
 }
 
+// Return: Returns a Promise that will have the value True if the community is 
+//         created successfully and False otherwise
+// Note: Only allows for one community of a given name
+async function createProposal(data) {
+    const user = await getMemberName(data.ownerUser);
+
+    const communityData = {
+        title: data.title, 
+        description: data.description,
+        tag_id: data.tag_id
+    }
+
+    return new Promise(async (resolve, reject) => {
+        let exists = await proposalExists(data.title);
+        if (exists) {
+            return resolve(false);
+        }
+        
+        let propResult = await query(`INSERT INTO proposals SET ?`, communityData);
+        let memResult = await query(`SELECT * FROM members WHERE name = ?`, [user]);
+        await query(`INSERT INTO proposalsInterests SET ?`, {
+            proposal_id: propResult.insertId,
+            member_id: memResult[0].id
+        });
+
+        return resolve(true);
+    })
+}
+
+// deleteCommunity: Deletes the community given by name from the communities table
+// Pre: The community is in the communities table
+// Note: The commMembers entries must be removed first as they have the community
+//       as a foreign key
+async function deleteProposal(title) {
+    let commRes = await query(`SELECT id FROM proposals WHERE title = ?`, [title]);
+    await query(`DELETE FROM proposalsInterests WHERE proposal_id = ?`, [commRes[0].id]);
+    await query(`DELETE FROM proposals WHERE title = ?`, [title]);
+}
+
+// communityExists: Checks if a community already exists with the given name on
+//                  the communities table
+// Pre: Function located between connect and disconnect calls
+function proposalExists(name) {
+    return new Promise(async (resolve, reject) => {
+        let res = await query(`SELECT * FROM proposals WHERE title = ?`, [name]);
+        return resolve(res.length > 0);
+    });
+}
+
 module.exports = {
     getAllCommunities,
     getCommunityImages,
@@ -578,6 +732,12 @@ module.exports = {
     memberExists,
     addMemberToCommunity,
     deleteMemberFromCommunity,
-    memberAlreadyInCommunity
+    memberAlreadyInCommunity,
+    createProposal,
+    rateCommunity,
+    getAverageRating,
+    setAttendance,
+    getAllEvents,
+    removeAttendance,
+    getAttending,
 }
-

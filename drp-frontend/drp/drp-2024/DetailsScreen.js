@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Button, FlatList, View, Text, StyleSheet, TextInput, TouchableOpacity, Keyboard, Modal, Pressable } from 'react-native';
-import StarRating from './StarRating';
+import React,  { useState, useEffect, useCallback } from 'react';
+import { Button, FlatList, View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, DraggableList, Modal, Pressable  } from 'react-native';
 import { REMOTE_HOST } from './Config.js';
 import PhotoGrid from './PhotoGrid.js';
+import RatingComponent from './Rating.js';
+import FixedRating from './FixedRating.js'
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   const [size, setSize] = useState(enlargedSize);
@@ -32,6 +33,8 @@ export default function ItemDetailScreen({ route, navigation }) {
   const [newDate, setNewDate] = useState('')
   const [newTime, setNewTime] = useState('')
   const [newDesc, setNewDesc] = useState('')
+  const [rating, setRating] = useState(3.0);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,6 +53,22 @@ export default function ItemDetailScreen({ route, navigation }) {
 
     fetchData();
   }, []);
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${REMOTE_HOST}/getRating?community=${commName}`);
+        const text = await response.text();
+        const new_rating = parseFloat(text);
+        setRating(new_rating);
+      } catch(error) {
+        console.error('Failed to fetch rating', error);
+      }
+    };
+    fetchData();
+  }, []);
+
 
   const handleJoin = async () => {
     setJoined(!joined);
@@ -81,6 +100,10 @@ export default function ItemDetailScreen({ route, navigation }) {
     })
   }
 
+  const handleMessage = () => {
+    navigation.navigate("MessageBoard", {navigation, item, user});
+  }
+
   const renderHeader = useCallback(() => (
     <View>
       <View style={styles.commNameBox}>
@@ -88,6 +111,12 @@ export default function ItemDetailScreen({ route, navigation }) {
       </View>
       <View style={styles.topRow}>
         <Text style={styles.level}>Level: {item.level}</Text>
+        {joined ? (
+          <TouchableOpacity style={styles.messageButton} onPress={handleMessage}>
+            {<MaterialIcons name="message" size={24} color="white" />
+            //  <Text style={{ color: 'white', fontSize: 24 }}>Message</Text>
+            }
+          </TouchableOpacity>): null}
         <TouchableOpacity
           style={[joined ? styles.joinedButton : styles.notJoinedButton]}
           onPress={handleJoin}
@@ -112,13 +141,14 @@ export default function ItemDetailScreen({ route, navigation }) {
       </View>
       <View style={styles.mapRow}>
         <Button title="View Map" color="#3d649b" borderRadius="10" onPress={() => navigation.navigate('Map', { latitude: item.latitude, longitude: item.longitude })} />
+        <RatingComponent commName={item.title} user={user} />
       </View>
       <Text style={styles.description}>{item.description}</Text>
       <View style={styles.scheduleRow}>
         <Text style={styles.schedule}>{item.schedule}</Text>
       </View>
       <View style={styles.ratingRow}>
-        <StarRating rating={item.rating} maxRating={5} />
+        <FixedRating rating={rating} />
       </View>
       <View>
         <PhotoGrid community={item.title} />
@@ -242,6 +272,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 10,
+    alignItems: 'center',
+    flex: 1,
   },
   joinedButton: {
     paddingVertical: 8,
@@ -414,5 +446,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
+  },
+  messageButton: {
+    backgroundColor: '#d3d3d3',
+    padding: 10,
+    borderRadius: 50,
+    transform: [{ translateX: -25 }],
   },
 });

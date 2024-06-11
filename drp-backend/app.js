@@ -12,10 +12,17 @@ const {
     addCommunityImage,
     createCommunity,
     createEvent,
+    createProposal,
     getAllTags,
     addMemberToCommunity,
     deleteMemberFromCommunity,
-    memberAlreadyInCommunity
+    memberAlreadyInCommunity,
+    rateCommunity,
+    getAverageRating,
+    setAttendance,
+    getAllEvents,
+    removeAttendance,
+    getAttending,
 } = require('./controllers/databaseService.js');
 
 const app = express();
@@ -60,21 +67,55 @@ app.get('/search', async (req, res) => {
     }
 });
 
-app.post('/addMember', async (req, res) => {
-    const name = req.query.name || ""
-    const username = req.query.username
+app.post('/login', async (req, res) => {
+    const username = req.query.username;
     try {
-        const exists = await memberExists(username)
+        const exists = await memberExists(username);
         if (exists) {
-            res.send(username);
+            res.json({username: username, exists: true});
         } else {
-            createMember(name, username);
-            res.send(username);
+            res.json({username: username, exists: false});
         }
     } catch (error) {
         res.status(500).send(error.message);
     }
 })
+
+app.post('/addUser', async (req, res) => {
+    const name = req.query.name
+    const username = req.query.username
+    try {
+        createMember(name, username);
+        res.status(200).send("OK")
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+app.post('/rate', async (req, res) => {
+    const community = req.query.commName;
+    const user = req.query.username;
+    const rating = parseFloat(req.query.rating);
+    try {
+        await rateCommunity(community, user, rating);
+        res.status(200).send("Rating Added")
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+app.get('/getRating', async (req, res) => {
+    const community = req.query.community;
+    try {
+        const result = await getAverageRating(community);
+        res.send(result.toString());
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+
+
 
 // Returns true if the community is made correctly or false otherwise
 app.post('/createCommunity', async (req, res) => {
@@ -104,12 +145,21 @@ app.post('/createEvent', async (req,res) => {
         res.status(500).send(error.message);
     }
 })
+app.post('/createProposal', async (req, res) => {
+    try {
+        res.send(await createProposal(req.body));
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
 
 // If the member is already in the community, they will be removed
 // If the memnber is not already in the community, they will be added
 app.post('/toggleMemberInCommunity', async (req, res) => {
     const commName = req.query.commName;
     const username = req.query.username;
+
     const joined = await memberAlreadyInCommunity(username, commName);
     try {
         if (joined) {
@@ -123,6 +173,33 @@ app.post('/toggleMemberInCommunity', async (req, res) => {
     }
 })
 
+app.post("/attend", async (req, res) => {
+    const eventId = req.body.eventId;
+    const user = req.body.user;
+    const attend = req.body.attend;
+    try {
+        if (attend != null) {
+            await setAttendance(eventId, user, attend);
+        } else {
+            await removeAttendance(eventId, user);
+        }
+        res.status(200).send("OK");
+    } catch (error) {
+        req.status(500).send(error.message);
+    }
+});
+
+app.get("/getEvents", async (req, res) => {
+    const commId = req.query.commId;
+    const result = await getAllEvents(commId);
+    res.json(result);
+});
+
+app.get("/attending", async (req, res) => {
+    const eventId = req.query.eventId;
+    const result = await getAttending(eventId);
+    res.json(result);
+})
 
 app.get('/getCommunityMembers', async (req, res) => {
     const community = req.query.community;
@@ -133,11 +210,6 @@ app.get('/getCommunityMembers', async (req, res) => {
         res.status(500).send(error.message);
     }
 });
-
-
-app.get('/debug', (req,res) => {
-    res.send("V1");
-})
   
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
