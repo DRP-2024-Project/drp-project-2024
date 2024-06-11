@@ -203,35 +203,58 @@ function getSearchOrderedBy(search, col) {
         throw new Error("Invalid column name");
     }
 
-    // Construct the SQL query with DISTINCT UNION
-    let sqlQuery = `
-        SELECT DISTINCT * FROM (
-            SELECT * FROM communities WHERE title LIKE ?
-            UNION
-            SELECT * FROM communities WHERE description LIKE ?
-        ) AS unioned_communities
-        ORDER BY ${col} ${ascDesc[orderCols.indexOf(col)]}
+    let communitiesQuery = `
+    SELECT DISTINCT * FROM (
+        SELECT * FROM communities WHERE title LIKE ?
+        UNION
+        SELECT * FROM communities WHERE description LIKE ?
+    ) AS unioned_communities`;
+    
+    let proposalsQuery = `
+        SELECT id, title, description, tag_id, 0 AS rating, 'proposal' AS type 
+        FROM proposals 
+        WHERE title LIKE ?
     `;
 
     return new Promise(async (resolve, reject) => {
         try {
-            // Execute the main query
-            let result = await query(sqlQuery, [`%${search}%`, `%${search}%`]);
-            
+            // Execute the queries
+            let communitiesResult = await query(communitiesQuery, [`%${search}%`, `%${search}%`]);
+            let proposalsResult = await query(proposalsQuery, [`%${search}%`]);
+
+            // Combine results
+            let combinedResult = [
+                ...communitiesResult.map(row => ({ data: row, type: "community" })),
+                ...proposalsResult.map(row => ({ data: row, type: "proposal" }))
+            ];
+
             // Fetch and attach tags
-            await Promise.all(result.map(async (row) => {
-                let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.tag_id]);
-                row.tag = tag[0].tag;
+            await Promise.all(combinedResult.map(async (row) => {
+                let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.data.tag_id]);
+                row.data.tag = tag[0].tag;
             }));
 
-            // Resolve with the translated result
-            resolve(translateResult(result));
+            // Sort combined results based on the specified column and direction
+            combinedResult.sort((a, b) => {
+                if (col === 'rating') {
+                    return ascDesc[orderCols.indexOf(col)] === 'ASC' ? a.data.rating - b.data.rating : b.data.rating - a.data.rating;
+                } else {
+                    return ascDesc[orderCols.indexOf(col)] === 'ASC'
+                        ? a.data.title.localeCompare(b.data.title)
+                        : b.data.title.localeCompare(a.data.title);
+                }
+            });
+
+            // Resolve with the sorted result
+            resolve(combinedResult);
         } catch (error) {
             // Handle errors
             reject(error);
         }
     });
 }
+
+
 
 
 
