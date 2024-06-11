@@ -602,17 +602,22 @@ function getMyCommunities(user) {
 
             let userID = (await query(`SELECT id from members WHERE username = ?`, [user]))[0].id;
             // Execute the main query
-            let result = (await query(`SELECT communities.*  FROM communities  JOIN commMembers ON communities.id = commMembers.community_id  WHERE commMembers.member_id = ?`, [userID]));
+            let communityResult = (await query(`SELECT communities.*  FROM communities  JOIN commMembers ON communities.id = commMembers.community_id  WHERE commMembers.member_id = ?`, [userID]));
             
+            // Combine results
+            let combinedResult = [
+                ...communityResult.map(row => ({ data: row, type: "community" })),
+            ];
+
             // Fetch and attach tags
-            await Promise.all(result.map(async (row) => {
-                let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.tag_id]);
-                row.tag = tag[0].tag;
+            await Promise.all(combinedResult.map(async (row) => {
+                let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.data.tag_id]);
+                row.data.tag = tag[0].tag;
             }));
 
-            
+
             // Resolve with the translated result
-            resolve(translateResult(result));
+            resolve(combinedResult);
         } catch (error) {
             // Handle errors
             reject(error);
