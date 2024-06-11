@@ -490,6 +490,29 @@ async function removeAttendance(eventId, username) {
     );
 };
 
+function rateCommunity(communityName, userName, rating) {
+    return new Promise(async (resolve, reject) => {
+        let communityID = (await query(`SELECT id from communities WHERE title = ?`, [communityName]))[0].id;
+        let userID = (await query(`SELECT id from members WHERE username = ?`, [userName]))[0].id;
+        await query(`INSERT INTO communityRatings (community_id, user_id, rating) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE rating = VALUES(rating)`, [communityID, userID, rating]);
+        return resolve(true);
+    })
+}
+
+
+function getAverageRating(communityName) {
+    return new Promise(async (resolve, reject) => {
+        let communityID = (await query(`SELECT id from communities WHERE title = ?`, [communityName]))[0].id;
+        let result = await query(`SELECT AVG(rating) AS averageRating FROM communityRatings WHERE community_id = ?`, [communityID]);
+        if (result.length === 0 || result[0].averageRating === null) {
+            return resolve(3);  // No ratings found, return 0 as the average rating
+        }
+        return resolve(result[0].averageRating);
+    })
+}
+
+
+
 // createTables();
 // dropTables();
 const dataToAdd = {
@@ -561,6 +584,55 @@ async function exImageStore() {
     await fs.writeFile("../../images2/test2.jpg", imgs[0]);
 }
 
+// Return: Returns a Promise that will have the value True if the community is 
+//         created successfully and False otherwise
+// Note: Only allows for one community of a given name
+async function createProposal(data) {
+    const user = await getMemberName(data.ownerUser);
+
+    const communityData = {
+        title: data.title, 
+        description: data.description,
+        tag_id: data.tag_id
+    }
+
+    return new Promise(async (resolve, reject) => {
+        let exists = await proposalExists(data.title);
+        if (exists) {
+            return resolve(false);
+        }
+        
+        let propResult = await query(`INSERT INTO proposals SET ?`, communityData);
+        let memResult = await query(`SELECT * FROM members WHERE name = ?`, [user]);
+        await query(`INSERT INTO proposalsInterests SET ?`, {
+            proposal_id: propResult.insertId,
+            member_id: memResult[0].id
+        });
+
+        return resolve(true);
+    })
+}
+
+// deleteCommunity: Deletes the community given by name from the communities table
+// Pre: The community is in the communities table
+// Note: The commMembers entries must be removed first as they have the community
+//       as a foreign key
+async function deleteProposal(title) {
+    let commRes = await query(`SELECT id FROM proposals WHERE title = ?`, [title]);
+    await query(`DELETE FROM proposalsInterests WHERE proposal_id = ?`, [commRes[0].id]);
+    await query(`DELETE FROM proposals WHERE title = ?`, [title]);
+}
+
+// communityExists: Checks if a community already exists with the given name on
+//                  the communities table
+// Pre: Function located between connect and disconnect calls
+function proposalExists(name) {
+    return new Promise(async (resolve, reject) => {
+        let res = await query(`SELECT * FROM proposals WHERE title = ?`, [name]);
+        return resolve(res.length > 0);
+    });
+}
+
 module.exports = {
     getAllCommunities,
     getCommunityImages,
@@ -576,9 +648,11 @@ module.exports = {
     addMemberToCommunity,
     deleteMemberFromCommunity,
     memberAlreadyInCommunity,
+    createProposal,
+    rateCommunity,
+    getAverageRating,
     setAttendance,
     getAllEvents,
     removeAttendance,
     getAttending,
 }
-

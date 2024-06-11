@@ -11,10 +11,13 @@ const {
     getTagDetails,
     addCommunityImage,
     createCommunity,
+    createProposal,
     getAllTags,
     addMemberToCommunity,
     deleteMemberFromCommunity,
     memberAlreadyInCommunity,
+    rateCommunity,
+    getAverageRating,
     setAttendance,
     getAllEvents,
     removeAttendance,
@@ -86,7 +89,32 @@ app.post('/addUser', async (req, res) => {
     } catch (error) {
         res.status(500).send(error.message);
     }
-})
+});
+
+app.post('/rate', async (req, res) => {
+    const community = req.query.commName;
+    const user = req.query.username;
+    const rating = parseFloat(req.query.rating);
+    try {
+        await rateCommunity(community, user, rating);
+        res.status(200).send("Rating Added")
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+app.get('/getRating', async (req, res) => {
+    const community = req.query.community;
+    try {
+        const result = await getAverageRating(community);
+        res.send(result.toString());
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+
+
 
 // Returns true if the community is made correctly or false otherwise
 app.post('/createCommunity', async (req, res) => {
@@ -107,6 +135,15 @@ app.post('/createCommunity', async (req, res) => {
         res.status(500).send(error.message);
     }
 });
+
+app.post('/createProposal', async (req, res) => {
+    try {
+        res.send(await createProposal(req.body));
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
 
 // If the member is already in the community, they will be removed
 // If the memnber is not already in the community, they will be added
