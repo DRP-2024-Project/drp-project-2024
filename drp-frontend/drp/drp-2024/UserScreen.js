@@ -13,7 +13,7 @@ export default function UserScreen({ navigation }) {
 
         const json = await response.json();
         const user = json.user;
-        console.log(json);
+       
         if (!json.exists) {
             setModalVisible(true);
         } else {
