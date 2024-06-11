@@ -52,7 +52,7 @@ export default function ItemDetailScreen({ route, navigation }) {
     };
 
     fetchData();
-  }, []);
+  }, [commName, user]);
 
 
   useEffect(() => {
@@ -67,7 +67,7 @@ export default function ItemDetailScreen({ route, navigation }) {
       }
     };
     fetchData();
-  }, []);
+  }, [commName]);
 
 
   const handleJoin = async () => {
@@ -181,7 +181,7 @@ export default function ItemDetailScreen({ route, navigation }) {
   );
 
   return (
-    <View>
+    <View style={styles.container}>
     <FlatList
       ListHeaderComponent={renderHeader}
       ListFooterComponent={renderFooter}
@@ -193,7 +193,6 @@ export default function ItemDetailScreen({ route, navigation }) {
       )}
       keyExtractor={item => item}
       contentContainerStyle={styles.listContainer}
-      style={styles.container}
     />
     <Modal
         animationType="slide"
@@ -384,9 +383,6 @@ const styles = StyleSheet.create({
   },
   scheduleRow: {
     marginBottom: 10,
-  },
-  schedule: {
-    fontSize: 14,
   },
   ratingRow: {
     marginBottom: 10,
