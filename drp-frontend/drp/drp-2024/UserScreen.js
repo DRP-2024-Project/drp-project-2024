@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Modal } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, Modal, TouchableOpacity } from 'react-native';
 import { REMOTE_HOST } from './Config';
+import { BlurView } from 'expo-blur';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function UserScreen({ navigation }) {
     const [username, setUsername] = useState('');
@@ -47,23 +49,33 @@ export default function UserScreen({ navigation }) {
             <Button title="Submit" color="#3d649b" borderRadius="10" onPress={handlePress} />
             <Modal
                 transparent={true}
-                animationType="slide"
                 visible={modalVisible}
                 onRequestClose={closeModal}
             >
                 <View style={styles.modalContainer}>
-                <View style={styles.modalView}>
-                    <Text style={styles.modalText}>Account not registered</Text>
-                    <Text style={styles.label}>Enter name</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={name}
-                        onChangeText={setName}
-                        placeholder="Name"
-                        onSubmitEditing={submitName}
+                    <BlurView
+                        style={styles.absolute}
+                        blurType="light"
+                        blurAmount={10}
+                        reducedTransparencyFallbackColor="white"
                     />
-                    <Button title="Submit" color="#3d649b" borderRadius="10" onPress={submitName} />
-                </View>
+                    <View style={styles.modalView}>
+                        <View style={styles.closeButtonContainer}>
+                            <TouchableOpacity onPress={closeModal}>
+                                <Ionicons name="close" size={24} color="#d3d3d3" />
+                            </TouchableOpacity>
+                        </View>
+                        <Text style={styles.modalText}>Account not registered</Text>
+                        <Text style={styles.label}>Enter name</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={name}
+                            onChangeText={setName}
+                            placeholder="Name"
+                            onSubmitEditing={submitName}
+                        />
+                        <Button title="Submit" color="#3d649b" borderRadius="10" onPress={submitName} />
+                    </View>
                 </View>
             </Modal>
         </View>
@@ -138,8 +150,18 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5,
     },
-        modalText: {
+    modalText: {
         marginBottom: 15,
         textAlign: 'center',
     },
+    absolute: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+    },
+    closeButtonContainer: {
+        alignSelf: 'flex-end',
+    }
 });
