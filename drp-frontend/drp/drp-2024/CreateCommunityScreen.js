@@ -15,6 +15,7 @@ import Tag from './Tag'
 import SelectedTag from './SelectedTag'
 import { REMOTE_HOST, TAGS } from './Config';
 import * as ImagePicker from 'expo-image-picker';
+import { BlurView } from 'expo-blur';
 
 // verifyCommData: verifies that all data for creating a community is of the correct form
 // Return: returns "" if all data is valid or errMessage if there is some invalid data
@@ -245,19 +246,24 @@ export default function HomeScreen({ route }) {
         ))}
       </View>
       <View style={styles.imageButton}>
-        <Button title="Select Image" onPress={selectImage} />
+        <Button title="Select Image" color="#3d649b" borderRadius="10" onPress={selectImage} />
       </View>
-      <Button title="Submit" onPress={handleSubmit} />
+      <Button title="Submit" color="#3d649b" borderRadius="10" onPress={handleSubmit} />
       <Modal
         transparent={true}
-        animationType="slide"
         visible={modalVisible}
         onRequestClose={closeModal}
       >
         <View style={styles.modalContainer}>
+          <BlurView
+            style={styles.absolute}
+            blurType="light"
+            blurAmount={10}
+            reducedTransparencyFallbackColor="white"
+          />
           <View style={styles.modalView}>
             <Text style={styles.modalText}>{errMessage}</Text>
-            <Button title="Close" onPress={closeModal} />
+            <Button title="Close" color="#3d649b" borderRadius="10" onPress={closeModal} />
           </View>
         </View>
       </Modal>
@@ -341,5 +347,12 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
+  },
+  absolute: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
   },
 });

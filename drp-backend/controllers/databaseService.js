@@ -155,6 +155,50 @@ async function createCommunity(data) {
     })
 }
 
+// createEvent: Inserts a new event into the database corresponding to the given data.
+// data is supplied in the form
+// {
+//     date: '30 June',
+//     time: '4 PM',
+//     user: 'tvt22',
+//     comm: 'Tennis with Toan',
+//     desc: 'Casual tennis, no fixed events'
+// }
+// Return: Returns a Promise that will have the value True if the event is 
+//         created successfully and False otherwise
+
+async function createEvent(data) {
+    const creator = await getMemberId(data.user);
+    const community = await getCommunityId(data.comm);
+    const eventData = {
+        date: data.date,
+        time: data.time,
+        timestamp: Date.now().toString(),
+        creator_id: creator,
+        community_id: community,
+        description: data.desc
+    }
+
+    const attendanceData = {
+        event_id: 0,
+        member_id: eventData.creator_id,
+        attending: true
+    }
+    
+    return new Promise(async (resolve, reject) => {
+        try {
+            let result = await query(`INSERT INTO events SET ?`, eventData);
+            attendanceData.event_id = result.insertId;
+            await query(`INSERT INTO eventAttendance SET ?`, attendanceData);
+        } catch (error) {
+            return resolve(false);
+        }
+        return resolve(true);
+
+    })
+
+}
+
 // deleteCommunity: Deletes the community given by name from the communities table
 // Pre: The community is in the communities table
 // Note: The commMembers entries must be removed first as they have the community
@@ -182,6 +226,14 @@ function getCommunityDetails(title) {
     return new Promise(async (resolve, reject) => {
         let result = await query(`SELECT * FROM communities WHERE title = ?`, [title]);
         return resolve(result[0]);
+    });
+}
+
+// getCommunityId: Gets the id of a community given the title
+function getCommunityId(title) {
+    return new Promise(async (resolve, reject) => {
+        let result = await query(`SELECT id FROM communities WHERE title = ?`, [title]);
+        return resolve(result[0].id);
     });
 }
 
@@ -398,6 +450,15 @@ function getMemberName(user) {
     });
 }
 
+// getMemberId: Gets the id of a member given their username
+// Pre: The user exists
+function getMemberId(user) {
+    return new Promise(async (resolve, reject) => {
+        let memResult = await query(`SELECT id FROM members WHERE username=?`, [user]);
+        return resolve(memResult[0].id);
+    });
+}
+
 // getTagDetails: Returns the name and icon of a tag
 function getTagDetails(tag_id) {
     return new Promise(async (resolve, reject) => {
@@ -603,6 +664,36 @@ function getAverageRating(communityName) {
     })
 }
 
+function getMyCommunities(user) {
+
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let userID = (await query(`SELECT id from members WHERE username = ?`, [user]))[0].id;
+            // Execute the main query
+            let communityResult = (await query(`SELECT communities.*  FROM communities  JOIN commMembers ON communities.id = commMembers.community_id  WHERE commMembers.member_id = ?`, [userID]));
+            
+            // Combine results
+            let combinedResult = [
+                ...communityResult.map(row => ({ data: row, type: "community" })),
+            ];
+
+            // Fetch and attach tags
+            await Promise.all(combinedResult.map(async (row) => {
+                let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.data.tag_id]);
+                row.data.tag = tag[0].tag;
+            }));
+
+
+            // Resolve with the translated result
+            resolve(combinedResult);
+        } catch (error) {
+            // Handle errors
+            reject(error);
+        }
+    });
+}
+
 
 
 // createTables();
@@ -734,6 +825,7 @@ module.exports = {
     createMember,
     memberExists, 
     createCommunity,
+    createEvent,
     addCommunityImage,
     getAllTags,
     memberExists,
@@ -751,4 +843,6 @@ module.exports = {
     getAllEvents,
     removeAttendance,
     getAttending,
+    getMyCommunities
 }
+

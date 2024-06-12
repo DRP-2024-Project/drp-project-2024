@@ -11,6 +11,7 @@ const {
     getTagDetails,
     addCommunityImage,
     createCommunity,
+    createEvent,
     createProposal,
     getAllTags,
     memberAlreadyInProposal,
@@ -26,6 +27,7 @@ const {
     getAllEvents,
     removeAttendance,
     getAttending,
+    getMyCommunities
 } = require('./controllers/databaseService.js');
 
 const app = express();
@@ -62,11 +64,22 @@ app.get('/homePage', async (req, res) => {
 app.get('/search', async (req, res) => {
     const search = req.query.searchTerm || ''; 
     const orderBy = req.query.orderBy || 'title';
-    try {
-        const data = await getSearchOrderedBy(search, orderBy);
-        res.json(data);
-    } catch (error) {
-        res.status(500).send(error.message);
+    const myCommunities = req.query.myCommunities || 'false';
+    if (myCommunities == 'true') {
+        try {
+            const user = req.query.user || '';
+            const data = await getMyCommunities(user);
+            res.json(data);
+        } catch (error) {
+            res.status(500).send(error.message);
+        }
+    } else {
+        try {
+            const data = await getSearchOrderedBy(search, orderBy);
+            res.json(data);
+        } catch (error) {
+            res.status(500).send(error.message);
+        }
     }
 });
 
@@ -140,6 +153,14 @@ app.post('/createCommunity', async (req, res) => {
     }
 });
 
+app.post('/createEvent', async (req,res) => {
+    try {
+        const made = await createEvent(req.body);
+        res.send(made);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
 app.post('/createProposal', async (req, res) => {
     try {
         res.send(await createProposal(req.body));
@@ -154,6 +175,7 @@ app.post('/createProposal', async (req, res) => {
 app.post('/toggleMemberInCommunity', async (req, res) => {
     const commName = req.query.commName;
     const username = req.query.username;
+
     const joined = await memberAlreadyInCommunity(username, commName);
     try {
         if (joined) {

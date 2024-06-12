@@ -9,11 +9,15 @@ export default function HomeScreen({ route }) {
     <View style={styles.container}>
       <Button
         title="Create Community"
+        color="#3d649b" 
+        borderRadius="10"
         onPress={() => navigation.navigate('Create Community', route.params)}
       />
       <View style={styles.spacer} />
       <Button
-        title="Create Proposal"
+        title="Create Proposal" 
+        color="#3d649b" 
+        borderRadius="10"
         onPress={() => navigation.navigate('Create Proposal', route.params)}
       />
     </View>

@@ -6,45 +6,18 @@ import { REMOTE_HOST } from './Config';
 import ItemRecord from './ItemRecord';
 import ItemProposalRecord from './ItemProposalRecord'; // Import the ItemProposalRecord component
 import CreateButton from './CreateButton';
+import CommunityList from './CommunityList';
 
 export default function HomeScreen({ route }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('title');
   const [search, setSearch] = useState('');
-  const [clicked, setClicked] = useState(false);
   const [items, setItems] = useState([
     { label: 'Name', value: 'title' },
     { label: 'Rating', value: 'rating' }
   ]);
   const { navigation, user } = route.params;
 
-  const [loading, setLoading] = useState(true);
-  const [communities, setCommunities] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${REMOTE_HOST}/search/?orderBy=${value}&searchTerm=${search}`);
-        const json = await response.json();
-        console.log(json);
-        setCommunities(json);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [value, search]);
-
-  const renderItem = ({ item }) => {
-    if (item.type === 'proposal') {
-      return <ItemProposalRecord item={item.data} navigation={navigation} user={user} />;
-    } else {
-      return <ItemRecord item={item.data} navigation={navigation} user={user} />;
-    }
-  };
 
   return (
     <View style={styles.container}>
@@ -67,16 +40,7 @@ export default function HomeScreen({ route }) {
         />
         <CreateButton navigation={navigation} user={user} />
       </View>
-      {loading ? (
-        <ActivityIndicator size="large" color="#4A90E2" style={styles.loader} />
-      ) : (
-        <FlatList
-          data={communities}
-          keyExtractor={item => item.communityId}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContainer}
-        />
-      )}
+      <CommunityList value={value} search={search} navigation={navigation} user={user} myCommunities={false}/>
     </View>
   );
 }
