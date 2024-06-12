@@ -11,7 +11,7 @@ export default function MessageBoardScreen({ route }) {
     useEffect(() => {
         const fetchData = async () => {
           try {
-            const response = await fetch(`${REMOTE_HOST}/getEvents/?commId=${item.communityId}`);
+            const response = await fetch(`${REMOTE_HOST}/getEvents/?commId=${item.id}`);
             const json = await response.json();
             setEvents(json);
           } catch (error) {
@@ -25,7 +25,7 @@ export default function MessageBoardScreen({ route }) {
     }, []);
 
     return (
-        <View>
+        <View style={styles.container}>
             {loading ? (
                 <ActivityIndicator size="large" color="#4A90E2" style={styles.loader} />
             ) : (
@@ -41,6 +41,10 @@ export default function MessageBoardScreen({ route }) {
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#F7F7F7',
+      },
     listContainer: {
         paddingVertical: 10,
     },
