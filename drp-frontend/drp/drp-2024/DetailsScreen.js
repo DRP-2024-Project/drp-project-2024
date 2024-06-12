@@ -1,7 +1,8 @@
-import React,  { useState, useEffect, useCallback } from 'react';
-import { Button, FlatList, View, Text, StyleSheet, TextInput, TouchableOpacity, Modal } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Button, ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { REMOTE_HOST } from './Config.js';
 import PhotoGrid from './PhotoGrid.js';
+import ImageBanner from './ImageBanner.js';
 import RatingComponent from './Rating.js';
 import FixedRating from './FixedRating.js';
 
@@ -26,35 +27,15 @@ export default function ItemDetailScreen({ route, navigation }) {
 
   const [memberNames, setMembers] = useState(undefined);
   const [memberUsernames, setMemberUsernames] = useState(undefined);
-  const [joined, setJoined] = useState(false);
   const [owner, setOwner] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  //For creating a new event in an unscheduled community
   const [modalVisible, setModalVisible] = useState(false);
-  const [newDate, setNewDate] = useState('')
-  const [newTime, setNewTime] = useState('')
-  const [newDesc, setNewDesc] = useState('')
+  const [newDate, setNewDate] = useState('');
+  const [newTime, setNewTime] = useState('');
+  const [newDesc, setNewDesc] = useState('');
   const [rating, setRating] = useState(3.0);
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
-        const json = await response.json();
-        setMembers(json.names);
-        setMemberUsernames(json.usernames);
-        if (json.usernames.includes(user)) {
-          setJoined(true);
-        }
-      } catch (error) {
-        console.error('Failed to fetch community members:', error);
-      }
-    };
-
-    fetchData();
-  }, [commName, user]);
-
+  const [joined, setJoined] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,7 +44,7 @@ export default function ItemDetailScreen({ route, navigation }) {
         const text = await response.text();
         const new_rating = parseFloat(text);
         setRating(new_rating);
-      } catch(error) {
+      } catch (error) {
         console.error('Failed to fetch rating', error);
       }
     };
@@ -73,45 +54,26 @@ export default function ItemDetailScreen({ route, navigation }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const respone = await fetch(`${REMOTE_HOST}/isOwner?community=${commName}&user=${user}`);
-        const json = await respone.json();
+        const response = await fetch(`${REMOTE_HOST}/isOwner?community=${commName}&user=${user}`);
+        const json = await response.json();
         setOwner(json.owner);
-      } catch(error) {
-        console.erro('Failed to fetch ownership', error);
+      } catch (error) {
+        console.error('Failed to fetch ownership', error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
-    }, [commName, user]);
+  }, [commName, user]);
 
-  useEffect(() => {
-    console.log(owner);
-  }, [owner]);
-
-  const handleJoin = async () => {
-    setJoined(!joined);
-    await fetch(`${REMOTE_HOST}/toggleMemberInCommunity/?commName=${commName}&username=${user}`, {
-      method: 'POST',
-    });
-
-    const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
-    const json = await response.json();
-    setMembers(json.names);
-    setMemberUsernames(json.usernames);
-  };
-
-  const handleCreateEvent = async() => {
+  const handleCreateEvent = async () => {
     const data = {
       date: newDate,
       time: newTime,
       user: user,
       comm: commName,
-      desc: newDesc
-    }
-    const notification = {
-      title: 'New Event',
-      message: newDesc,
-      community_id: item.id,
-    }
+      desc: newDesc,
+    };
     setModalVisible(false);
     await fetch(`${REMOTE_HOST}/createEvent`, {
       method: 'POST',
@@ -119,152 +81,155 @@ export default function ItemDetailScreen({ route, navigation }) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
-    })
-    await fetch(`${REMOTE_HOST}/createNotification`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(notification),
-    })
-  }
+    });
+  };
 
   const handleMessage = () => {
-    navigation.navigate("MessageBoard", {navigation, item, user});
+    navigation.navigate('MessageBoard', { navigation, item, user });
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
   }
 
-  const renderHeader = useCallback(() => (
-    <View>
-      <View style={styles.commNameBox}>
-        <Text style={styles.commName}>{commName}</Text>
-      </View>
-      <View style={styles.topRow}>
-        <Text style={styles.level}>Level: {item.level}</Text>
-        <TouchableOpacity
-          style={[joined ? styles.joinedButton : styles.notJoinedButton]}
-          onPress={handleJoin}
-        >
-          <Text style={styles.joinButtonText}>{joined ? 'Joined' : 'Join'}</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.middleRow}>
-        <InteractiveBox initialSize={50} enlargedSize={100}>
-          <Text style={styles.location}>{item.location}</Text>
-        </InteractiveBox>
-        <InteractiveBox initialSize={50} enlargedSize={100}>
-          <Text style={styles.schedule}>{item.schedule === '' ? "No fixed schedule" : item.schedule}</Text>
-          {((item.schedule === '' && joined) || owner) && <TouchableOpacity 
-            style={styles.organiseButton}
-            onPress={() => setModalVisible(true)}>
-            <Text style={styles.organiseButtonText}>Organise a session</Text>
-          </TouchableOpacity>
-          }
-        </InteractiveBox>
-        <InteractiveBox initialSize={50} enlargedSize={100}>
-          <Text style={styles.pricing}>{item.price} per {item.perTime}</Text>
-        </InteractiveBox>
-      </View>
-      <View style={styles.mapRow}>
-        <Button title="View Map" color="#3d649b" borderRadius="10" onPress={() => navigation.navigate('Map', { latitude: item.latitude, longitude: item.longitude })} />
-        {joined ? (<RatingComponent commName={item.title} user={user} />): null } 
-        {joined ? (<Button title="Events" color="#3d649b" borderRadius="10" onPress={handleMessage} />): null}
-      </View>
-      <Text style={styles.description}>{item.description}</Text>
-      <View style={styles.scheduleRow}>
-        <Text style={styles.schedule}>{item.schedule}</Text>
-      </View>
-      <View style={styles.ratingRow}>
-        <FixedRating rating={rating} />
-      </View>
-      <View>
-        <PhotoGrid community={item.title} />
-      </View>
-      <View style={styles.additionalInfoBox}>
-        <Text style={styles.additionalInfo}>Additional Info:</Text>
-        <View style={styles.equipmentBox}>
-          <Text style={styles.equipmentRequired}>Equipment Required:</Text>
-          <Text style={styles.equipmentList}>{item.requiredEquipment}</Text>
-        </View>
-        <View style={styles.equipmentBox}>
-          <Text style={styles.equipmentRequired}>Additional Links:</Text>
-          <Text style={styles.equipmentList}>{item.links}</Text>
-        </View>
-      </View>
-      <Text style={styles.membersHeader}>Members:</Text>
-    </View>
-  ), [memberNames, memberUsernames, joined, owner]);
-
-  const renderFooter = () => (
-    <View style={styles.commentsSection}>
-      <Text style={styles.commentsHeader}>Comments:</Text>
-      <TextInput
-        style={styles.commentsInput}
-        placeholder="Write your comment..."
-        multiline={true}
-        numberOfLines={4}
-      />
-    </View>
-  );
-
   return (
-    <View style={styles.container}>
-    <FlatList
-      ListHeaderComponent={renderHeader}
-      ListFooterComponent={renderFooter}
-      data={memberNames}
-      renderItem={({ item }) => (
-        <View>
-          <Text>{item}</Text>
+    <ScrollView style={styles.container}>
+      <View>
+        <View style={styles.topRowContainer}>
+          <View style={styles.bannerContainer}>
+            <ImageBanner user={user} item={item} joined={joined} setJoined={setJoined} setMemberUsernames={setMemberUsernames} setMembers={setMembers}/>
+          </View>
+
+          <View style={styles.middleRow}>
+            <View style={[styles.boxContainer, styles.locationBox]}>
+              <Text style={styles.title}>Location:</Text>
+              <Text style={styles.content}>{item.location}</Text>
+            </View>
+            <View style={[styles.boxContainer, styles.scheduleBox]}>
+              <Text style={styles.title}>Schedule:</Text>
+              {item.schedule === '' ? (
+                <View style={styles.scheduleContainer}>
+                  {((item.schedule === '' && joined) || owner) && (
+                    <TouchableOpacity style={styles.organiseButton} onPress={() => setModalVisible(true)}>
+                      <Text style={styles.organiseButtonText}>Organise</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              ) : (
+                <Text style={styles.content}>{item.schedule}</Text>
+              )}
+            </View>
+            <View style={[styles.boxContainer, styles.pricingBox]}>
+              <Text style={styles.title}>Pricing:</Text>
+              <Text style={styles.content}>{item.price} per {item.perTime}</Text>
+            </View>
+          </View>
         </View>
-      )}
-      keyExtractor={item => item}
-      contentContainerStyle={styles.listContainer}
-    />
-    <Modal
+
+        <View style={styles.mainContainer}>
+          <View style={styles.mapRow}>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Map', { latitude: item.latitude, longitude: item.longitude })}>
+              <Text style={styles.buttonText}>View Map</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={joined ? styles.button : styles.disabledButton} disabled={!joined} onPress={() => {}}>
+              <Text style={styles.buttonText}>Rate</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={joined ? styles.button : styles.disabledButton} disabled={!joined} onPress={handleMessage}>
+              <Text style={styles.buttonText}>Events</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={[styles.boxContainer, styles.descriptionBox]}>
+            <Text style={styles.title}>Description:</Text>
+            <ScrollView style={styles.descriptionContent}>
+              <Text style={styles.content}>{item.description}</Text>
+            </ScrollView>
+          </View>
+        </View>
+
+        <View style={[styles.contactInfoBox]}>
+          <Text style={styles.contactInfoText}>Contact Info: {item.schedule}</Text>
+        </View>
+
+        <View style={styles.ratingRow}>
+          <FixedRating rating={rating} />
+        </View>
+        <View>
+          <PhotoGrid community={item.title} />
+        </View>
+        <View style={styles.additionalInfoBox}>
+          <Text style={styles.additionalInfo}>Additional Info:</Text>
+          <View style={styles.equipmentBox}>
+            <Text style={styles.equipmentRequired}>Equipment Required:</Text>
+            <Text style={styles.equipmentList}>{item.requiredEquipment}</Text>
+          </View>
+          <View style={styles.equipmentBox}>
+            <Text style={styles.equipmentRequired}>Additional Links:</Text>
+            <Text style={styles.equipmentList}>{item.links}</Text>
+          </View>
+        </View>
+        <Text style={styles.membersHeader}>Members:</Text>
+        {memberNames && memberNames.map(member => (
+          <View key={member}>
+            <Text>{member}</Text>
+          </View>
+        ))}
+        <View style={styles.commentsSection}>
+          <Text style={styles.commentsHeader}>Comments:</Text>
+          <TextInput
+            style={styles.commentsInput}
+            placeholder="Write your comment..."
+            multiline={true}
+            numberOfLines={4}
+          />
+        </View>
+      </View>
+      <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => {
           setModalVisible(false);
-        }}>
-
+        }}
+      >
         <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <Text style={styles.commName}>Create an event</Text>
-          <View style={styles.inputRow}>
-            <View style={styles.labelInputContainer}> 
-              <Text style={styles.label}>Date</Text>
-              <TextInput
-                style={styles.input}
-                value={newDate}
-                onChangeText={setNewDate}
-              />
+          <View style={styles.modalView}>
+            <Text style={styles.commName}>Create an event</Text>
+            <View style={styles.inputRow}>
+              <View style={styles.labelInputContainer}>
+                <Text style={styles.label}>Date</Text>
+                <TextInput
+                  style={styles.input}
+                  value={newDate}
+                  onChangeText={setNewDate}
+                />
+              </View>
             </View>
-          </View>
-
-          <View style={styles.inputRow}>
-            <View style={styles.labelInputContainer}> 
-              <Text style={styles.label}>Time</Text>
-              <TextInput
-                style={styles.input}
-                value={newTime}
-                onChangeText={setNewTime}
-              />
+            <View style={styles.inputRow}>
+              <View style={styles.labelInputContainer}>
+                <Text style={styles.label}>Time</Text>
+                <TextInput
+                  style={styles.input}
+                  value={newTime}
+                  onChangeText={setNewTime}
+                />
+              </View>
             </View>
-          </View>
-
-          <View style={styles.inputRow}>
-            <View style={styles.labelInputContainer}> 
-              <Text style={styles.label}>Description</Text>
-              <TextInput
-                style={styles.input}
-                value={newDesc}
-                onChangeText={setNewDesc}
-              />
+            <View style={styles.inputRow}>
+              <View style={styles.labelInputContainer}>
+                <Text style={styles.label}>Description</Text>
+                <TextInput
+                  style={styles.input}
+                  value={newDesc}
+                  onChangeText={setNewDesc}
+                />
+              </View>
             </View>
-          </View>
-
-          <View style={styles.buttonContainer}>
+            <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
@@ -272,62 +237,175 @@ export default function ItemDetailScreen({ route, navigation }) {
                 <Text style={styles.buttonText}>Create</Text>
               </TouchableOpacity>
             </View>
-      </View>
-      </View>
+          </View>
+        </View>
       </Modal>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    padding: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   commNameBox: {
-    backgroundColor: '#e8e8e8',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: 16,
   },
   commName: {
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  topRow: {
+  scheduleContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  topRowContainer: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  bannerContainer: {
+    marginBottom: 20,
+  },
+  middleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: 16,
+    paddingHorizontal: 10,
+  },
+  boxContainer: {
+    flex: 1,
+    marginHorizontal: 5,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 10,
+    padding: 10,
+    elevation: 2,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+  content: {
+    fontSize: 14,
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+  organiseButton: {
+    backgroundColor: '#3d649b',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    marginTop: 20,
+    alignSelf: 'stretch',
+  },
+  organiseButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  mainContainer: {
+    marginBottom: 20,
+  },
+  mapRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     alignItems: 'center',
+    marginBottom: 16,
+  },
+  button: {
+    backgroundColor: '#3d649b',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  disabledButton: {
+    backgroundColor: '#BDBDBD',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    alignItems: 'center',
+  },
+  descriptionBox: {
+    height: 150, // Fixed height
+    marginBottom: 16,
+  },
+  descriptionContent: {
     flex: 1,
   },
-  joinedButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 5,
-    backgroundColor: '#32a852',
+  contactInfoBox: {
+    marginBottom: 16,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  notJoinedButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 5,
-    backgroundColor: '#d3d3d3',
-  },
-  joinButtonText: {
-    color: '#000',
+  contactInfoText: {
+    fontSize: 14,
     fontWeight: 'bold',
+  },
+  ratingRow: {
+    marginBottom: 16,
+  },
+  additionalInfoBox: {
+    marginBottom: 16,
+  },
+  additionalInfo: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  equipmentBox: {
+    marginBottom: 16,
+  },
+  equipmentRequired: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  equipmentList: {
+    fontSize: 16,
+  },
+  membersHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  commentsSection: {
+    marginBottom: 16,
+  },
+  commentsHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  commentsInput: {
+    height: 100,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 8,
+    textAlignVertical: 'top',
   },
   centeredView: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    marginTop: 22,
   },
   modalView: {
     margin: 20,
-    backgroundColor: '#e8e8e8',
+    backgroundColor: 'white',
     borderRadius: 20,
     padding: 35,
     alignItems: 'center',
@@ -340,158 +418,46 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  organiseButton: {
-    position: 'absolute',
-    bottom: 10,
-    left: 10,
-  },
   inputRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  input: {
-    flex: 2,
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    paddingHorizontal: 5,
-    borderRadius: 10,
+    marginBottom: 16,
   },
   labelInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#d9dbda',
-    borderRadius: 10,
-    padding: 10, 
+    flex: 1,
+    marginRight: 8,
   },
   label: {
-    flex: 1,
     fontSize: 16,
-    marginRight: 10,
+    marginBottom: 4,
+  },
+  input: {
+    height: 40,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingLeft: 8,
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 20,
+    justifyContent: 'space-between',
+    width: '100%',
   },
   cancelButton: {
-    backgroundColor: '#f0f0f0',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 5,
+    backgroundColor: '#BDBDBD',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
     marginRight: 10,
   },
   createButton: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 5,
+    backgroundColor: '#3d649b',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
   },
-  middleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  box: {
-    flex: 1,
-    padding: 10,
-    marginHorizontal: 5,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5,
-  },
-  level: {
+  buttonText: {
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: 'bold',
-  },
-  location: {
-    fontSize: 14,
-  },
-  schedule: {
-    fontSize: 14,
-  },
-  pricing: {
-    fontSize: 14,
-  },
-  description: {
-    fontSize: 14,
-    marginVertical: 10,
-  },
-  scheduleRow: {
-    marginBottom: 10,
-  },
-  ratingRow: {
-    marginBottom: 10,
-  },
-  rating: {
-    fontSize: 14,
-  },
-  additionalInfoBox: {
-    padding: 10,
-    backgroundColor: '#e8e8e8',
-    borderRadius: 5,
-  },
-  equipmentBox: {
-    marginTop: 5,
-    backgroundColor: '#c8c8c8',
-    borderRadius: 5,
-    padding: 5,
-  },
-  equipmentRequired: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  equipmentList: {
-    fontSize: 14,
-  },
-  membersSection: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: '#e8e8e8',
-    borderRadius: 5,
-  },
-  membersHeader: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  commentsSection: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: '#e8e8e8',
-    borderRadius: 5,
-  },
-  commentsHeader: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  commentsInput: {
-    fontSize: 14,
-    backgroundColor: '#fff',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    padding: 8,
-    marginTop: 5,
-    minHeight: 60,
-  },
-  mapRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 10,
-  },
-  messageButton: {
-    backgroundColor: '#d3d3d3',
-    padding: 10,
-    borderRadius: 50,
-    transform: [{ translateX: -25 }],
-  },
-  organiseButton: {
-    backgroundColor: 'transparent',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  organiseButtonText: {
-    fontSize: 14, // Reduced font size
-    color: "#3d649b",
+    textAlign: 'center',
   },
 });
