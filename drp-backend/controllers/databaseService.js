@@ -361,9 +361,7 @@ function addMemberToProposal(propName, username) {
         let propResult = await query(`SELECT id FROM proposals WHERE title = ?`, [propName]);
         let memResult = await query(`SELECT id FROM members WHERE username = ?`, [username]);
         let memExists = await memberAlreadyInProposal(username, propName);
-        console.log("HIHI");
-        console.log(memExists);
-        
+
         if (memExists) {
             return resolve(false);
         }
