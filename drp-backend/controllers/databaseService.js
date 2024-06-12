@@ -664,6 +664,15 @@ function getAverageRating(communityName) {
     })
 }
 
+function isCommunityOwner(communityName, user) {
+    return new Promise(async (resolve, reject) => {
+        let ownerName = (await query(`SELECT owner FROM communities WHERE title = ?`, [communityName]))[0].owner;
+        let ownerId = (await query(`SELECT id FROM members WHERE name = ?`, [ownerName]))[0].id;
+        let userId = (await query(`SELECT id FROM members WHERE username = ?`, [user]))[0].id;
+        return resolve(ownerId == userId);
+    })
+}
+
 function getMyCommunities(user) {
 
     return new Promise(async (resolve, reject) => {
@@ -843,6 +852,7 @@ module.exports = {
     getAllEvents,
     removeAttendance,
     getAttending,
-    getMyCommunities
+    getMyCommunities,
+    isCommunityOwner,
 }
 

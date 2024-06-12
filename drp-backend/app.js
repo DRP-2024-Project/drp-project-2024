@@ -27,7 +27,8 @@ const {
     getAllEvents,
     removeAttendance,
     getAttending,
-    getMyCommunities
+    getMyCommunities,
+    isCommunityOwner,
 } = require('./controllers/databaseService.js');
 
 const app = express();
@@ -244,6 +245,17 @@ app.get('/getCommunityMembers', async (req, res) => {
         res.status(500).send(error.message);
     }
 });
+
+app.get('/isOwner', async (req, res) => {
+    const community = req.query.community;
+    const user = req.query.user;
+    try {
+        const result = await isCommunityOwner(community, user);
+        res.json({owner: result});
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
 
 app.get('/getProposalMembers', async (req, res) => {
     const prop = req.query.proposal;

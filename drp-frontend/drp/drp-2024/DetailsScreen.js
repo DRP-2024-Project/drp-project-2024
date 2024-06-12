@@ -28,6 +28,7 @@ export default function ItemDetailScreen({ route, navigation }) {
   const [memberNames, setMembers] = useState(undefined);
   const [memberUsernames, setMemberUsernames] = useState(undefined);
   const [joined, setJoined] = useState(false);
+  const [owner, setOwner] = useState(false);
 
   //For creating a new event in an unscheduled community
   const [modalVisible, setModalVisible] = useState(false);
@@ -70,6 +71,18 @@ export default function ItemDetailScreen({ route, navigation }) {
     fetchData();
   }, [commName]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const respone = await fetch(`${REMOTE_HOST}/isOwner?community=${commName}&user=${user}`);
+        const json = await respone.json();
+        setOwner(json.owner);
+      } catch(error) {
+        console.erro('Failed to fetch ownership', error);
+      }
+    };
+    fetchData();
+    }, [commName, user]);
 
   const handleJoin = async () => {
     setJoined(!joined);
@@ -115,7 +128,6 @@ export default function ItemDetailScreen({ route, navigation }) {
         {joined ? (
           <TouchableOpacity style={styles.messageButton} onPress={handleMessage}>
             {<MaterialIcons name="message" size={24} color="white" />
-            //  <Text style={{ color: 'white', fontSize: 24 }}>Message</Text>
             }
           </TouchableOpacity>): null}
         <TouchableOpacity
@@ -131,7 +143,7 @@ export default function ItemDetailScreen({ route, navigation }) {
         </InteractiveBox>
         <InteractiveBox initialSize={50} enlargedSize={100}>
           <Text style={styles.schedule}>{item.schedule === '' ? "No fixed schedule" : item.schedule}</Text>
-          {item.schedule === '' && <Button 
+          {((item.schedule === '' && joined) || owner) && <Button 
           style={styles.organiseButton}
           title="Organise a session"
           onPress={() => setModalVisible(true)}/>}
