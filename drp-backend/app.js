@@ -33,6 +33,7 @@ const {
     getNotifications,
     getCommunityDetails,
     getMyProposals,
+    getRatingNumber,
 } = require('./controllers/databaseService.js');
 
 const app = express();
@@ -139,6 +140,16 @@ app.get('/getRating', async (req, res) => {
     const community = req.query.community;
     try {
         const result = await getAverageRating(community);
+        res.send(result.toString());
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+app.get('/getRatingNumber', async (req, res) => {
+    const community = req.query.community;
+    try {
+        const result = await getRatingNumber(community);
         res.send(result.toString());
     } catch (error) {
         res.status(500).send(error.message);

@@ -692,6 +692,18 @@ function getAverageRating(communityName) {
     })
 }
 
+
+function getRatingNumber(communityName) {
+    return new Promise(async (resolve, reject) => {
+        let communityID = (await query(`SELECT id from communities WHERE title = ?`, [communityName]))[0].id;
+        let result = await query(`SELECT COUNT(rating) AS averageRating FROM communityRatings WHERE community_id = ?`, [communityID]);
+        if (result.length === 0 || result[0].averageRating === null) {
+            return resolve(3);  // No ratings found, return 0 as the average rating
+        }
+        return resolve(result[0].averageRating);
+    })
+}
+
 function isCommunityOwner(communityName, user) {
     return new Promise(async (resolve, reject) => {
         let ownerName = (await query(`SELECT owner FROM communities WHERE title = ?`, [communityName]))[0].owner;
@@ -915,6 +927,7 @@ module.exports = {
     createNotification,
     getNotifications,
     getCommunityDetails,
-    getMyProposals
+    getMyProposals,
+    getRatingNumber
 }
 
