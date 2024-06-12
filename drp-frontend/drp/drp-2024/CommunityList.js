@@ -4,7 +4,8 @@ import { REMOTE_HOST } from './Config';
 import ItemRecord from './ItemRecord';
 import ItemProposalRecord from './ItemProposalRecord';
 
-const CommunityList = ({ value, search, navigation, user, myCommunities }) => {
+
+const CommunityList = ({ value, search, navigation, user, myCommunities, reload }) => {
   const [loading, setLoading] = useState(true);
   const [communities, setCommunities] = useState([]);
 
@@ -31,7 +32,7 @@ const CommunityList = ({ value, search, navigation, user, myCommunities }) => {
     };
 
     fetchData();
-  }, [value, search]);
+  }, [value, search, reload]);
 
   return (
     <View style={styles.container}>
