@@ -12,6 +12,7 @@ on:
       - main
       - frontend
       - toan-branch
+      - gabriele-branch
 jobs:
   build-android:
     runs-on: ubuntu-latest
