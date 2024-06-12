@@ -135,9 +135,9 @@ export default function ItemDetailScreen({ route, navigation }) {
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Map', { latitude: item.latitude, longitude: item.longitude })}>
               <Text style={styles.buttonText}>View Map</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={joined ? styles.button : styles.disabledButton} disabled={!joined} onPress={() => {}}>
-              <Text style={styles.buttonText}>Rate</Text>
-            </TouchableOpacity>
+            <View style={joined ? null : styles.disabledButton}>
+              <RatingComponent />
+            </View>
             <TouchableOpacity style={joined ? styles.button : styles.disabledButton} disabled={!joined} onPress={handleMessage}>
               <Text style={styles.buttonText}>Events</Text>
             </TouchableOpacity>

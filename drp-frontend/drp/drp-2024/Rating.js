@@ -16,8 +16,10 @@ export default function RatingComponent( {commName, user} ) {
   };
 
   return (
-    <View style={styles.container}>
-      <Button title="Rate" onPress={() => setShowRating(true)} color="#3d649b" borderRadius="10" />
+    <View>
+      <TouchableOpacity style={styles.button} onPress={() => setShowRating(true)}>
+              <Text style={styles.buttonText}>Rate</Text>
+      </TouchableOpacity>
 
       <Modal
         animationType="slide"
@@ -75,5 +77,17 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: 'white',
     fontSize: 16,
+  },
+  button: {
+    backgroundColor: '#3d649b',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
