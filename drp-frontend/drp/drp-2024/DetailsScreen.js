@@ -28,9 +28,8 @@ export default function ItemDetailScreen({ route, navigation }) {
   const [memberNames, setMembers] = useState(undefined);
   const [memberUsernames, setMemberUsernames] = useState(undefined);
   const [owner, setOwner] = useState(false);
-  const [loading, setLoading] = useState(true); // Added loading state
+  const [loading, setLoading] = useState(true);
 
-  //For creating a new event in an unscheduled community
   const [modalVisible, setModalVisible] = useState(false);
   const [newDate, setNewDate] = useState('');
   const [newTime, setNewTime] = useState('');
@@ -100,46 +99,62 @@ export default function ItemDetailScreen({ route, navigation }) {
   return (
     <ScrollView style={styles.container}>
       <View>
-      <View style={styles.topRowContainer}>
-        <View style={styles.bannerContainer}>
-          <ImageBanner user={user} item={item} joined={joined} setJoined={setJoined} setMemberUsernames={setMemberUsernames} setMembers={setMembers}/>
+        <View style={styles.topRowContainer}>
+          <View style={styles.bannerContainer}>
+            <ImageBanner user={user} item={item} joined={joined} setJoined={setJoined} setMemberUsernames={setMemberUsernames} setMembers={setMembers}/>
+          </View>
+
+          <View style={styles.middleRow}>
+            <View style={[styles.boxContainer, styles.locationBox]}>
+              <Text style={styles.title}>Location:</Text>
+              <Text style={styles.content}>{item.location}</Text>
+            </View>
+            <View style={[styles.boxContainer, styles.scheduleBox]}>
+              <Text style={styles.title}>Schedule:</Text>
+              {item.schedule === '' ? (
+                <View style={styles.scheduleContainer}>
+                  {((item.schedule === '' && joined) || owner) && (
+                    <TouchableOpacity style={styles.organiseButton} onPress={() => setModalVisible(true)}>
+                      <Text style={styles.organiseButtonText}>Organise</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              ) : (
+                <Text style={styles.content}>{item.schedule}</Text>
+              )}
+            </View>
+            <View style={[styles.boxContainer, styles.pricingBox]}>
+              <Text style={styles.title}>Pricing:</Text>
+              <Text style={styles.content}>{item.price} per {item.perTime}</Text>
+            </View>
+          </View>
         </View>
 
-        <View style={styles.middleRow}>
-          <View style={[styles.boxContainer, styles.locationBox]}>
-            <Text style={styles.title}>Location:</Text>
-            <Text style={styles.content}>{item.location}</Text>
+        <View style={styles.mainContainer}>
+          <View style={styles.mapRow}>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Map', { latitude: item.latitude, longitude: item.longitude })}>
+              <Text style={styles.buttonText}>View Map</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={joined ? styles.button : styles.disabledButton} disabled={!joined} onPress={() => {}}>
+              <Text style={styles.buttonText}>Rate</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={joined ? styles.button : styles.disabledButton} disabled={!joined} onPress={handleMessage}>
+              <Text style={styles.buttonText}>Events</Text>
+            </TouchableOpacity>
           </View>
-          <View style={[styles.boxContainer, styles.scheduleBox]}>
-            <Text style={styles.title}>Schedule:</Text>
-            {item.schedule === '' ? (
-              <View style={styles.scheduleContainer}>
-                {((item.schedule === '' && joined) || owner) && (
-                  <TouchableOpacity style={styles.organiseButton} onPress={() => setModalVisible(true)}>
-                    <Text style={styles.organiseButtonText}>Organise</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            ) : (
-              <Text style={styles.content}>{item.schedule}</Text>
-            )}
-          </View>
-          <View style={[styles.boxContainer, styles.pricingBox]}>
-            <Text style={styles.title}>Pricing:</Text>
-            <Text style={styles.content}>{item.price} per {item.perTime}</Text>
-          </View>
-        </View>
-      </View>
 
-        <View style={styles.mapRow}>
-          <Button title="View Map" color="#3d649b" borderRadius="10" onPress={() => navigation.navigate('Map', { latitude: item.latitude, longitude: item.longitude })} />
-          {joined ? <RatingComponent commName={item.title} user={user} /> : null}
-          {joined ? <Button title="Events" color="#3d649b" borderRadius="10" onPress={handleMessage} /> : null}
+          <View style={[styles.boxContainer, styles.descriptionBox]}>
+            <Text style={styles.title}>Description:</Text>
+            <ScrollView style={styles.descriptionContent}>
+              <Text style={styles.content}>{item.description}</Text>
+            </ScrollView>
+          </View>
         </View>
-        <Text style={styles.description}>{item.description}</Text>
-        <View style={styles.scheduleRow}>
-          <Text style={styles.schedule}>{item.schedule}</Text>
+
+        <View style={[styles.contactInfoBox]}>
+          <Text style={styles.contactInfoText}>Contact Info: {item.schedule}</Text>
         </View>
+
         <View style={styles.ratingRow}>
           <FixedRating rating={rating} />
         </View>
@@ -245,15 +260,11 @@ const styles = StyleSheet.create({
   commName: {
     fontSize: 24,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
-  topRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  scheduleContainer: {
+    flexDirection: 'column',
     alignItems: 'center',
-    marginBottom: 16,
-  },
-  level: {
-    fontSize: 18,
   },
   topRowContainer: {
     flex: 1,
@@ -271,7 +282,7 @@ const styles = StyleSheet.create({
   boxContainer: {
     flex: 1,
     marginHorizontal: 5,
-    backgroundColor: '#E5E7EB', // Modern color
+    backgroundColor: '#E5E7EB',
     borderRadius: 10,
     padding: 10,
     elevation: 2,
@@ -280,23 +291,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
-    textAlign: 'center', // Center the titles
+    textAlign: 'center',
   },
   content: {
     fontSize: 14,
     marginBottom: 5,
-    textAlign: 'center', // Center the content
+    textAlign: 'center',
   },
   organiseButton: {
     backgroundColor: '#3d649b',
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10, // Add margin top to separate the button from content
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    marginTop: 20,
+    alignSelf: 'stretch',
   },
   organiseButtonText: {
     color: '#FFFFFF',
     fontSize: 14,
     textAlign: 'center',
+  },
+  mainContainer: {
+    marginBottom: 20,
   },
   mapRow: {
     flexDirection: 'row',
@@ -304,12 +320,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  description: {
-    fontSize: 16,
+  button: {
+    backgroundColor: '#3d649b',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  disabledButton: {
+    backgroundColor: '#BDBDBD',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    alignItems: 'center',
+  },
+  descriptionBox: {
+    height: 150, // Fixed height
     marginBottom: 16,
   },
-  scheduleRow: {
+  descriptionContent: {
+    flex: 1,
+  },
+  contactInfoBox: {
     marginBottom: 16,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contactInfoText: {
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   ratingRow: {
     marginBottom: 16,
@@ -398,18 +443,21 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   cancelButton: {
-    backgroundColor: '#FF0000',
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: '#BDBDBD',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
     marginRight: 10,
   },
   createButton: {
-    backgroundColor: '#4CAF50',
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: '#3d649b',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
   },
   buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
+    textAlign: 'center',
   },
 });
