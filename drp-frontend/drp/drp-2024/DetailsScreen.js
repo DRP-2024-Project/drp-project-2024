@@ -143,10 +143,12 @@ export default function ItemDetailScreen({ route, navigation }) {
         </InteractiveBox>
         <InteractiveBox initialSize={50} enlargedSize={100}>
           <Text style={styles.schedule}>{item.schedule === '' ? "No fixed schedule" : item.schedule}</Text>
-          {((item.schedule === '' && joined) || owner) && <Button 
-          style={styles.organiseButton}
-          title="Organise a session"
-          onPress={() => setModalVisible(true)}/>}
+          {((item.schedule === '' && joined) || owner) && <TouchableOpacity 
+            style={styles.organiseButton}
+            onPress={() => setModalVisible(true)}>
+            <Text style={styles.organiseButtonText}>Organise a session</Text>
+          </TouchableOpacity>
+          }
         </InteractiveBox>
         <InteractiveBox initialSize={50} enlargedSize={100}>
           <Text style={styles.pricing}>{item.price} per {item.perTime}</Text>
@@ -470,5 +472,15 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 50,
     transform: [{ translateX: -25 }],
+  },
+  organiseButton: {
+    backgroundColor: 'transparent',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  organiseButtonText: {
+    fontSize: 14, // Reduced font size
+    color: "#3d649b",
   },
 });
