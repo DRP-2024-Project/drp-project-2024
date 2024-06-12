@@ -100,7 +100,7 @@ export default function ItemDetailScreen({ route, navigation }) {
   return (
     <ScrollView style={styles.container}>
       <View>
-      <View style={styles.container}>
+      <View style={styles.topRowContainer}>
         <View style={styles.bannerContainer}>
           <ImageBanner user={user} item={item} joined={joined} setJoined={setJoined} setMemberUsernames={setMemberUsernames} setMembers={setMembers}/>
         </View>
@@ -257,13 +257,6 @@ const styles = StyleSheet.create({
   },
   topRowContainer: {
     flex: 1,
-    paddingTop: 20, // Adjust the padding to detach the middle row from the image banner
-  },
-  bannerContainer: {
-    marginBottom: 20, // Add margin to separate the image banner from the middle row
-  },
-  container: {
-    flex: 1,
     paddingTop: 20,
   },
   bannerContainer: {
@@ -278,36 +271,27 @@ const styles = StyleSheet.create({
   boxContainer: {
     flex: 1,
     marginHorizontal: 5,
-    backgroundColor: '#F0F4F8',
+    backgroundColor: '#E5E7EB', // Modern color
     borderRadius: 10,
     padding: 10,
     elevation: 2,
-  },
-  locationBox: {
-    backgroundColor: '#FEE2E2',
-  },
-  scheduleBox: {
-    backgroundColor: '#D1FAE5',
-  },
-  pricingBox: {
-    backgroundColor: '#FDE68A',
   },
   title: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
+    textAlign: 'center', // Center the titles
   },
   content: {
     fontSize: 14,
     marginBottom: 5,
-  },
-  scheduleContainer: {
-    flex: 1,
+    textAlign: 'center', // Center the content
   },
   organiseButton: {
     backgroundColor: '#3d649b',
     padding: 10,
     borderRadius: 5,
+    marginTop: 10, // Add margin top to separate the button from content
   },
   organiseButtonText: {
     color: '#FFFFFF',
