@@ -731,6 +731,36 @@ function getMyCommunities(user) {
     });
 }
 
+function getMyProposals(user) {
+
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let userID = (await query(`SELECT id from members WHERE username = ?`, [user]))[0].id;
+            // Execute the main query
+            let proposalsResult = (await query(`SELECT proposals.*  FROM proposals JOIN proposalInterests ON proposals.id = proposalInterests.proposal_id  WHERE proposalInterests.member_id = ?`, [userID]));
+            
+            // Combine results
+            let combinedResult = [
+                ...proposalsResult.map(row => ({ data: row, type: "proposal" }))
+            ];
+
+            // Fetch and attach tags
+            await Promise.all(combinedResult.map(async (row) => {
+                let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.data.tag_id]);
+                row.data.tag = tag[0].tag;
+            }));
+
+
+            // Resolve with the translated result
+            resolve(combinedResult);
+        } catch (error) {
+            // Handle errors
+            reject(error);
+        }
+    });
+}
+
 
 
 // createTables();
@@ -885,5 +915,6 @@ module.exports = {
     createNotification,
     getNotifications,
     getCommunityDetails,
+    getMyProposals
 }
 

@@ -32,6 +32,7 @@ const {
     createNotification,
     getNotifications,
     getCommunityDetails,
+    getMyProposals,
 } = require('./controllers/databaseService.js');
 
 const app = express();
@@ -84,6 +85,16 @@ app.get('/search', async (req, res) => {
         } catch (error) {
             res.status(500).send(error.message);
         }
+    }
+});
+
+app.get('/searchProposals', async (req, res) => {
+    try {
+        const user = req.query.user || '';
+        const data = await getMyProposals(user);
+        res.json(data);
+    } catch (error) {
+        res.status(500).send(error.message);
     }
 });
 

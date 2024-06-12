@@ -2,6 +2,7 @@ import React,  { useState, useEffect, useCallback } from 'react';
 import { REMOTE_HOST } from './Config.js';
 import { View, FlatList, Text, ActivityIndicator, StyleSheet, Title, Button } from 'react-native';
 import CommunityList from './CommunityList.js';
+import ProposalList from './ProposalsList.js';
 import NotificationList from './NotificationList.js';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -21,7 +22,6 @@ export default function HomePageScreen({ route }) {
     useCallback(() => {
       // focus
       setReload(reload => !reload);
-
       return () => {
         // unfocus
       };
@@ -46,6 +46,16 @@ export default function HomePageScreen({ route }) {
               reload={reload}
             />
           </View>
+          <View style={styles.headerContainer}>
+            <Text style={styles.headerText}>My Proposals</Text>
+          </View>
+          <View style={styles.listContainer}>
+            <ProposalList 
+              navigation={navigation} 
+              user={user} 
+              reload={reload}
+            />
+          </View>
           <Button title="Find More Communities" color="#3d649b" borderRadius="10" onPress={handlePress} />
         </View>
       );
@@ -60,6 +70,7 @@ export default function HomePageScreen({ route }) {
         },
         headerContainer: {
           marginBottom: 20,
+          marginTop: 10
         },
         headerText: {
           fontSize: 24,
