@@ -1,10 +1,9 @@
 import React,  { useState, useEffect, useCallback } from 'react';
-import { Button, FlatList, View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, DraggableList, Modal, Pressable  } from 'react-native';
+import { Button, FlatList, View, Text, StyleSheet, TextInput, TouchableOpacity, Modal } from 'react-native';
 import { REMOTE_HOST } from './Config.js';
 import PhotoGrid from './PhotoGrid.js';
 import RatingComponent from './Rating.js';
 import FixedRating from './FixedRating.js';
-import { MaterialIcons } from 'react-native-vector-icons';
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   const [size, setSize] = useState(enlargedSize);
@@ -125,11 +124,6 @@ export default function ItemDetailScreen({ route, navigation }) {
       </View>
       <View style={styles.topRow}>
         <Text style={styles.level}>Level: {item.level}</Text>
-        {joined ? (
-          <TouchableOpacity style={styles.messageButton} onPress={handleMessage}>
-            {<MaterialIcons name="message" size={24} color="white" />
-            }
-          </TouchableOpacity>): null}
         <TouchableOpacity
           style={[joined ? styles.joinedButton : styles.notJoinedButton]}
           onPress={handleJoin}
@@ -157,6 +151,7 @@ export default function ItemDetailScreen({ route, navigation }) {
       <View style={styles.mapRow}>
         <Button title="View Map" color="#3d649b" borderRadius="10" onPress={() => navigation.navigate('Map', { latitude: item.latitude, longitude: item.longitude })} />
         {joined ? (<RatingComponent commName={item.title} user={user} />): null } 
+        {joined ? (<Button title="Events" color="#3d649b" borderRadius="10" onPress={handleMessage} />): null}
       </View>
       <Text style={styles.description}>{item.description}</Text>
       <View style={styles.scheduleRow}>
