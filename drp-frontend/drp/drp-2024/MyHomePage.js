@@ -11,11 +11,10 @@ export default function HomePageScreen({ route }) {
     const handlePress = async () => {
         navigation.navigate("Communities", { navigation, user });
     };
-    
 
     return (
         <View style={styles.container}>
-          <NotificationList />
+          <NotificationList user={user} navigation={navigation}/>
           <View style={styles.headerContainer}>
             <Text style={styles.headerText}>My Communities</Text>
           </View>

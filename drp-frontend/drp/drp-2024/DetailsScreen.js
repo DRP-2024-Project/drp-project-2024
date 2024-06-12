@@ -83,6 +83,10 @@ export default function ItemDetailScreen({ route, navigation }) {
     fetchData();
     }, [commName, user]);
 
+  useEffect(() => {
+    console.log(owner);
+  }, [owner]);
+
   const handleJoin = async () => {
     setJoined(!joined);
     await fetch(`${REMOTE_HOST}/toggleMemberInCommunity/?commName=${commName}&username=${user}`, {
@@ -103,6 +107,11 @@ export default function ItemDetailScreen({ route, navigation }) {
       comm: commName,
       desc: newDesc
     }
+    const notification = {
+      title: 'New Event',
+      message: newDesc,
+      community_id: item.id,
+    }
     setModalVisible(false);
     await fetch(`${REMOTE_HOST}/createEvent`, {
       method: 'POST',
@@ -110,6 +119,13 @@ export default function ItemDetailScreen({ route, navigation }) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
+    })
+    await fetch(`${REMOTE_HOST}/createNotification`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(notification),
     })
   }
 
@@ -176,7 +192,7 @@ export default function ItemDetailScreen({ route, navigation }) {
       </View>
       <Text style={styles.membersHeader}>Members:</Text>
     </View>
-  ), [memberNames, memberUsernames, joined]);
+  ), [memberNames, memberUsernames, joined, owner]);
 
   const renderFooter = () => (
     <View style={styles.commentsSection}>

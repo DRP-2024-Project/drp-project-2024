@@ -29,6 +29,9 @@ const {
     getAttending,
     getMyCommunities,
     isCommunityOwner,
+    createNotification,
+    getNotifications,
+    getCommunityDetails,
 } = require('./controllers/databaseService.js');
 
 const app = express();
@@ -162,6 +165,15 @@ app.post('/createEvent', async (req,res) => {
         res.status(500).send(error.message);
     }
 })
+
+app.post('/createNotification', async (req, res) => {
+    try {
+        await createNotification(req.body);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
+
 app.post('/createProposal', async (req, res) => {
     try {
         res.send(await createProposal(req.body));
@@ -229,6 +241,26 @@ app.get("/getEvents", async (req, res) => {
     const result = await getAllEvents(commId);
     res.json(result);
 });
+
+app.get("/getNotifications", async (req, res) => {
+    const user = req.query.user;
+    try {
+        const notifications = await getNotifications(user);
+        res.json({notifications});
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
+
+app.get("/getCommunity", async (req, res) => {
+    const id = req.query.id;
+    try {
+        const community = await getCommunityDetails(id);
+        res.json({community});
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
 
 app.get("/attending", async (req, res) => {
     const eventId = req.query.eventId;

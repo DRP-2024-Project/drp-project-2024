@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, Button } from 'react-native';
 import NotificationItem from './NotificationItem'; // Adjust the import path as necessary
+import { REMOTE_HOST } from './Config.js';
 
 const notifications = [
   { id: '1', title: 'Welcome!', message: 'Thanks for joining our community.' },
@@ -8,12 +9,30 @@ const notifications = [
   { id: '3', title: 'Reminder', message: 'Don’t forget to complete your profile.' },
 ];
 
-const NotificationList = () => {
+const NotificationList = ({ user, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleToggleModal = () => {
     setModalVisible(!modalVisible);
   };
+
+  const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${REMOTE_HOST}/getNotifications/?user=${user}`);
+        const json = await response.json();
+        setNotifications(json.notifications);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user]);
 
   return (
     <View style={styles.container}>
@@ -32,7 +51,11 @@ const NotificationList = () => {
             <Text style={styles.modalHeader}>Notifications</Text>
             <FlatList
               data={notifications}
-              renderItem={({ item }) => <NotificationItem notification={item} />}
+              renderItem={({ item }) => <NotificationItem 
+                                          notification={item} 
+                                          navigation={navigation} 
+                                          user={user}
+                                          setModalVisible={setModalVisible}/>}
               keyExtractor={item => item.id}
               contentContainerStyle={styles.listContainer}
             />

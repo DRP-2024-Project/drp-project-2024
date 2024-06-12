@@ -199,6 +199,34 @@ async function createEvent(data) {
 
 }
 
+// createNotification: Adds a notification to the notifications database
+// data is supplied in the form: 
+// {
+//     title: 'New Event',
+//     message: newDesc,
+//     community_id: item.id,
+// }
+async function createNotification(data) {
+    await query(`INSERT INTO notifications SET ?`, data);
+}
+
+function getNotifications(user) {
+    return new Promise(async (resolve, reject) => {
+        let userID = (await query(`SELECT id from members WHERE username = ?`, [user]))[0].id;
+        let communities = await query(`SELECT community_id FROM commMembers WHERE member_id = ?`, [userID]);
+        let idList = communities.map(row => row.community_id);
+        let placeholders = idList.map(() => '?').join(',');
+        let queryStr = `SELECT * FROM notifications WHERE community_id IN (${placeholders})`;
+        
+        if (idList.length == 0) {
+            return resolve([]);
+        }
+
+        let res = await query(queryStr, idList);
+        return resolve(res);
+    })
+}
+
 // deleteCommunity: Deletes the community given by name from the communities table
 // Pre: The community is in the communities table
 // Note: The commMembers entries must be removed first as they have the community
@@ -213,7 +241,7 @@ async function deleteCommunity(title) {
 //                      communities table
 // Return: data is returned of the form:
 // { 
-//     communityId: '1', 
+//     id: '1', 
 //     title: 'Morning Jogging Club', 
 //     description: 'Group jogs in the local park', 
 //     price: "£0", perTime: "week", 
@@ -222,9 +250,9 @@ async function deleteCommunity(title) {
 //     contactInfo: 'joggingclub@example.com', 
 //     requiredEquipment: 'Running shoes'
 // }
-function getCommunityDetails(title) {
+function getCommunityDetails(id) {
     return new Promise(async (resolve, reject) => {
-        let result = await query(`SELECT * FROM communities WHERE title = ?`, [title]);
+        let result = await query(`SELECT * FROM communities WHERE id = ?`, [id]);
         return resolve(result[0]);
     });
 }
@@ -854,5 +882,8 @@ module.exports = {
     getAttending,
     getMyCommunities,
     isCommunityOwner,
+    createNotification,
+    getNotifications,
+    getCommunityDetails,
 }
 

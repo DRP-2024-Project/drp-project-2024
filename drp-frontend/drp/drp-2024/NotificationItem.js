@@ -1,11 +1,41 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { REMOTE_HOST } from './Config.js';
 
-const NotificationItem = ({ notification }) => {
+const NotificationItem = ({ notification, navigation, user, setModalVisible }) => {
+  const [community, setCommunity] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${REMOTE_HOST}/getCommunity/?id=${notification.community_id}`);
+        const json = await response.json();
+        setCommunity(json.community);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [notification])
+
+  const handlePress = () => {
+    setModalVisible(false);
+    navigation.navigate("Details", { item: community, user })
+  }
+
   return (
     <View style={styles.notificationContainer}>
-      <Text style={styles.notificationTitle}>{notification.title}</Text>
-      <Text style={styles.notificationMessage}>{notification.message}</Text>
+      {loading ? (
+        <ActivityIndicator size="large" color="#4A90E2" style={styles.loader} />
+      ) : (
+        <TouchableOpacity onPress={handlePress}>
+          <Text style={styles.notificationTitle}>{notification.title}</Text>
+          <Text style={styles.notificationMessage}>{notification.message}</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
