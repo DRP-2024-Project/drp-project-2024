@@ -29,12 +29,13 @@ export default function ItemDetailScreen({ route, navigation }) {
   const [memberUsernames, setMemberUsernames] = useState(undefined);
   const [owner, setOwner] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [reloadStars, setReloadStars] = useState(0.0);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [newDate, setNewDate] = useState('');
   const [newTime, setNewTime] = useState('');
   const [newDesc, setNewDesc] = useState('');
-  const [rating, setRating] = useState(3.0);
+  const [rating, setRating] = useState(0.0);
   const [joined, setJoined] = useState(false);
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export default function ItemDetailScreen({ route, navigation }) {
       }
     };
     fetchData();
-  }, [commName]);
+  }, [reloadStars]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -136,7 +137,7 @@ export default function ItemDetailScreen({ route, navigation }) {
               <Text style={styles.buttonText}>View Map</Text>
             </TouchableOpacity>
             <View>
-              <RatingComponent joined={joined} />
+              <RatingComponent joined={joined} user={user} commName={commName} setReloadStars={setReloadStars} />
             </View>
             <TouchableOpacity style={joined ? styles.button : styles.disabledButton} disabled={!joined} onPress={handleMessage}>
               <Text style={styles.buttonText}>Events</Text>

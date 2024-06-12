@@ -3,7 +3,7 @@ import { View, Button, StyleSheet, Modal, Text, TouchableOpacity } from 'react-n
 import { Rating } from 'react-native-ratings';
 import { REMOTE_HOST } from './Config';
 
-export default function RatingComponent( {commName, user, joined} ) {
+export default function RatingComponent( {commName, user, joined, setReloadStars} ) {
   const [showRating, setShowRating] = useState(false);
 
   const ratingCompleted = (rating) => {
@@ -11,6 +11,7 @@ export default function RatingComponent( {commName, user, joined} ) {
       await fetch(`${REMOTE_HOST}/rate?commName=${commName}&username=${user}&rating=${rating}`, {
         method: 'POST',
       }); 
+      setReloadStars(rating);
     };
     sendRating();
   };
