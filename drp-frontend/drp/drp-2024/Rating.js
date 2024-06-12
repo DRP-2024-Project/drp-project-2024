@@ -3,7 +3,7 @@ import { View, Button, StyleSheet, Modal, Text, TouchableOpacity } from 'react-n
 import { Rating } from 'react-native-ratings';
 import { REMOTE_HOST } from './Config';
 
-export default function RatingComponent( {commName, user} ) {
+export default function RatingComponent( {commName, user, joined} ) {
   const [showRating, setShowRating] = useState(false);
 
   const ratingCompleted = (rating) => {
@@ -17,7 +17,7 @@ export default function RatingComponent( {commName, user} ) {
 
   return (
     <View>
-      <TouchableOpacity style={styles.button} onPress={() => setShowRating(true)}>
+      <TouchableOpacity style={joined ? styles.button : styles.disabledButton} onPress={() => setShowRating(true)}>
               <Text style={styles.buttonText}>Rate</Text>
       </TouchableOpacity>
 
@@ -89,5 +89,12 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     textAlign: 'center',
+  },
+  disabledButton: {
+    backgroundColor: '#BDBDBD',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    alignItems: 'center',
   },
 });
