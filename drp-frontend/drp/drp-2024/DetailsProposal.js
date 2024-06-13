@@ -29,7 +29,7 @@ export default function ItemDetailScreen({ route, navigation }) {
 
       <View style={styles.topRow}>
         <Tag tag_name={REVERSE_TAGS[item.tag_id]} style={styles.tag} />
-        <CreateButton navigation={navigation} user={user} style={styles.createButton} defaultValues={item} createCommunity={true}/>
+        <CreateButton enabled={interested} navigation={navigation} user={user} style={styles.createButton} defaultValues={item} createCommunity={true}/>
       </View>
 
       <View style={[styles.boxContainer, styles.descriptionBox]}>
