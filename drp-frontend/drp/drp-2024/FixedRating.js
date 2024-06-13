@@ -9,7 +9,7 @@ export default function FixedRating({ rating }) {
         readonly
         startingValue={rating}
         imageSize={30}
-        style={{ paddingVertical: 10 }}
+        style={{ paddingVertical: 10, backgroundColor: 'transparent' }}
       />
     </View>
   );

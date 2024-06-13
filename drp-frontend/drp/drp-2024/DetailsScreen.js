@@ -38,6 +38,7 @@ export default function ItemDetailScreen({ route, navigation }) {
   const [newTime, setNewTime] = useState('');
   const [newDesc, setNewDesc] = useState('');
   const [rating, setRating] = useState(0.0);
+  const [ratingNumber, setRatingNumber] = useState(0.0);
   const [joined, setJoined] = useState(false);
   const [events, setEvents] = useState([]);
 
@@ -65,6 +66,20 @@ export default function ItemDetailScreen({ route, navigation }) {
         setRating(new_rating);
       } catch (error) {
         console.error('Failed to fetch rating', error);
+      }
+    };
+    fetchData();
+  }, [reloadStars]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${REMOTE_HOST}/getRatingNumber?community=${commName}`);
+        const text = await response.text();
+        const new_rating = parseInt(text);
+        setRatingNumber(new_rating);
+      } catch (error) {
+        console.error('Failed to fetch rating number', error);
       }
     };
     fetchData();
@@ -175,6 +190,7 @@ export default function ItemDetailScreen({ route, navigation }) {
                 <Text style={styles.content}>{item.schedule}</Text>
               )}
             </View>
+            
             <View style={[styles.boxContainer, styles.pricingBox]}>
               <Text style={styles.title}>Pricing:</Text>
               <Text style={styles.content}>{item.price} per {item.perTime}</Text>
@@ -216,9 +232,11 @@ export default function ItemDetailScreen({ route, navigation }) {
           <Text style={styles.contactInfoText}>Contact Info: {item.contactInfo}</Text>
         </View>
 
-        <View style={styles.ratingRow}>
+        <View style={styles.ratingsContainer}>
+          <Text style={styles.ratingsText}>Ratings ({ratingNumber}):</Text>
           <FixedRating rating={rating} />
         </View>
+
         <View>
           <PhotoGrid community={item.title} />
         </View>
@@ -309,6 +327,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: 'white'
   },
   loadingContainer: {
     flex: 1,
@@ -405,27 +424,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   descriptionBox: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#E5E7EB',
     padding: 15,
     borderRadius: 10,
-    marginBottom: 16, 
+    marginBottom: 5, 
     maxHeight: 150, 
   },
   descriptionContent: {
     flex: 1,
   },
   contactInfoBox: {
-    marginBottom: 16,
-    flexDirection: 'row',
-    justifyContent: 'center',
+    backgroundColor: '#E5E7EB',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10, 
+    height: "2.5%",
+    alignSelf: "flex-end",
+    width: '50%',
+    alignContent: 'center',
     alignItems: 'center',
   },
   contactInfoText: {
-    fontSize: 14,
+    fontSize: '75%',
     fontWeight: 'bold',
-  },
-  ratingRow: {
-    marginBottom: 16,
+    textAlign: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
   },
   additionalInfoBox: {
     marginBottom: 16,
@@ -544,5 +569,22 @@ const styles = StyleSheet.create({
       color: 'white',
       fontSize: 12,
       fontWeight: 'bold',
+  },
+  ratingsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 5,
+    padding: 10,
+    alignContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginBottom: -25,
+  },
+  ratingsText: {
+    fontWeight: 'bold',
+    fontSize: '150%',
+    alignContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center'
   },
 });

@@ -18,8 +18,8 @@ export default function RatingComponent( {commName, user, joined, setReloadStars
 
   return (
     <View>
-      <TouchableOpacity style={joined ? styles.button : styles.disabledButton} onPress={() => setShowRating(true)}>
-              <Text style={styles.buttonText}>Rate</Text>
+      <TouchableOpacity disabled={!joined} style={joined ? styles.button : styles.disabledButton} onPress={() => setShowRating(true)}>
+          <Text style={styles.buttonText}>Rate</Text>
       </TouchableOpacity>
 
       <Modal
