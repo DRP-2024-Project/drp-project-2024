@@ -32,6 +32,9 @@ const NotificationList = ({ user, navigation }) => {
     };
 
     fetchData();
+    const intervalId = setInterval(fetchData, 1000);
+    return () => clearInterval(intervalId);
+
   }, [user]);
 
   return (
