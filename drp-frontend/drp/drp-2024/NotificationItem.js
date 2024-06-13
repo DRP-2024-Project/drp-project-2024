@@ -2,6 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { REMOTE_HOST } from './Config.js';
 
+const createNotification = async (data = {community_id, title, message}) => {
+
+  await fetch(`${REMOTE_HOST}/createNotification`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+}
+
 const NotificationItem = ({ notification, navigation, user, setModalVisible }) => {
   const [community, setCommunity] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -64,3 +75,7 @@ const styles = StyleSheet.create({
 });
 
 export default NotificationItem;
+
+// module.exports = {
+//   createNotification
+// };
