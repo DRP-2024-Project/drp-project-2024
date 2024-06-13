@@ -692,6 +692,18 @@ function getAverageRating(communityName) {
     })
 }
 
+
+function getRatingNumber(communityName) {
+    return new Promise(async (resolve, reject) => {
+        let communityID = (await query(`SELECT id from communities WHERE title = ?`, [communityName]))[0].id;
+        let result = await query(`SELECT COUNT(rating) AS averageRating FROM communityRatings WHERE community_id = ?`, [communityID]);
+        if (result.length === 0 || result[0].averageRating === null) {
+            return resolve(3);  // No ratings found, return 0 as the average rating
+        }
+        return resolve(result[0].averageRating);
+    })
+}
+
 function isCommunityOwner(communityName, user) {
     return new Promise(async (resolve, reject) => {
         let ownerName = (await query(`SELECT owner FROM communities WHERE title = ?`, [communityName]))[0].owner;
@@ -713,6 +725,36 @@ function getMyCommunities(user) {
             // Combine results
             let combinedResult = [
                 ...communityResult.map(row => ({ data: row, type: "community" })),
+            ];
+
+            // Fetch and attach tags
+            await Promise.all(combinedResult.map(async (row) => {
+                let tag = await query(`SELECT tag FROM tags WHERE id = ?`, [row.data.tag_id]);
+                row.data.tag = tag[0].tag;
+            }));
+
+
+            // Resolve with the translated result
+            resolve(combinedResult);
+        } catch (error) {
+            // Handle errors
+            reject(error);
+        }
+    });
+}
+
+function getMyProposals(user) {
+
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let userID = (await query(`SELECT id from members WHERE username = ?`, [user]))[0].id;
+            // Execute the main query
+            let proposalsResult = (await query(`SELECT proposals.*  FROM proposals JOIN proposalInterests ON proposals.id = proposalInterests.proposal_id  WHERE proposalInterests.member_id = ?`, [userID]));
+            
+            // Combine results
+            let combinedResult = [
+                ...proposalsResult.map(row => ({ data: row, type: "proposal" }))
             ];
 
             // Fetch and attach tags
@@ -885,5 +927,7 @@ module.exports = {
     createNotification,
     getNotifications,
     getCommunityDetails,
+    getMyProposals,
+    getRatingNumber
 }
 

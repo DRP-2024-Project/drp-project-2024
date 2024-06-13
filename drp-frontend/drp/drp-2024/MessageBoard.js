@@ -5,24 +5,29 @@ import { REMOTE_HOST } from './Config.js';
 
 export default function MessageBoardScreen({ route }) {
     const { navigation, item, user } = route.params;
-    
+
     const [loading, setLoading] = useState(true);
     const [events, setEvents] = useState([]);
+
     useEffect(() => {
         const fetchData = async () => {
-          try {
-            const response = await fetch(`${REMOTE_HOST}/getEvents/?commId=${item.id}`);
-            const json = await response.json();
-            setEvents(json);
-          } catch (error) {
-            console.error('Failed to fetch community events:', error);
-          } finally {
-            setLoading(false);
-          }
+            try {
+                const response = await fetch(`${REMOTE_HOST}/getEvents/?commId=${item.id}`);
+                const json = await response.json();
+                setEvents(json);
+            } catch (error) {
+                console.error('Failed to fetch community events:', error);
+            } finally {
+                setLoading(false);
+            }
         };
-    
-        fetchData();
-    }, []);
+
+        fetchData(); // Initial fetch
+
+        const intervalId = setInterval(fetchData, 1000);
+
+        return () => clearInterval(intervalId);
+    }, [item.id]);
 
     return (
         <View style={styles.container}>
@@ -30,21 +35,21 @@ export default function MessageBoardScreen({ route }) {
                 <ActivityIndicator size="large" color="#4A90E2" style={styles.loader} />
             ) : (
                 <FlatList
-                data={events}
-                renderItem={({ item }) => <Message event={item} user={user}/>}
-                keyExtractor={item => item.id}
-                contentContainerStyle={styles.listContainer}
+                    data={events}
+                    renderItem={({ item }) => <Message event={item} user={user} />}
+                    keyExtractor={item => item.id.toString()} // Ensure key is a string
+                    contentContainerStyle={styles.listContainer}
                 />
             )}
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
-      },
+    },
     listContainer: {
         paddingVertical: 10,
     },

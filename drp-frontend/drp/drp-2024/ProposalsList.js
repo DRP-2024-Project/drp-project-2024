@@ -5,7 +5,7 @@ import ItemRecord from './ItemRecord';
 import ItemProposalRecord from './ItemProposalRecord';
 
 
-const CommunityList = ({ value, search, navigation, user, myCommunities, reload }) => {
+const ProposalList = ({ value, search, navigation, user, myCommunities, reload }) => {
   const [loading, setLoading] = useState(true);
   const [communities, setCommunities] = useState([]);
 
@@ -21,7 +21,7 @@ const CommunityList = ({ value, search, navigation, user, myCommunities, reload 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${REMOTE_HOST}/search/?orderBy=${value}&searchTerm=${search}&myCommunities=${myCommunities}&user=${user}`);
+        const response = await fetch(`${REMOTE_HOST}/searchProposals/?user=${user}`);
         const json = await response.json();
         setCommunities(json);
       } catch (error) {
@@ -35,7 +35,6 @@ const CommunityList = ({ value, search, navigation, user, myCommunities, reload 
     
     const intervalId = setInterval(fetchData, 1000);
     return () => clearInterval(intervalId);
-    
   }, [value, search, reload]);
 
   return (
@@ -69,4 +68,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CommunityList;
+export default ProposalList;
