@@ -38,6 +38,7 @@ export default function ItemDetailScreen({ route, navigation }) {
   const [newDesc, setNewDesc] = useState('');
   const [rating, setRating] = useState(0.0);
   const [joined, setJoined] = useState(false);
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -92,6 +93,24 @@ export default function ItemDetailScreen({ route, navigation }) {
     navigation.navigate('MessageBoard', { navigation, item, user });
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+        try {
+            const response = await fetch(`${REMOTE_HOST}/getUnreadEvents/?community=${item.id}&user=${user}`);
+            const json = await response.json();
+            setEvents(json.events);
+        } catch (error) {
+            console.error('Failed to fetch community events:', error);
+        }
+    };
+
+    fetchData(); // Initial fetch
+
+    const intervalId = setInterval(fetchData, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [item.id]);
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -142,9 +161,18 @@ export default function ItemDetailScreen({ route, navigation }) {
             <View>
               <RatingComponent joined={joined} user={user} commName={commName} setReloadStars={setReloadStars} />
             </View>
-            <TouchableOpacity style={joined ? styles.button : styles.disabledButton} disabled={!joined} onPress={handleMessage}>
-              <Text style={styles.buttonText}>Events</Text>
-            </TouchableOpacity>
+            <View style={styles.eventsContainer}>
+              <TouchableOpacity style={joined ? styles.button : styles.disabledButton} disabled={!joined} onPress={handleMessage}>
+                <Text style={styles.buttonText}>Events</Text>
+                {events.length > 0 ? (
+                  <View style={styles.badgeContainer}>
+                  <View style={styles.badge}>
+                      <Text style={styles.badgeText}>{events.length}</Text>
+                  </View>
+              </View>
+                ): null}
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View style={[styles.boxContainer, styles.descriptionBox]}>
@@ -330,6 +358,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 30,
     alignItems: 'center',
+    flexDirection: 'row', // Ensure button and badge are in a row
+    alignItems: 'center', // Center items vertically
+    justifyContent: 'center', // Center items horizontally
+    position: 'relative', // Ensure relative positioning
   },
   buttonText: {
     color: '#FFFFFF',
@@ -463,5 +495,22 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     textAlign: 'center',
+  },
+  eventsContainer: {
+    margin: 20,
+  },
+  badge: {
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  badgeText: {
+      color: 'white',
+      fontSize: 12,
+      fontWeight: 'bold',
   },
 });

@@ -34,6 +34,8 @@ const {
     getCommunityDetails,
     getMyProposals,
     getRatingNumber,
+    readNotification,
+    readEvents,
 } = require('./controllers/databaseService.js');
 
 const app = express();
@@ -258,6 +260,28 @@ app.post("/attend", async (req, res) => {
     }
 });
 
+app.post("/readNotification", async (req, res) => {
+    const user = req.query.user;
+    const notificationId = req.query.id
+    try {
+        await readNotification(notificationId, user);
+        res.status(200).send("OK");
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
+
+app.post("/readEvents", async (req, res) => {
+    const user = req.query.user;
+    const community = req.query.community;
+    try {
+        readEvents(community, user);
+        res.status(200).send("OK");
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
+
 app.get("/getEvents", async (req, res) => {
     const commId = req.query.commId;
     const result = await getAllEvents(commId);
@@ -269,6 +293,18 @@ app.get("/getNotifications", async (req, res) => {
     try {
         const notifications = await getNotifications(user);
         res.json({notifications});
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
+
+app.get("/getUnreadEvents", async (req, res) => {
+    const user = req.query.user;
+    const community = req.query.community;
+    try {
+        const notifications = await getNotifications(user);
+        const events = notifications.filter(notification => notification.community_id == community);
+        res.json({events});
     } catch (error) {
         res.status(500).send(error.message);
     }

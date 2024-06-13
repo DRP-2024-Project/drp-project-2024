@@ -223,8 +223,26 @@ function getNotifications(user) {
         }
 
         let res = await query(queryStr, idList);
-        return resolve(res);
+
+        let readNotifications = await query(`SELECT notification_id FROM notificationRead WHERE member_id = ?`, [userID]);
+        let readIds = new Set(readNotifications.map(item => item.notification_id));
+        let unread = res.filter(item => !readIds.has(item.id));
+        
+        return resolve(unread);
     })
+}
+
+async function readNotification(notificationId, user) {
+    let userId = (await query(`SELECT id from members WHERE username = ?`, [user]))[0].id;
+    let exists = await query(`SELECT * FROM notificationRead WHERE notification_id = ? AND member_id = ?`, [notificationId, userId]);
+    if (exists.length == 0) {
+        await query(`INSERT INTO notificationRead SET notification_id = ?, member_id = ?`, [notificationId, userId]);
+    }
+}
+
+async function readEvents(communityId, user) {
+    let notifications = (await query(`SELECT id from notifications WHERE community_id = ?`, [communityId]));
+    notifications.forEach(notification => readNotification(notification.id, user));
 }
 
 // deleteCommunity: Deletes the community given by name from the communities table
@@ -928,6 +946,8 @@ module.exports = {
     getNotifications,
     getCommunityDetails,
     getMyProposals,
-    getRatingNumber
+    getRatingNumber,
+    readNotification,
+    readEvents,
 }
 

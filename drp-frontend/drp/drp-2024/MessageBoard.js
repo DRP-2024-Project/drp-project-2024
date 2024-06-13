@@ -29,6 +29,12 @@ export default function MessageBoardScreen({ route }) {
         return () => clearInterval(intervalId);
     }, [item.id]);
 
+    useEffect(() => {
+        fetch(`${REMOTE_HOST}/readEvents/?user=${user}&community=${item.id}`, {
+            method: 'POST',
+        });
+    }, [events]);
+
     return (
         <View style={styles.container}>
             {loading ? (

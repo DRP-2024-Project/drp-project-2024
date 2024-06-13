@@ -8,6 +8,7 @@ const NotificationItem = ({ notification, navigation, user, setModalVisible }) =
   useEffect(() => {
     const fetchData = async () => {
       try {
+
         const response = await fetch(`${REMOTE_HOST}/getCommunity/?id=${notification.community_id}`);
         const json = await response.json();
         setCommunity(json.community);
@@ -21,9 +22,12 @@ const NotificationItem = ({ notification, navigation, user, setModalVisible }) =
     fetchData();
   }, [notification])
 
-  const handlePress = () => {
+  const handlePress = async () => {
     setModalVisible(false);
-    navigation.navigate("Details", { item: community, user })
+    await fetch(`${REMOTE_HOST}/readNotification/?user=${user}&id=${notification.id}`, {
+      method: 'POST',
+    });
+    navigation.navigate("Details", { item: community, user });
   }
 
   return (
