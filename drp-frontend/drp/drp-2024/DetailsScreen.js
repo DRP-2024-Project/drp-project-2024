@@ -5,6 +5,7 @@ import PhotoGrid from './PhotoGrid.js';
 import ImageBanner from './ImageBanner.js';
 import RatingComponent from './Rating.js';
 import FixedRating from './FixedRating.js';
+import { createNotification } from './NotificationCreator.js'; 
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   const [size, setSize] = useState(enlargedSize);
@@ -83,6 +84,8 @@ export default function ItemDetailScreen({ route, navigation }) {
       },
       body: JSON.stringify(data),
     });
+
+    createNotification({community_id: item.id, title: `New Event at ${commName}`, message: newDesc});
   };
 
   const handleMessage = () => {
