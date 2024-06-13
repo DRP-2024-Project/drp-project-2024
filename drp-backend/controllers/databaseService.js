@@ -137,6 +137,8 @@ async function createCommunity(data) {
         links: data.links,
         rating: data.rating,
         level: data.level,
+        latitude: data.latitude,
+        longitude: data.longitude
     }
     return new Promise(async (resolve, reject) => {
         let exists = await communityExists(data.title);

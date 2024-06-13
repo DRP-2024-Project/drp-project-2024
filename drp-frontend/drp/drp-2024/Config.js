@@ -1,5 +1,5 @@
 // export const REMOTE_HOST = 'http://192.168.1.110:3000';
-export const REMOTE_HOST = 'https://drp2024-backend-84f8cdfad73b.herokuapp.com'
+export const REMOTE_HOST = 'http://192.168.1.110:3000'
 // export const REMOTE_HOST = 'http://localhost:3000';
 
 export const TAGS = {

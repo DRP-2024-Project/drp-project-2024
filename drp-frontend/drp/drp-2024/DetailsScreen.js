@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
+import { Button, ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity, Modal, ActivityIndicator, Platform, Linking } from 'react-native';
 import { REMOTE_HOST } from './Config.js';
 import PhotoGrid from './PhotoGrid.js';
 import ImageBanner from './ImageBanner.js';
@@ -135,6 +135,19 @@ export default function ItemDetailScreen({ route, navigation }) {
     );
   }
 
+
+  const parsedLatitude = parseFloat(item.latitude);
+  const parsedLongitude = parseFloat(item.longitude);
+
+  const openMap = () => {
+    const url = Platform.select({
+      ios: `maps:0,0?q=${parsedLatitude},${parsedLongitude}`,
+      android: `geo:0,0?q=${parsedLatitude},${parsedLongitude}`
+    });
+
+    Linking.openURL(url).catch(err => Alert.alert('Error', 'Unable to open map'));
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View>
@@ -171,7 +184,7 @@ export default function ItemDetailScreen({ route, navigation }) {
 
         <View style={styles.mainContainer}>
           <View style={styles.mapRow}>
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Map', { latitude: item.latitude, longitude: item.longitude })}>
+            <TouchableOpacity style={styles.button} onPress={() => openMap()}>
               <Text style={styles.buttonText}>View Map</Text>
             </TouchableOpacity>
             <View>

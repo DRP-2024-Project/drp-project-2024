@@ -9,6 +9,7 @@ import {
     TouchableOpacity,
     Platform,
     Modal,
+    SafeAreaView
 } from 'react-native';
 import { CheckBox } from 'react-native-elements';
 import Tag from './Tag'
@@ -16,6 +17,8 @@ import SelectedTag from './SelectedTag'
 import { REMOTE_HOST, TAGS } from './Config';
 import * as ImagePicker from 'expo-image-picker';
 import { BlurView } from 'expo-blur';
+import MapPicker from './MapPicker';
+
 
 // verifyCommData: verifies that all data for creating a community is of the correct form
 // Return: returns "" if all data is valid or errMessage if there is some invalid data
@@ -133,6 +136,12 @@ export default function HomeScreen({ route }) {
     }
   };
 
+  const [selectedLocation, setSelectedLocation] = useState({
+    latitude: 37.78825,
+    longitude: -122.4324,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  });
   const [modalVisible, setModalVisible] = useState(false);
   const [errMessage, setErrMessage] = useState('');
   const handleSubmit = async () => {
@@ -151,6 +160,8 @@ export default function HomeScreen({ route }) {
       level: formData.level,
       ownerUser: user,
       tag_id: TAGS[tag],
+      latitude: selectedLocation.latitude,
+      longitude: selectedLocation.longitude
     };
     const data = {
       comm: comm,
@@ -247,6 +258,12 @@ export default function HomeScreen({ route }) {
       <View style={styles.imageButton}>
         <Button title="Select Image" color="#3d649b" borderRadius="10" onPress={selectImage} />
       </View>
+      <View style={styles.container}>
+      <Button
+        title="Pick a Location"
+        onPress={() => navigation.navigate('Map Picker', {setSelectedLocation})}
+      />
+    </View>
       <Button title="Submit" color="#3d649b" borderRadius="10" onPress={handleSubmit} />
       <Modal
         transparent={true}
@@ -266,6 +283,7 @@ export default function HomeScreen({ route }) {
           </View>
         </View>
       </Modal>
+
     </ScrollView>
   );
 };

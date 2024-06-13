@@ -15,6 +15,7 @@ import SimpleMap from './map';
 import RatingComponent from './Rating';
 import MessageBoard from './MessageBoard';
 import HomePageScreen from './MyHomePage';
+import MapPicker from './MapPicker';
 
 const Stack = createNativeStackNavigator();
 
@@ -22,6 +23,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="User ID">
+      <Stack.Screen name="Map Picker" component={MapPicker} />
       <Stack.Screen name="Find your community" component={SearchBar} />
         <Stack.Screen name="User ID" component={UserScreen} />
         <Stack.Screen name="Communities" component={HomeScreen} />
