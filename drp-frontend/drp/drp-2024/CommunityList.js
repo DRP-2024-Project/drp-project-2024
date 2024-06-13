@@ -32,6 +32,10 @@ const CommunityList = ({ value, search, navigation, user, myCommunities, reload 
     };
 
     fetchData();
+    
+    const intervalId = setInterval(fetchData, 1000);
+    return () => clearInterval(intervalId);
+    
   }, [value, search, reload]);
 
   return (

@@ -254,7 +254,7 @@ app.post("/attend", async (req, res) => {
         }
         res.status(200).send("OK");
     } catch (error) {
-        req.status(500).send(error.message);
+        res.status(500).send(error.message);
     }
 });
 
