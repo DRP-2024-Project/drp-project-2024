@@ -130,7 +130,7 @@ async function createCommunity(data) {
         location: data.location, 
         schedule: data.schedule, 
         scheduled: data.scheduled,
-        contactInfo: data.schedule, 
+        contactInfo: data.contactInfo, 
         requiredEquipment: data.equipmentRequired,
         owner: name,
         tag_id: data.tag_id,

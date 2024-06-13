@@ -81,6 +81,9 @@ const Message = ({ user, event }) => {
 
     }, [accepted]);
 
+    const date = new Date(Number(event.timestamp));
+    const stamp = date.toLocaleDateString('en-GB') + "  " + date.toLocaleTimeString('en-GB', {hour12:false}).slice(0,5)
+    
     return (
         <View style={styles.container}>
           <Text style={styles.name}>{event.creator_name}</Text>
@@ -120,7 +123,7 @@ const Message = ({ user, event }) => {
               </View>
             )}
           </View>
-          <Text style={styles.timestamp}>{event.timestamp}</Text>
+          <Text style={styles.timestamp}>{stamp}</Text>
         </View>
       );
     };
@@ -202,7 +205,7 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     position: 'absolute',
-    bottom: 5,
+    bottom: 0,
     right: 10,
     fontSize: 12,
     color: '#999',

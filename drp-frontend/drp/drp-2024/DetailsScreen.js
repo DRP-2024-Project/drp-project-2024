@@ -85,8 +85,8 @@ export default function ItemDetailScreen({ route, navigation }) {
       },
       body: JSON.stringify(data),
     });
-
-    createNotification({community_id: item.id, title: `New Event at ${commName}`, message: newDesc});
+    
+    createNotification({community_id: item.id, is_proposal: false, title: `New Event at ${commName}`, message: newDesc});
   };
 
   const handleMessage = () => {
