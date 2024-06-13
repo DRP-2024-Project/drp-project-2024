@@ -160,7 +160,6 @@ export default function HomeScreen({ route }) {
     if (!checkInputs(data)) {
       return;
     }
-    console.log("here");
 
     try {
       const response = await fetch(`${REMOTE_HOST}/createCommunity`, {

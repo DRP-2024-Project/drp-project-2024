@@ -29,7 +29,7 @@ const NotificationItem = ({ notification, navigation, user, setModalVisible }) =
     fetchData();
   }, [notification])
 
-  const handlePress = () => {
+  const handlePress = async () => {
     setModalVisible(false);
     if (notification.is_proposal) {
       navigation.navigate("Details Proposal", { item: proposal, user})
