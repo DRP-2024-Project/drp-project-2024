@@ -152,7 +152,7 @@ export default function ItemDetailScreen({ route, navigation }) {
         </View>
 
         <View style={[styles.contactInfoBox]}>
-          <Text style={styles.contactInfoText}>Contact Info: {item.schedule}</Text>
+          <Text style={styles.contactInfoText}>Contact Info: {item.contactInfo}</Text>
         </View>
 
         <View style={styles.ratingRow}>
