@@ -31,6 +31,7 @@ export default function ItemDetailScreen({ route, navigation }) {
   const [owner, setOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reloadStars, setReloadStars] = useState(0.0);
+  const [url, setUrl] = useState([]);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [newDate, setNewDate] = useState('');
@@ -38,6 +39,21 @@ export default function ItemDetailScreen({ route, navigation }) {
   const [newDesc, setNewDesc] = useState('');
   const [rating, setRating] = useState(0.0);
   const [joined, setJoined] = useState(false);
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const urlLoaded = new URL(`${REMOTE_HOST}/images`);
+        urlLoaded.searchParams.append('name', commName);
+        urlLoaded.searchParams.append('id', '0');
+        setUrl(urlLoaded);
+      } catch (error) {
+        console.error('Error fetching banner image:', error);
+      }
+    };
+
+    fetchImage();
+  }, [commName]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -105,7 +121,7 @@ export default function ItemDetailScreen({ route, navigation }) {
       <View>
         <View style={styles.topRowContainer}>
           <View style={styles.bannerContainer}>
-            <ImageBanner user={user} item={item} joined={joined} setJoined={setJoined} setMemberUsernames={setMemberUsernames} setMembers={setMembers}/>
+            <ImageBanner source={{uri: url.toString()}} is_proposal={false} user={user} item={item} joined={joined} setJoined={setJoined} setMemberUsernames={setMemberUsernames} setMembers={setMembers}/>
           </View>
 
           <View style={styles.middleRow}>
@@ -344,8 +360,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   descriptionBox: {
-    height: 150, // Fixed height
-    marginBottom: 16,
+    backgroundColor: '#f0f0f0',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 16, 
+    maxHeight: 150, 
   },
   descriptionContent: {
     flex: 1,

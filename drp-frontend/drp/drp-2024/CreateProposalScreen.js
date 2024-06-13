@@ -24,7 +24,13 @@ function verifyProposalData(data) {
     return "Please enter a Description.";
   } else if (!data.tag_id) {
     return "Please choose an activity type."
-  }
+  } else if (data.level != "Beginner" &&
+    data.level != "Intermediate" &&
+    data.level != "Advanced"
+   ) {
+return "Please enter a valid level of standard, 'Beginner', " +
+  "'Intermediate', 'Advanced'"
+}
 }
 
 export default function HomeScreen({ route }) {
@@ -38,6 +44,7 @@ export default function HomeScreen({ route }) {
   const [formData, setFormData] = useState({
         title: '',
         description: '',
+        level: '',
   });
 
   // For the tag Buttons
@@ -77,6 +84,7 @@ export default function HomeScreen({ route }) {
     const data = {
       title: formData.title,
       description: formData.description,
+      level: formData.level,
       tag_id: TAGS[tag],
       ownerUser: user
     };

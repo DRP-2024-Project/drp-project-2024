@@ -1,61 +1,62 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Dimensions, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { REMOTE_HOST } from './Config';
-import Tag from './Tag'; // Assuming Tag is a custom component you have for displaying tags
 
-const ImageBanner = ({ user, item, joined, setJoined, setMemberUsernames, setMembers }) => {
-  const [url, setUrl] = useState([]);
+const ImageBanner = ({ source, user, item, is_proposal, joined, setJoined, setMemberUsernames, setMembers }) => {
   const [loading, setLoading] = useState(true);
   const [imageLoading, setImageLoading] = useState(true); // State for image loading
 
-  const community = item.title;
+  const title = item.title;
 
   const handleJoin = async () => {
-    setJoined(!joined);
-    await fetch(`${REMOTE_HOST}/toggleMemberInCommunity/?commName=${community}&username=${user}`, {
-      method: 'POST',
-    });
+      setJoined(!joined);
+      var response;
 
-    const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${community}`);
-    const json = await response.json();
-    setMembers(json.names);
-    setMemberUsernames(json.usernames);
+      if (!is_proposal) {
+        await fetch(`${REMOTE_HOST}/toggleMemberInCommunity/?commName=${title}&username=${user}`, {
+          method: 'POST',
+        });
+
+        response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${title}`);
+      } else {
+        await fetch(`${REMOTE_HOST}/toggleInterested/?propName=${title}&username=${user}`, {
+          method: 'POST',
+        });
+
+        response = await fetch(`${REMOTE_HOST}/getProposalMembers?proposal=${title}`);
+      }
+
+      const json = await response.json();
+      setMembers(json.names);
+      setMemberUsernames(json.usernames);
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${community}`);
-        const json = await response.json();
-        setMembers(json.names);
-        setMemberUsernames(json.usernames);
-        if (json.usernames.includes(user)) {
-          setJoined(true);
+        var response;
+        try {
+          if (!is_proposal) {
+            response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${title}`);
+          } else {
+            response = await fetch(`${REMOTE_HOST}/getProposalMembers?proposal=${title}`);
+          }
+
+          const json = await response.json();
+          setMembers(json.names);
+          setMemberUsernames(json.usernames);
+          if (json.usernames.includes(user)) {
+            setJoined(true);
+          }
+        } catch (error) {
+          console.error('Failed to fetch community members:', error);
+        } finally {
+          setLoading(false); // Set loading to false after data is fetched
         }
-      } catch (error) {
-        console.error('Failed to fetch community members:', error);
-      } finally {
-        setLoading(false); // Set loading to false after data is fetched
-      }
-    };
+      };
+  
+      fetchData();
 
-    fetchData();
-  }, [community, user]);
-
-  useEffect(() => {
-    const fetchImage = async () => {
-      try {
-        const urlLoaded = new URL(`${REMOTE_HOST}/images`);
-        urlLoaded.searchParams.append('name', community);
-        urlLoaded.searchParams.append('id', '0');
-        setUrl(urlLoaded);
-      } catch (error) {
-        console.error('Error fetching banner image:', error);
-      }
-    };
-
-    fetchImage();
-  }, [community]);
+  }, [title, user]);
 
   const screenWidth = Dimensions.get('screen').width;
   const imageHeight = Dimensions.get('screen').height * 0.2;
@@ -69,7 +70,7 @@ const ImageBanner = ({ user, item, joined, setJoined, setMemberUsernames, setMem
       ) : (
         <View style={[styles.imageContainer, { width: screenWidth, height: imageHeight }]}>
           <Image
-            source={{ uri: url.toString() }}
+            source={source}
             style={[styles.image, { width: screenWidth, height: imageHeight }]}
             onLoad={() => setImageLoading(false)} // Set imageLoading to false when image is loaded
           />
@@ -85,12 +86,9 @@ const ImageBanner = ({ user, item, joined, setJoined, setMemberUsernames, setMem
                 <Text style={styles.levelLabel}>Level:</Text>
                 <Text style={styles.level}>{item.level}</Text>
               </View>
-              {/* <View style={styles.tagContainer}>
-                <Tag tag_name={item.tag} style={styles.tag} />
-              </View> */}
             </View>
             <View style={styles.communityTextContainer}>
-              <Text style={styles.communityText}>{community}</Text>
+              <Text style={styles.communityText}>{title}</Text>
             </View>
           </View>
         </View>

@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
     },
     button: {
-      backgroundColor: '#d9dbda',
+      backgroundColor: '#3d649b',
       borderRadius: 50,
       width: 60,
       height: 60,

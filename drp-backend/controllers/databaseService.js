@@ -291,7 +291,7 @@ function getSearchOrderedBy(search, col) {
     ) AS unioned_communities`;
     
     let proposalsQuery = `
-        SELECT id, title, description, tag_id, 0 AS rating, 'proposal' AS type 
+        SELECT id, title, description, tag_id, level, 0 AS rating, 'proposal' AS type 
         FROM proposals 
         WHERE title LIKE ?
     `;
@@ -340,6 +340,12 @@ function getSearchOrderedBy(search, col) {
 function getCommunityMembers(title) {
     return new Promise(async (resolve, reject) => {
         let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [title])
+        if (commResult == []) {
+            return resolve([[], []]);
+        }
+
+        console.log(`WEIRD ERROR COMING< THIS IS COMMRESULT:`);
+        console.log(commResult);
         let memResult = await query(`SELECT member_id FROM commMembers WHERE community_id = ?`, [commResult[0].id]);
         const idList = memResult.map(row => row.member_id);
         
@@ -356,8 +362,12 @@ function getCommunityMembers(title) {
 // Return: returns an array of names and an array of usernames.
 function getProposalMembers(title) {
     return new Promise(async (resolve, reject) => {
-        let commResult = await query(`SELECT id FROM proposals WHERE title = ?`, [title])
-        let memResult = await query(`SELECT member_id FROM proposalInterests WHERE proposal_id = ?`, [commResult[0].id]);
+        let propResult = await query(`SELECT id FROM proposals WHERE title = ?`, [title])
+        if (propResult == []) {
+            return resolve([[], []]);
+        }
+
+        let memResult = await query(`SELECT member_id FROM proposalInterests WHERE proposal_id = ?`, [propResult[0].id]);
         const idList = memResult.map(row => row.member_id);
 
         if (idList.length == 0) {
@@ -855,6 +865,7 @@ async function createProposal(data) {
     const communityData = {
         title: data.title, 
         description: data.description,
+        level: data.level,
         tag_id: data.tag_id
     }
 
@@ -866,7 +877,7 @@ async function createProposal(data) {
         
         let propResult = await query(`INSERT INTO proposals SET ?`, communityData);
         let memResult = await query(`SELECT * FROM members WHERE name = ?`, [user]);
-        await query(`INSERT INTO proposalsInterests SET ?`, {
+        await query(`INSERT INTO proposalInterests SET ?`, {
             proposal_id: propResult.insertId,
             member_id: memResult[0].id
         });

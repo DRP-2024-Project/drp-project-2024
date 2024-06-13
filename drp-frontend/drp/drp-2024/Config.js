@@ -1,5 +1,5 @@
-export const REMOTE_HOST = 'http://192.168.1.110:3000';
-// export const REMOTE_HOST = 'http://localhost:3000';
+// export const REMOTE_HOST = 'http://192.168.1.110:3000';
+export const REMOTE_HOST = 'http://localhost:3000';
 
 export const TAGS = {
     'Basketball': 13,
