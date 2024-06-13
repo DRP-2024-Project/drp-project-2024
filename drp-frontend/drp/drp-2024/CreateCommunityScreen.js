@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
     View, 
     TextInput, 
@@ -18,6 +18,7 @@ import { REMOTE_HOST, TAGS } from './Config';
 import * as ImagePicker from 'expo-image-picker';
 import { BlurView } from 'expo-blur';
 import MapPicker from './MapPicker';
+import { createNotification } from './NotificationCreator.js';
 
 
 // verifyCommData: verifies that all data for creating a community is of the correct form
@@ -52,8 +53,19 @@ function verifyCommData(data) {
   }
 }
 
-export default function HomeScreen({ route }) {
+export default function HomeScreen({ item, route }) {
+    var { item, route } = route.params;
     const { navigation, user } = route.params;
+
+    var fromProposal = item != null;
+
+    if (!fromProposal) {
+      item = {title: '',
+              description: '',
+              level: '',
+              tag_id: '',
+      }
+    }
 
     const beginState = Object.keys(TAGS).reduce((acc, currentItem) => {
       acc[currentItem] = false; 
@@ -61,16 +73,17 @@ export default function HomeScreen({ route }) {
     }, {});
   
   const [formData, setFormData] = useState({
-        title: '',
-        description: '',
+        title: item.title,
+        description: item.description,
         price: '',
         'per Time': '',
         location: '',
         'contact Info': '',
         'required Equipment': '',
         links: '',
-        level: '',
+        level: item.level,
   });
+
 
   // For the tag Buttons
   // tag: Represents the id of the selected tag
@@ -78,6 +91,7 @@ export default function HomeScreen({ route }) {
   // tagStates: Represents whether each item is selected
   const [tag, setTag] = useState('');
   const [tagStates, setTagStates] = useState(beginState);
+
   const handlePress = (currTag) => {
     // Selecting a new tag
     if (currTag != tag) {
@@ -102,6 +116,12 @@ export default function HomeScreen({ route }) {
       [name]: value,
     });
   };
+
+  useEffect(() => {
+    if (fromProposal) {
+      handlePress(item.tag);
+    }}
+  , []);
 
   // For the schedule toggle
   const [scheduled, setScheduled] = useState(false);
@@ -185,7 +205,12 @@ export default function HomeScreen({ route }) {
     } catch (error) {
       console.error('Error:', error);
     }
-    navigation.navigate("Communities", {})
+
+    if (fromProposal) {
+      createNotification({community_id:null, proposal_id:item.id, is_proposal:true, title: `Community "${formData.title}" created!`, message:`This community was created from the proposal "${item.title}".`})
+    }
+
+    navigation.navigate("Communities", {route})
   };
 
   const checkInputs = (data) => {

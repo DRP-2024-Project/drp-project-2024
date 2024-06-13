@@ -12,5 +12,5 @@ async function createNotification(data = {community_id, proposal_id, is_proposal
   }
 
 module.exports = {
-    createNotification
+  createNotification
 };

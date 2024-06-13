@@ -1,5 +1,5 @@
-// export const REMOTE_HOST = 'http://192.168.1.110:3000';
-export const REMOTE_HOST = 'http://192.168.1.110:3000'
+export const REMOTE_HOST = 'https://drp2024-backend-84f8cdfad73b.herokuapp.com';
+// export const REMOTE_HOST = 'http://192.168.1.110:3000'
 // export const REMOTE_HOST = 'http://localhost:3000';
 
 export const TAGS = {
@@ -20,3 +20,7 @@ export const TAGS = {
     'Walking': 7,
     'Yoga': 12,
 }
+
+export const REVERSE_TAGS = ['', 'Rugby', 'Martial Arts', 
+    'Volleyball', 'Skating', 'Tennis', 'Golf', 'Walking', 
+    'Football', 'Cycling', 'Running', 'Climbing', 'Yoga', 'Basketball', 'Swimming', 'Dance', 'Gym'];

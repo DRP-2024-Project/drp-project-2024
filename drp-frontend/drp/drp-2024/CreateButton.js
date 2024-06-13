@@ -2,9 +2,13 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const CreateButton = ({ navigation, user }) => {
+const CreateButton = ({ navigation, user, defaultValues, createCommunity=false }) => {
   const handlePress = () => {
-    navigation.navigate("Create", {navigation, user})
+    if (createCommunity) {
+      navigation.navigate("Create Community", {item: defaultValues, route: {navigation: navigation, user: user}})
+    } else {
+      navigation.navigate("Create", {navigation, user})
+    }
   };
 
   return (

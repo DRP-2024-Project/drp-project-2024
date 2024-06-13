@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, StyleSheet, TextInput } from 'react-native';
-import { REMOTE_HOST } from './Config.js';
 import ImageBanner from './ImageBanner.js';
 import CreateButton from './CreateButton.js';
 import Tag from './Tag.js';
-import { CurrentRenderContext } from '@react-navigation/native';
+import { REVERSE_TAGS } from './Config.js';
 
 export default function ItemDetailScreen({ route, navigation }) {
   const defaultBanner = require('./assets/default-proposal-banner.jpg');
@@ -18,8 +17,6 @@ export default function ItemDetailScreen({ route, navigation }) {
     navigation.navigate("MessageBoard", {navigation, item, user});
   };
 
-  console.log(item);
-
   return (
     <ScrollView contentContainerStyle={styles.listContainer} style={styles.container}>
       <View style={styles.bannerContainer}>
@@ -31,8 +28,8 @@ export default function ItemDetailScreen({ route, navigation }) {
       </View>
 
       <View style={styles.topRow}>
-        <Tag tag_name={item.tag} style={styles.tag} />
-        <CreateButton navigation={navigation} user={user} style={styles.createButton} />
+        <Tag tag_name={REVERSE_TAGS[item.tag_id]} style={styles.tag} />
+        <CreateButton navigation={navigation} user={user} style={styles.createButton} defaultValues={item} createCommunity={true}/>
       </View>
 
       <View style={[styles.boxContainer, styles.descriptionBox]}>

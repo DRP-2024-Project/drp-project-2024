@@ -106,7 +106,7 @@ export default function HomeScreen({ route }) {
     } catch (error) {
       console.error('Error:', error);
     }
-    navigation.navigate("Communities", {})
+    navigation.navigate("Communities", {route})
   };
 
   const checkInputs = (data) => {

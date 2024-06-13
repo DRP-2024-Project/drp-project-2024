@@ -5,7 +5,7 @@ import ItemRecord from './ItemRecord';
 import ItemProposalRecord from './ItemProposalRecord';
 
 
-const CommunityList = ({ value, search, navigation, user, myCommunities, reload }) => {
+const CommunityList = ({ value, search, navigation, user, myCommunities, reload, reloadHomePage=false }) => {
   const [loading, setLoading] = useState(true);
   const [communities, setCommunities] = useState([]);
 
@@ -33,8 +33,10 @@ const CommunityList = ({ value, search, navigation, user, myCommunities, reload 
 
     fetchData();
     
-    const intervalId = setInterval(fetchData, 1000);
-    return () => clearInterval(intervalId);
+    if (reloadHomePage) {
+      const intervalId = setInterval(fetchData, 1000);
+      return () => clearInterval(intervalId);
+    }
     
   }, [value, search, reload]);
 

@@ -214,25 +214,59 @@ async function createNotification(data) {
 
 function getNotifications(user) {
     return new Promise(async (resolve, reject) => {
-        let userID = (await query(`SELECT id from members WHERE username = ?`, [user]))[0].id;
-        let communities = await query(`SELECT community_id FROM commMembers WHERE member_id = ?`, [userID]);
-        let idList = communities.map(row => row.community_id);
-        let placeholders = idList.map(() => '?').join(',');
-        let queryStr = `SELECT * FROM notifications WHERE community_id IN (${placeholders})`;
-        
-        if (idList.length == 0) {
-            return resolve([]);
+        try {
+            // Get user ID from username
+            let userID = (await query(`SELECT id FROM members WHERE username = ?`, [user]))[0].id;
+
+            // Get the list of community IDs the user is a member of
+            let communities = await query(`SELECT community_id FROM commMembers WHERE member_id = ?`, [userID]);
+            let communityIdList = communities.map(row => row.community_id);
+
+            // Get the list of proposal IDs the user is interested in
+            let proposals = await query(`SELECT proposal_id FROM proposalInterests WHERE member_id = ?`, [userID]);
+            let proposalIdList = proposals.map(row => row.proposal_id);
+
+            // Handle case where both lists are empty
+            if (communityIdList.length === 0 && proposalIdList.length === 0) {
+                return resolve([]);
+            }
+
+            // Create placeholders for the ID lists
+            let commPlaceholders = communityIdList.length ? communityIdList.map(() => '?').join(',') : null;
+            let propPlaceholders = proposalIdList.length ? proposalIdList.map(() => '?').join(',') : null;
+
+            let communityNotifications = [];
+            let proposalNotifications = [];
+
+            // Query for community notifications if there are community IDs
+            if (communityIdList.length > 0) {
+                let commQueryStr = `SELECT * FROM notifications WHERE community_id IN (${commPlaceholders})`;
+                communityNotifications = await query(commQueryStr, communityIdList);
+            }
+
+            // Query for proposal notifications if there are proposal IDs
+            if (proposalIdList.length > 0) {
+                let propQueryStr = `SELECT * FROM notifications WHERE proposal_id IN (${propPlaceholders})`;
+                proposalNotifications = await query(propQueryStr, proposalIdList);
+            }
+
+            // Combine notifications
+            let combinedNotifications = [...communityNotifications, ...proposalNotifications];
+
+            // Get the list of read notifications
+            let readNotifications = await query(`SELECT notification_id FROM notificationRead WHERE member_id = ?`, [userID]);
+            let readIds = new Set(readNotifications.map(item => item.notification_id));
+
+            // Filter out read notifications
+            let unread = combinedNotifications.filter(item => !readIds.has(item.id));
+
+            return resolve(unread);
+        } catch (error) {
+            return reject(error);
         }
-
-        let res = await query(queryStr, idList);
-
-        let readNotifications = await query(`SELECT notification_id FROM notificationRead WHERE member_id = ?`, [userID]);
-        let readIds = new Set(readNotifications.map(item => item.notification_id));
-        let unread = res.filter(item => !readIds.has(item.id));
-        
-        return resolve(unread);
-    })
+    });
 }
+
 
 async function readNotification(notificationId, user) {
     let userId = (await query(`SELECT id from members WHERE username = ?`, [user]))[0].id;
@@ -273,6 +307,13 @@ async function deleteCommunity(title) {
 function getCommunityDetails(id) {
     return new Promise(async (resolve, reject) => {
         let result = await query(`SELECT * FROM communities WHERE id = ?`, [id]);
+        return resolve(result[0]);
+    });
+}
+
+function getProposalDetails(id) {
+    return new Promise(async (resolve, reject) => {
+        let result = await query(`SELECT * FROM proposals WHERE id = ?`, [id]);
         return resolve(result[0]);
     });
 }
@@ -946,6 +987,7 @@ module.exports = {
     deleteMemberFromProposal,
     addMemberToProposal,
     memberAlreadyInProposal,
+    getProposalDetails,
     getProposalMembers,
     rateCommunity,
     getAverageRating,

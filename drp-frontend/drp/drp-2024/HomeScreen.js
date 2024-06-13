@@ -40,7 +40,7 @@ export default function HomeScreen({ route }) {
         />
         <CreateButton navigation={navigation} user={user} />
       </View>
-      <CommunityList value={value} search={search} navigation={navigation} user={user} myCommunities={false}/>
+      <CommunityList value={value} search={search} navigation={navigation} user={user} myCommunities={false} reloadHomePage={true}/>
     </View>
   );
 }

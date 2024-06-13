@@ -19,6 +19,7 @@ const {
     getProposalMembers,
     addMemberToProposal,
     addMemberToCommunity,
+    getProposalDetails,
     deleteMemberFromCommunity,
     memberAlreadyInCommunity,
     rateCommunity,
@@ -315,6 +316,16 @@ app.get("/getCommunity", async (req, res) => {
     try {
         const community = await getCommunityDetails(id);
         res.json({community});
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
+
+app.get("/getProposal", async (req, res) => {
+    const id = req.query.id;
+    try {
+        const proposal = await getProposalDetails(id);
+        res.json({proposal});
     } catch (error) {
         res.status(500).send(error.message);
     }

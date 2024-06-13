@@ -1,12 +1,8 @@
 import React from 'react';
 import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
-import { REMOTE_HOST } from './Config';
 import Tag from './Tag';
 
 const ItemProposalRecord = ({ item, navigation, user }) => {
-  const urlIcon = new URL(`${REMOTE_HOST}/icon`);
-  urlIcon.searchParams.append('id', item.tag_id);
-
   return (
     <TouchableOpacity 
         style={styles.item} 
