@@ -4,13 +4,21 @@ import { REMOTE_HOST } from './Config.js';
 
 const NotificationItem = ({ notification, navigation, user, setModalVisible }) => {
   const [community, setCommunity] = useState(null);
+  const [proposal, setProposal] = useState(null);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${REMOTE_HOST}/getCommunity/?id=${notification.community_id}`);
-        const json = await response.json();
-        setCommunity(json.community);
+        if (notification.is_proposal) {
+          const response = await fetch(`${REMOTE_HOST}/getProposal/?id=${notification.proposal_id}`);
+          const json = await response.json();
+          setProposal(json.proposal);
+        } else {
+          const response = await fetch(`${REMOTE_HOST}/getCommunity/?id=${notification.community_id}`);
+          const json = await response.json();
+          setCommunity(json.community);
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -23,7 +31,11 @@ const NotificationItem = ({ notification, navigation, user, setModalVisible }) =
 
   const handlePress = () => {
     setModalVisible(false);
-    navigation.navigate("Details", { item: community, user })
+    if (notification.is_proposal) {
+      navigation.navigate("Details Proposal", { item: proposal, user})
+    } else {
+      navigation.navigate("Details", { item: community, user })
+    }
   }
 
   return (
