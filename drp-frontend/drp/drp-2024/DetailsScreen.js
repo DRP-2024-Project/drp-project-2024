@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   },
   organiseButtonText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 12,
     textAlign: 'center',
   },
   mainContainer: {
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     marginBottom: 5, 
-    maxHeight: 150, 
+    maxHeight: 250, 
   },
   descriptionContent: {
     flex: 1,
@@ -581,7 +581,7 @@ const styles = StyleSheet.create({
   },
   ratingsText: {
     fontWeight: 'bold',
-    fontSize: '150%',
+    fontSize: '20',
     alignContent: 'center',
     alignItems: 'center',
     alignSelf: 'center'

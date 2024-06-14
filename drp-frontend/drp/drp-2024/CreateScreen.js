@@ -11,7 +11,7 @@ export default function HomeScreen({ route }) {
         title="Create Community"
         color="#3d649b" 
         borderRadius="10"
-        onPress={() => navigation.navigate('Create Community', route.params)}
+        onPress={() => navigation.navigate('Create Community', {item: null, route: route})}
       />
       <View style={styles.spacer} />
       <Button
