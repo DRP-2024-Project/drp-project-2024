@@ -56,7 +56,7 @@ export default function ItemDetailScreen({ route, navigation }) {
 
     fetchImage();
   }, [commName]);
-
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -179,14 +179,21 @@ export default function ItemDetailScreen({ route, navigation }) {
               <Text style={styles.title}>Schedule:</Text>
               {item.schedule === '' ? (
                 <View style={styles.scheduleContainer}>
-                  {((item.schedule === '' && joined) || owner) && (
+                  {(item.schedule === '' && joined) && (
                     <TouchableOpacity style={styles.organiseButton} onPress={() => setModalVisible(true)}>
                       <Text style={styles.organiseButtonText}>Organise</Text>
                     </TouchableOpacity>
                   )}
                 </View>
               ) : (
-                <Text style={styles.content}>{item.schedule}</Text>
+                <View style={styles.scheduleContainer}>
+                  <Text style={styles.content}>{item.schedule}</Text>
+                  {owner ? (
+                    <TouchableOpacity style={styles.organiseButton} onPress={() => setModalVisible(true)}>
+                      <Text style={styles.organiseButtonText}>Organise</Text>
+                    </TouchableOpacity>
+                  ): null}
+                </View>
               )}
             </View>
             
