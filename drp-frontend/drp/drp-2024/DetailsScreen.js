@@ -137,8 +137,8 @@ export default function ItemDetailScreen({ route, navigation }) {
 
     fetchData(); // Initial fetch
 
-    const intervalId = setInterval(fetchData, 5000);
-    return () => clearInterval(intervalId);
+    // const intervalId = setInterval(fetchData, 5000);
+    // return () => clearInterval(intervalId);
   }, [item.id]);
 
   if (loading) {
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   },
   organiseButtonText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: 10,
     textAlign: 'center',
   },
   mainContainer: {
@@ -428,6 +428,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 5, 
     maxHeight: 250, 
+    height: 150,
   },
   descriptionContent: {
     flex: 1,
@@ -436,15 +437,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5E7EB',
     padding: 15,
     borderRadius: 10,
-    marginBottom: 10, 
-    height: "2.5%",
+    height: 50,
     alignSelf: "flex-end",
     width: '50%',
     alignContent: 'center',
     alignItems: 'center',
   },
   contactInfoText: {
-    fontSize: '75%',
     fontWeight: 'bold',
     textAlign: 'center',
     alignContent: 'center',
@@ -581,7 +580,7 @@ const styles = StyleSheet.create({
   },
   ratingsText: {
     fontWeight: 'bold',
-    fontSize: '20',
+    fontSize: '25',
     alignContent: 'center',
     alignItems: 'center',
     alignSelf: 'center'
