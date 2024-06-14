@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 const CreateButton = ({ navigation, user, defaultValues, createCommunity=false, enabled=true }) => {
   const handlePress = () => {
     if (createCommunity) {
-      navigation.navigate("Create Community", {item: defaultValues, route: {navigation: navigation, user: user}})
+      navigation.navigate("Create Community", {defaultValues, navigation, user})
     } else {
       navigation.navigate("Create", {navigation, user})
     }

@@ -3,7 +3,7 @@ import { View, Button, StyleSheet } from 'react-native';
 
 export default function HomeScreen({ route }) {
 
-  const { navigation, _ } = route.params;
+  const { navigation, user } = route.params;
 
   return (
     <View style={styles.container}>
@@ -11,7 +11,7 @@ export default function HomeScreen({ route }) {
         title="Create Community"
         color="#3d649b" 
         borderRadius="10"
-        onPress={() => navigation.navigate('Create Community', {item: null, route: route})}
+        onPress={() => navigation.navigate('Create Community', {defaultValues: null, navigation, user})}
       />
       <View style={styles.spacer} />
       <Button
