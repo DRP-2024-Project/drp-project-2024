@@ -137,8 +137,7 @@ export default function ItemDetailScreen({ route, navigation }) {
 
     fetchData(); // Initial fetch
 
-    const intervalId = setInterval(fetchData, 1000);
-
+    const intervalId = setInterval(fetchData, 5000);
     return () => clearInterval(intervalId);
   }, [item.id]);
 

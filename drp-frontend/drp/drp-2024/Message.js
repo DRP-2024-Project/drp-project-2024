@@ -76,7 +76,7 @@ const Message = ({ user, event }) => {
   
       fetchData();
 
-      const intervalId = setInterval(fetchData, 500);
+      const intervalId = setInterval(fetchData, 2000);
       return () => clearInterval(intervalId);
 
     }, [accepted]);

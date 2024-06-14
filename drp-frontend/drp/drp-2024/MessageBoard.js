@@ -24,7 +24,7 @@ export default function MessageBoardScreen({ route }) {
 
         fetchData(); // Initial fetch
 
-        const intervalId = setInterval(fetchData, 1000);
+        const intervalId = setInterval(fetchData, 5000);
 
         return () => clearInterval(intervalId);
     }, [item.id]);
