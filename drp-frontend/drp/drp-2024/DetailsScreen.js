@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { PixelRatio } from 'react-native';
 import { Button, ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity, Modal, ActivityIndicator, Platform, Linking } from 'react-native';
 import { REMOTE_HOST } from './Config.js';
 import PhotoGrid from './PhotoGrid.js';
@@ -20,6 +21,9 @@ const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
     </TouchableOpacity>
   );
 };
+
+const fontScale = PixelRatio.getFontScale();
+const getFontSize = size => size / fontScale;
 
 export default function ItemDetailScreen({ route, navigation }) {
   const { item, user } = route.params;
@@ -181,7 +185,7 @@ export default function ItemDetailScreen({ route, navigation }) {
                 <View style={styles.scheduleContainer}>
                   {(item.schedule === '' && joined) && (
                     <TouchableOpacity style={styles.organiseButton} onPress={() => setModalVisible(true)}>
-                      <Text style={styles.organiseButtonText}>Organise</Text>
+                      <Text style={[styles.organiseButtonText, {fontSize: getFontSize(10)}]}>Organise</Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -394,7 +398,6 @@ const styles = StyleSheet.create({
   },
   organiseButtonText: {
     color: '#FFFFFF',
-    fontSize: 10,
     textAlign: 'center',
   },
   mainContainer: {
