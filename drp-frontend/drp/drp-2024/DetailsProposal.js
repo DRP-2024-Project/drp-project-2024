@@ -70,23 +70,18 @@ export default function ItemDetailScreen({ route, navigation }) {
   );
 }
 
-const Members = ({ memberNames, memberUsernames, interested }) => (
-  <View>
-    <InteractiveBox initialSize={20} enlargedSize={120}>
-      <Text style={styles.memberText}>Members:</Text>
-      {memberNames ? (
-        memberNames.map((name, index) => (
-          <View key={index} style={styles.memberContainer}>
-            <Text style={styles.memberName}>{name}</Text>
-            <Text style={styles.memberUsername}>@{memberUsernames[index]}</Text>
-          </View>
-        ))
-      ) : (
-        <Text style={styles.memberContent}>No one has joined this proposal</Text>
-      )}
-    </InteractiveBox>
+const Members = ({ memberNames, memberUsernames, joined }) => (
+  <View> 
+    <Text style={styles.membersHeader}>Members:</Text>
+  {memberNames && memberNames.map(name => (
+      <View key={index} style={styles.memberContainer}>
+      <Text style={styles.memberName}>{name}</Text>
+      <Text style={styles.memberUsername}>@{memberUsernames[index]}</Text>
+    </View>
+  ))}
   </View>
 );
+
 
 const styles = StyleSheet.create({
   container: {
