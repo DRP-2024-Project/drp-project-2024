@@ -19,7 +19,7 @@ export default function UserScreen({ navigation }) {
         if (!json.exists) {
             setModalVisible(true);
         } else {
-            navigation.navigate("HomePageScreen", { navigation, user });
+            navigation.navigate("Home", { navigation, user });
         }
     };
 

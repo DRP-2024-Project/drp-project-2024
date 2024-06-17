@@ -7,7 +7,7 @@ import NotificationList from './NotificationList.js';
 import { useFocusEffect } from '@react-navigation/native';
 
 
-export default function HomePageScreen({ route }) {
+export default function Home({ route }) {
 
     const { navigation, user } = route.params;
     const [reload, setReload] = useState(false);
