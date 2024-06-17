@@ -78,7 +78,7 @@ export default function ItemDetailScreen({ route, navigation }) {
       </View>
 
       <View style={styles.membersContainer}>
-          <Members memberNames={memberNames} memberUsernames={memberUsernames} interested={interested} />
+          <Members memberNames={memberNames} memberUsernames={memberUsernames} interested={interested} loading={loading} />
         </View>
 
       {/* <View style={styles.commentsSection}>
@@ -93,19 +93,23 @@ export default function ItemDetailScreen({ route, navigation }) {
     </ScrollView>
   );
 }
-
-const Members = ({ memberNames, memberUsernames, joined }) => (
-  <View> 
-    <Text style={styles.membersHeader}>Members:</Text>
-  {memberNames && memberNames.map((name, index) => (
-      <View key={index} style={styles.memberContainer}>
-      <Text style={styles.memberName}>{name}</Text>
-      <Text style={styles.memberUsername}>@{memberUsernames[index]}</Text>
+const Members = ({ memberNames, memberUsernames, joined, loading }) => {
+  return <View>
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <>
+          <Text style={styles.membersHeader}>Members:</Text>
+          {memberNames && memberNames.length > 0 ? (memberNames.map((name, index) => (
+            <View key={index} style={styles.memberContainer}>
+              <Text style={styles.memberName}>{name}</Text>
+              <Text style={styles.memberUsername}>@{memberUsernames[index]}</Text>
+            </View>
+          ))) : <Text style={styles.memberName}>No members</Text>}
+        </>
+      )}
     </View>
-  ))}
-  </View>
-);
-
+};
 
 const styles = StyleSheet.create({
   container: {
