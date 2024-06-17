@@ -335,7 +335,7 @@ const Members = ({ memberNames, memberUsernames, joined }) => (
   <View>
     <InteractiveBox initialSize={20} enlargedSize={120}>
       <Text style={styles.memberText}>Members:</Text>
-      {joined && memberNames ? (
+      {memberNames ? (
         memberNames.map((name, index) => (
           <View key={index} style={styles.memberContainer}>
             <Text style={styles.memberName}>{name}</Text>
@@ -343,7 +343,7 @@ const Members = ({ memberNames, memberUsernames, joined }) => (
           </View>
         ))
       ) : (
-        <Text style={styles.memberContent}>Join to see members</Text>
+        <Text style={styles.memberContent}>No one has joined this communitiy</Text>
       )}
     </InteractiveBox>
   </View>
