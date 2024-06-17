@@ -60,6 +60,29 @@ export default function ItemDetailScreen({ route, navigation }) {
 
     fetchImage();
   }, [commName]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+        var response;
+        try {
+          response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
+
+          const json = await response.json();
+          setMembers(json.names);
+          setMemberUsernames(json.usernames);
+          if (json.usernames.includes(user)) {
+            setJoined(true);
+          }
+        } catch (error) {
+          console.error('Failed to fetch community members:', error);
+        } finally {
+          setLoading(false); // Set loading to false after data is fetched
+        }
+      };
+  
+      fetchData();
+
+  }, [commName, user]);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -171,7 +194,7 @@ export default function ItemDetailScreen({ route, navigation }) {
       <View>
         <View style={styles.topRowContainer}>
           <View style={styles.bannerContainer}>
-            <ImageBanner source={{uri: url.toString()}} is_proposal={false} user={user} item={item} joined={joined} setJoined={setJoined} setMemberUsernames={setMemberUsernames} setMembers={setMembers}/>
+            <ImageBanner source={{uri: url.toString()}} is_proposal={false} user={user} item={item} joined={joined} setJoined={setJoined} setMemberUsernames={setMemberUsernames} setMembers={setMembers} loading={loading}/>
           </View>
 
           <View style={styles.middleRow}>
@@ -331,8 +354,8 @@ export default function ItemDetailScreen({ route, navigation }) {
   );
 }
 
-const Members = ({ memberNames, memberUsernames, joined }) => (
-  <View> 
+const Members = ({ memberNames, memberUsernames, joined }) => {
+  return <View> 
     <Text style={styles.membersHeader}>Members:</Text>
   {memberNames && memberNames.map((name, index) => (
       <View key={index} style={styles.memberContainer}>
@@ -341,7 +364,7 @@ const Members = ({ memberNames, memberUsernames, joined }) => (
     </View>
   ))}
   </View>
-);
+};
 
 
 const styles = StyleSheet.create({

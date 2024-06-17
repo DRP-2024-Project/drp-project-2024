@@ -3,7 +3,7 @@ import { ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 
 import ImageBanner from './ImageBanner.js';
 import CreateButton from './CreateButton.js';
 import Tag from './Tag.js';
-import { REVERSE_TAGS } from './Config.js';
+import { REMOTE_HOST, REVERSE_TAGS } from './Config.js';
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   const [size, setSize] = useState(enlargedSize);
@@ -25,16 +25,40 @@ export default function ItemDetailScreen({ route, navigation }) {
 
   const [interested, setInterested] = useState(false);
   const [memberNames, setMembers] = useState(undefined);
+  const [loading, setLoading] = useState(undefined);
   const [memberUsernames, setMemberUsernames] = useState(undefined);
 
   const handleMessage = () => {
     navigation.navigate("MessageBoard", {navigation, item, user});
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+        var response;
+        try {
+          response = await fetch(`${REMOTE_HOST}/getProposalMembers?proposal=${item.title}`);
+          
+          const json = await response.json();
+          setMembers(json.names);
+          setMemberUsernames(json.usernames);
+          if (json.usernames.includes(user)) {
+            setInterested(true);
+          }
+        } catch (error) {
+          console.error('Failed to fetch community members:', error);
+        } finally {
+          setLoading(false); // Set loading to false after data is fetched
+        }
+      };
+  
+      fetchData();
+  
+  }, [item.title, user]);
+
   return (
     <ScrollView contentContainerStyle={styles.listContainer} style={styles.container}>
       <View style={styles.bannerContainer}>
-        <ImageBanner source={defaultBanner} user={user} is_proposal={true} item={item} joined={interested} setJoined={setInterested} setMemberUsernames={setMemberUsernames} setMembers={setMembers}/>
+        <ImageBanner source={defaultBanner} user={user} is_proposal={true} item={item} joined={interested} setJoined={setInterested} setMemberUsernames={setMemberUsernames} setMembers={setMembers} loading={loading}/>
       </View>
 
       <View style={styles.proposalBox}>
