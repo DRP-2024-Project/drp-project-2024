@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, View, Text, StyleSheet, TextInput } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import ImageBanner from './ImageBanner.js';
 import CreateButton from './CreateButton.js';
 import Tag from './Tag.js';
 import { REVERSE_TAGS } from './Config.js';
+
+const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
+  const [size, setSize] = useState(enlargedSize);
+
+  const toggleSize = () => {
+    setSize(currentSize => (currentSize === initialSize ? enlargedSize : initialSize));
+  };
+
+  return (
+    <TouchableOpacity onPress={toggleSize} style={[styles.box, { height: size }]}>
+      {children}
+    </TouchableOpacity>
+  );
+};
 
 export default function ItemDetailScreen({ route, navigation }) {
   const defaultBanner = require('./assets/default-proposal-banner.jpg');
@@ -39,14 +53,11 @@ export default function ItemDetailScreen({ route, navigation }) {
           </ScrollView>
       </View>
 
-      <Text style={styles.membersHeader}>Members:</Text>
-        {memberNames && memberNames.map(member => (
-          <View key={member}>
-            <Text>{member}</Text>
-          </View>
-        ))}
+      <View style={styles.membersContainer}>
+          <Members memberNames={memberNames} memberUsernames={memberUsernames} interested={interested} />
+        </View>
 
-      <View style={styles.commentsSection}>
+      {/* <View style={styles.commentsSection}>
           <Text style={styles.commentsHeader}>Comments:</Text>
           <TextInput
             style={styles.commentsInput}
@@ -54,10 +65,28 @@ export default function ItemDetailScreen({ route, navigation }) {
             multiline={true}
             numberOfLines={4}
           />
-        </View>
+        </View> */}
     </ScrollView>
   );
 }
+
+const Members = ({ memberNames, memberUsernames, interested }) => (
+  <View>
+    <InteractiveBox initialSize={20} enlargedSize={120}>
+      <Text style={styles.memberText}>Members:</Text>
+      {interested && memberNames ? (
+        memberNames.map((name, index) => (
+          <View key={index} style={styles.memberContainer}>
+            <Text style={styles.memberName}>{name}</Text>
+            <Text style={styles.memberUsername}>@{memberUsernames[index]}</Text>
+          </View>
+        ))
+      ) : (
+        <Text style={styles.memberContent}>Join to see members</Text>
+      )}
+    </InteractiveBox>
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -163,6 +192,30 @@ const styles = StyleSheet.create({
   },
   createButton: {
     justifyContent: 'right'
+  },
+  membersContainer: {
+    marginVertical: 10,
+  },
+  memberText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  memberContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  memberName: {
+    fontSize: 14,
+  },
+  memberUsername: {
+    fontSize: 14,
+    color: '#888',
+  },
+  memberContent: {
+    fontSize: 14,
+    color: '#888',
   },
   
 });

@@ -219,7 +219,7 @@ export default function ItemDetailScreen({ route, navigation }) {
             <View style={styles.eventsContainer}>
               <TouchableOpacity style={joined ? styles.button : styles.disabledButton} disabled={!joined} onPress={handleMessage}>
                 <Text style={styles.buttonText}>Events</Text>
-                {events.length > 0 ? (
+                {events.length > 0 && joined ? (
                   <View style={styles.badgeContainer}>
                   <View style={styles.badge}>
                       <Text style={styles.badgeText}>{events.length}</Text>
@@ -261,13 +261,11 @@ export default function ItemDetailScreen({ route, navigation }) {
             <Text style={styles.equipmentList}>{item.links}</Text>
           </View>
         </View>
-        <Text style={styles.membersHeader}>Members:</Text>
-        {memberNames && memberNames.map(member => (
-          <View key={member}>
-            <Text>{member}</Text>
-          </View>
-        ))}
-        <View style={styles.commentsSection}>
+        <View style={styles.membersContainer}>
+          <Members memberNames={memberNames} memberUsernames={memberUsernames} joined={joined} />
+        </View>
+
+        {/* <View style={styles.commentsSection}>
           <Text style={styles.commentsHeader}>Comments:</Text>
           <TextInput
             style={styles.commentsInput}
@@ -275,7 +273,7 @@ export default function ItemDetailScreen({ route, navigation }) {
             multiline={true}
             numberOfLines={4}
           />
-        </View>
+        </View> */}
       </View>
       <Modal
         animationType="slide"
@@ -332,6 +330,25 @@ export default function ItemDetailScreen({ route, navigation }) {
     </ScrollView>
   );
 }
+
+const Members = ({ memberNames, memberUsernames, joined }) => (
+  <View>
+    <InteractiveBox initialSize={20} enlargedSize={120}>
+      <Text style={styles.memberText}>Members:</Text>
+      {joined && memberNames ? (
+        memberNames.map((name, index) => (
+          <View key={index} style={styles.memberContainer}>
+            <Text style={styles.memberName}>{name}</Text>
+            <Text style={styles.memberUsername}>@{memberUsernames[index]}</Text>
+          </View>
+        ))
+      ) : (
+        <Text style={styles.memberContent}>Join to see members</Text>
+      )}
+    </InteractiveBox>
+  </View>
+);
+
 
 const styles = StyleSheet.create({
   container: {
@@ -594,5 +611,29 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     alignItems: 'center',
     alignSelf: 'center'
+  },
+  membersContainer: {
+    marginVertical: 10,
+  },
+  memberText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  memberContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  memberName: {
+    fontSize: 14,
+  },
+  memberUsername: {
+    fontSize: 14,
+    color: '#888',
+  },
+  memberContent: {
+    fontSize: 14,
+    color: '#888',
   },
 });

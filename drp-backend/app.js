@@ -160,8 +160,6 @@ app.get('/getRatingNumber', async (req, res) => {
 });
 
 
-
-
 // Returns true if the community is made correctly or false otherwise
 app.post('/createCommunity', async (req, res) => {
     const title = req.body.comm.title;
