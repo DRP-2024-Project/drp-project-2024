@@ -364,7 +364,7 @@ const Members = ({ memberNames, memberUsernames, joined, loading }) => {
             {memberNames && memberNames.length > 0 ? (memberNames.map((name, index) => (
               <View key={index} style={styles.memberContainer}>
                 <Text style={styles.memberName}>{name}</Text>
-                <Text style={styles.memberUsername}>@{memberUsernames[index]}</Text>
+                {/* <Text style={styles.memberUsername}>@{memberUsernames[index]}</Text> */}
               </View>
             ))) : <Text style={styles.memberName}>No members</Text>}
           </>
