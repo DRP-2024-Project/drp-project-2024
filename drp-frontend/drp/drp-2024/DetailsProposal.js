@@ -73,7 +73,7 @@ export default function ItemDetailScreen({ route, navigation }) {
 const Members = ({ memberNames, memberUsernames, joined }) => (
   <View> 
     <Text style={styles.membersHeader}>Members:</Text>
-  {memberNames && memberNames.map(name => (
+  {memberNames && memberNames.map((name, index) => (
       <View key={index} style={styles.memberContainer}>
       <Text style={styles.memberName}>{name}</Text>
       <Text style={styles.memberUsername}>@{memberUsernames[index]}</Text>
