@@ -78,6 +78,45 @@ async function createTables() {
     await query(imagesTable, []);
 }
 
+const getMemberFromName = async (name) => {
+    let user = (await query(`SELECT id FROM members WHERE name = ?`, [name]));
+
+    if (user.length == 0) {
+        return null;
+    }
+
+    return user[0].id
+}
+
+const getMemberFromUsername = async (username) => {
+    let user = (await query(`SELECT id FROM members WHERE username = ?`, [username]));
+
+    if (user.length == 0) {
+        return null;
+    }
+
+    return user[0].id;
+}
+
+const getCommunityFromName = async (name) => {
+    let community = (await query(`SELECT id from communities WHERE title = ?`, [name]));
+
+    if (community.length == 0) {
+        return null;
+    }
+
+    return community[0].id;
+}
+
+const getProposalFromName = async (name) => {
+    let proposal = await query(`SELECT id FROM proposals WHERE title = ?`, [name]);
+
+    if (proposal.length == 0) {
+        return null;
+    }
+
+    return proposal[0].id;
+}
 
 // dropTables: Drops all the tables that are created in the createTables function
 // Note: commMembers must be dropped first, as the others are a foreign key of it
@@ -147,10 +186,14 @@ async function createCommunity(data) {
         }
         
         let commResult = await query(`INSERT INTO communities SET ?`, communityData);
-        let memResult = await query(`SELECT * FROM members WHERE name = ?`, [communityData.owner]);
+        let memResult = await getMemberFromName(communityData.owner);
+        if (memResult == null) {
+            return resolve(false);
+        }
+
         await query(`INSERT INTO commMembers SET ?`, {
             community_id: commResult.insertId,
-            member_id: memResult[0].id
+            member_id: memResult
         });
 
         return resolve(true);
@@ -216,7 +259,10 @@ function getNotifications(user) {
     return new Promise(async (resolve, reject) => {
         try {
             // Get user ID from username
-            let userID = (await query(`SELECT id FROM members WHERE username = ?`, [user]))[0].id;
+            let userID = await getMemberFromUsername(user);
+            if (userID == null) {
+                return resolve([]);
+            } 
 
             // Get the list of community IDs the user is a member of
             let communities = await query(`SELECT community_id FROM commMembers WHERE member_id = ?`, [userID]);
@@ -269,7 +315,10 @@ function getNotifications(user) {
 
 
 async function readNotification(notificationId, user) {
-    let userId = (await query(`SELECT id from members WHERE username = ?`, [user]))[0].id;
+    let userId = await getMemberFromUsername(user); 
+    if (userId == null) {
+        return null;
+    }
     let exists = await query(`SELECT * FROM notificationRead WHERE notification_id = ? AND member_id = ?`, [notificationId, userId]);
     if (exists.length == 0) {
         await query(`INSERT INTO notificationRead SET notification_id = ?, member_id = ?`, [notificationId, userId]);
@@ -286,8 +335,11 @@ async function readEvents(communityId, user) {
 // Note: The commMembers entries must be removed first as they have the community
 //       as a foreign key
 async function deleteCommunity(title) {
-    let commRes = await query(`SELECT id FROM communities WHERE title = ?`, [title]);
-    await query(`DELETE FROM commMembers WHERE community_id = ?`, [commRes[0].id]);
+    let commRes = await getCommunityFromName(title);
+    if (commRes == null) {
+        return null
+    }
+    await query(`DELETE FROM commMembers WHERE community_id = ?`, [commRes]);
     await query(`DELETE FROM communities WHERE title = ?`, [title]);
 }
 
@@ -321,8 +373,8 @@ function getProposalDetails(id) {
 // getCommunityId: Gets the id of a community given the title
 function getCommunityId(title) {
     return new Promise(async (resolve, reject) => {
-        let result = await query(`SELECT id FROM communities WHERE title = ?`, [title]);
-        return resolve(result[0].id);
+        let result = await getCommunityFromName(title)
+        return resolve(result);
     });
 }
 
@@ -449,8 +501,11 @@ async function createMember(name, username) {
 //               commMembers table
 // Pre: The given name exists in the table
 async function deleteMember(name) {
-    let res = await query(`SELECT id FROM members WHERE name = ?`, [name]);
-    await query(`DELETE FROM commMembers WHERE member_id = ?`, [res[0].id]);
+    let res = await getMemberFromName(name);
+    if (res == null) {
+        return null;
+    }
+    await query(`DELETE FROM commMembers WHERE member_id = ?`, [res]);
     await query(`DELETE FROM members WHERE name = ?`, [name]);
 }
 
@@ -472,11 +527,15 @@ function memberExists(username) {
 //         and False if the member is not in the community
 function memberAlreadyInCommunity(username, commName) {
     return new Promise(async (resolve, reject) => {
-        let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
-        let memResult = await query(`SELECT id FROM members WHERE username = ?`, [username]);
+        let commResult = await getCommunityFromName(commName);
+        let memResult = await getMemberFromUsername(username);
+
+        if (commResult == null || memResult == null) {
+            return resolve(false);
+        }
 
         let res = await query(`SELECT * FROM commMembers WHERE member_id = ? AND community_id = ?`, 
-            [memResult[0].id, commResult[0].id]);
+            [memResult, commResult]);
         return resolve(res.length > 0);
     });
 }
@@ -487,8 +546,15 @@ function memberAlreadyInCommunity(username, commName) {
 //         a part of the community
 function addMemberToCommunity(commName, username) {
     return new Promise(async (resolve, reject) => {
-        let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
-        let memResult = await query(`SELECT id FROM members WHERE username = ?`, [username]);
+        let commResult = await getCommunityFromName(commName);
+        if (commName == null) {
+            return resolve(false);
+        }
+
+        let memResult = await getMemberFromUsername(username);
+        if (memResult == null) {
+            return resolve(false);
+        }
         let memExists = await memberAlreadyInCommunity(username, commName);
         
         if (memExists) {
@@ -496,8 +562,8 @@ function addMemberToCommunity(commName, username) {
         }
 
         await query(`INSERT INTO commMembers SET ?`, {
-            member_id: memResult[0].id,
-            community_id: commResult[0].id
+            member_id: memResult,
+            community_id: commResult
         });
         return resolve(true);
     });
@@ -509,8 +575,13 @@ function addMemberToCommunity(commName, username) {
 //         a part of the community
 function addMemberToProposal(propName, username) {
     return new Promise(async (resolve, reject) => {
-        let propResult = await query(`SELECT id FROM proposals WHERE title = ?`, [propName]);
-        let memResult = await query(`SELECT id FROM members WHERE username = ?`, [username]);
+        let propResult = await getProposalFromName(propName);
+        let memResult = await getMemberFromUsername(username);
+
+        if (memResult == null || propResult == null) {
+            return resolve(false);
+        }
+
         let memExists = await memberAlreadyInProposal(username, propName);
 
         if (memExists) {
@@ -518,8 +589,8 @@ function addMemberToProposal(propName, username) {
         }
 
         await query(`INSERT INTO proposalInterests SET ?`, {
-            member_id: memResult[0].id,
-            proposal_id: propResult[0].id
+            member_id: memResult,
+            proposal_id: propResult
         });
         return resolve(true);
     });
@@ -531,10 +602,13 @@ function addMemberToProposal(propName, username) {
 //         and False if the member is not in the community
 function memberAlreadyInProposal(username, propName) {
     return new Promise(async (resolve, reject) => {
-        let propResult = await query(`SELECT id FROM proposals WHERE title = ?`, [propName]);
-        let memResult = await query(`SELECT id FROM members WHERE username = ?`, [username]);
+        let propResult = await getProposalFromName(propName);
+        let memResult = await getMemberFromUsername(username);
+        if (memResult == null || propResult == null) {
+            return resolve(false);
+        }
         let res = await query(`SELECT * FROM proposalInterests WHERE member_id = ? AND proposal_id = ?`, 
-            [memResult[0].id, propResult[0].id]);
+            [memResult, propResult]);
         return resolve(res.length > 0);
     });
 }
@@ -553,8 +627,11 @@ function getMemberName(user) {
 // Pre: The user exists
 function getMemberId(user) {
     return new Promise(async (resolve, reject) => {
-        let memResult = await query(`SELECT id FROM members WHERE username=?`, [user]);
-        return resolve(memResult[0].id);
+        let memResult = await getMemberFromUsername(user);
+        if (memResult == null) {
+            return resolve(null);
+        }
+        return resolve(memResult);
     });
 }
 
@@ -609,12 +686,15 @@ function getAllTags() {
 // Pre: The member name is not the owner
 //      The given member is a member of the community
 async function deleteMemberFromCommunity(commName, username) {
-    let commRes = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
-    let memRes = await query(`SELECT id FROM members WHERE username = ?`, [username]);
+    let commRes = await getCommunityFromName(commName);
+    let memRes = await getMemberFromUsername(username);
+    if (memRes == null || commName == null) {
+        return resolve(null);
+    }
     await query(`DELETE FROM commMembers WHERE member_id = ? AND community_id = ?`, 
         [
-            memRes[0].id,
-            commRes[0].id
+            memRes,
+            commRes
         ]);
 }
 
@@ -622,12 +702,15 @@ async function deleteMemberFromCommunity(commName, username) {
 // Pre: The member name is not the owner
 //      The given member is a member of the community
 async function deleteMemberFromProposal(propName, username) {
-    let commRes = await query(`SELECT id FROM proposals WHERE title = ?`, [propName]);
-    let memRes = await query(`SELECT id FROM members WHERE username = ?`, [username]);
+    let commRes = await getProposalFromName(propName);
+    let memRes = await getMemberFromUsername(username);
+    if (memRes == null || propName == null) {
+        return resolve(null);
+    }
     await query(`DELETE FROM proposalInterests WHERE member_id = ? AND proposal_id = ?`, 
         [
-            memRes[0].id,
-            commRes[0].id
+            memRes,
+            commRes
         ]);
 }
 
@@ -659,9 +742,10 @@ function translateResult(data) {
 // Params:
 //   img: The binary format of an image
 async function addCommunityImage(commName, img) {
-    let commResult = await query(`SELECT id FROM communities WHERE title = ?`, [commName]);
+
+    let commResult = await getCommunityFromName(commName);
     await query(`INSERT INTO images SET ?`, {
-        community_id: commResult[0].id,
+        community_id: commResult,
         img: img
     });
 }
@@ -676,7 +760,10 @@ async function deleteImage(image_id) {
 //         community
 function getCommunityImages(commName) {
     return new Promise(async (resolve, reject) => {
-        let communityID = (await query(`SELECT id from communities WHERE title = ?`, [commName]))[0].id;
+        let communityID = await getCommunityFromName(commName);
+        if (communityID == null) {
+            return resolve(null);
+        }
         let result = await query(`SELECT * FROM images WHERE community_id = ?`, [communityID]);
         return resolve(result.map(row => row.img));
     })
@@ -721,7 +808,11 @@ function getAttending(eventId) {
 }
 
 async function setAttendance(eventId, user, attend) {
-    let memberId = (await query(`SELECT id FROM members WHERE username = ?`, [user]))[0].id;
+    let memberId = await getMemberFromUsername(user); 
+    if (memberId == null) {
+        return resolve(null);
+    }
+
     let res = await query(`UPDATE eventAttendance SET attending = ?
                            WHERE event_id = ? AND
                                  member_id = ?`, [attend, eventId, memberId]);
@@ -735,17 +826,26 @@ async function setAttendance(eventId, user, attend) {
 }
 
 async function removeAttendance(eventId, username) {
-    let memberId = (await query(`SELECT id FROM members WHERE username = ?`, [username]))[0].id;
+    let memberId = await getMemberFromUsername(username);
+    if (memberId == null) {
+        return resolve(null);
+    }
     await query(
         `DELETE FROM eventAttendance WHERE event_id = ? AND member_id = ?`,
         [eventId, memberId]
     );
 };
 
-function rateCommunity(communityName, userName, rating) {
+function rateCommunity(communityName, username, rating) {
     return new Promise(async (resolve, reject) => {
-        let communityID = (await query(`SELECT id from communities WHERE title = ?`, [communityName]))[0].id;
-        let userID = (await query(`SELECT id from members WHERE username = ?`, [userName]))[0].id;
+        let communityID = (await getCommunityFromName(communityName));
+        if (communityID == null) {
+            return resolve(null)
+        }
+        let userID = await getMemberFromUsername(username);
+        if (userID == null) {
+            return resolve(null);
+        }
         await query(`INSERT INTO communityRatings (community_id, user_id, rating) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE rating = VALUES(rating)`, [communityID, userID, rating]);
         return resolve(true);
     })
@@ -754,7 +854,11 @@ function rateCommunity(communityName, userName, rating) {
 
 function getAverageRating(communityName) {
     return new Promise(async (resolve, reject) => {
-        let communityID = (await query(`SELECT id from communities WHERE title = ?`, [communityName]))[0].id;
+        let communityID = (await getCommunityFromName(communityName));
+        if (communityID == null) {
+            return resolve(3);
+        }
+
         let result = await query(`SELECT AVG(rating) AS averageRating FROM communityRatings WHERE community_id = ?`, [communityID]);
         if (result.length === 0 || result[0].averageRating === null) {
             return resolve(3);  // No ratings found, return 0 as the average rating
@@ -766,7 +870,10 @@ function getAverageRating(communityName) {
 
 function getRatingNumber(communityName) {
     return new Promise(async (resolve, reject) => {
-        let communityID = (await query(`SELECT id from communities WHERE title = ?`, [communityName]))[0].id;
+        let communityID = (await getCommunityFromName(communityName));
+        if (communityID == null) {
+            return resolve(3);
+        }
         let result = await query(`SELECT COUNT(rating) AS averageRating FROM communityRatings WHERE community_id = ?`, [communityID]);
         if (result.length === 0 || result[0].averageRating === null) {
             return resolve(3);  // No ratings found, return 0 as the average rating
@@ -777,9 +884,18 @@ function getRatingNumber(communityName) {
 
 function isCommunityOwner(communityName, user) {
     return new Promise(async (resolve, reject) => {
-        let ownerName = (await query(`SELECT owner FROM communities WHERE title = ?`, [communityName]))[0].owner;
-        let ownerId = (await query(`SELECT id FROM members WHERE name = ?`, [ownerName]))[0].id;
-        let userId = (await query(`SELECT id FROM members WHERE username = ?`, [user]))[0].id;
+        let ownerName = (await query(`SELECT owner FROM communities WHERE title = ?`, [communityName]));
+        if (ownerName.length == 0) {
+            return resolve(false);
+        }
+
+        let ownerId = await getMemberFromName(ownerName[0].owner);
+        let userId = await getMemberFromUsername(user);
+
+        if (userId == null || ownerId == null) {
+            return resolve(false);
+        }
+
         return resolve(ownerId == userId);
     })
 }
@@ -789,7 +905,10 @@ function getMyCommunities(user) {
     return new Promise(async (resolve, reject) => {
         try {
 
-            let userID = (await query(`SELECT id from members WHERE username = ?`, [user]))[0].id;
+            let userID = await getMemberFromUsername(user); 
+            if (userID == null) {
+                return resolve(null);
+            }
             // Execute the main query
             let communityResult = (await query(`SELECT communities.*  FROM communities  JOIN commMembers ON communities.id = commMembers.community_id  WHERE commMembers.member_id = ?`, [userID]));
             
@@ -819,7 +938,10 @@ function getMyProposals(user) {
     return new Promise(async (resolve, reject) => {
         try {
 
-            let userID = (await query(`SELECT id from members WHERE username = ?`, [user]))[0].id;
+            let userID = await getMemberFromUsername(user); 
+            if (userID == null) {
+                return resolve(null);
+            }
             // Execute the main query
             let proposalsResult = (await query(`SELECT proposals.*  FROM proposals JOIN proposalInterests ON proposals.id = proposalInterests.proposal_id  WHERE proposalInterests.member_id = ?`, [userID]));
             
@@ -937,10 +1059,13 @@ async function createProposal(data) {
         }
         
         let propResult = await query(`INSERT INTO proposals SET ?`, communityData);
-        let memResult = await query(`SELECT * FROM members WHERE name = ?`, [user]);
+        let memResult = await getMemberFromName(user);
+        if (memResult == null) {
+            return resolve(false);
+        }
         await query(`INSERT INTO proposalInterests SET ?`, {
             proposal_id: propResult.insertId,
-            member_id: memResult[0].id
+            member_id: memResult
         });
 
         return resolve(true);
@@ -951,11 +1076,11 @@ async function createProposal(data) {
 // Pre: The community is in the communities table
 // Note: The commMembers entries must be removed first as they have the community
 //       as a foreign key
-async function deleteProposal(title) {
-    let commRes = await query(`SELECT id FROM proposals WHERE title = ?`, [title]);
-    await query(`DELETE FROM proposalsInterests WHERE proposal_id = ?`, [commRes[0].id]);
-    await query(`DELETE FROM proposals WHERE title = ?`, [title]);
-}
+// async function deleteProposal(title) {
+//     let commRes = await query(`SELECT id FROM proposals WHERE title = ?`, [title]);
+//     await query(`DELETE FROM proposalsInterests WHERE proposal_id = ?`, [commRes[0].id]);
+//     await query(`DELETE FROM proposals WHERE title = ?`, [title]);
+// }
 
 // communityExists: Checks if a community already exists with the given name on
 //                  the communities table

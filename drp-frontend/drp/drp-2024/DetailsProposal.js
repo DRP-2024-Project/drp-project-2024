@@ -3,7 +3,7 @@ import { ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 
 import ImageBanner from './ImageBanner.js';
 import CreateButton from './CreateButton.js';
 import Tag from './Tag.js';
-import { REVERSE_TAGS } from './Config.js';
+import { REMOTE_HOST, REVERSE_TAGS } from './Config.js';
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   const [size, setSize] = useState(enlargedSize);
@@ -25,16 +25,40 @@ export default function ItemDetailScreen({ route, navigation }) {
 
   const [interested, setInterested] = useState(false);
   const [memberNames, setMembers] = useState(undefined);
+  const [loading, setLoading] = useState(undefined);
   const [memberUsernames, setMemberUsernames] = useState(undefined);
 
   const handleMessage = () => {
     navigation.navigate("MessageBoard", {navigation, item, user});
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+        var response;
+        try {
+          response = await fetch(`${REMOTE_HOST}/getProposalMembers?proposal=${item.title}`);
+          
+          const json = await response.json();
+          setMembers(json.names);
+          setMemberUsernames(json.usernames);
+          if (json.usernames.includes(user)) {
+            setInterested(true);
+          }
+        } catch (error) {
+          console.error('Failed to fetch community members:', error);
+        } finally {
+          setLoading(false); // Set loading to false after data is fetched
+        }
+      };
+  
+      fetchData();
+  
+  }, [item.title, user]);
+
   return (
     <ScrollView contentContainerStyle={styles.listContainer} style={styles.container}>
       <View style={styles.bannerContainer}>
-        <ImageBanner source={defaultBanner} user={user} is_proposal={true} item={item} joined={interested} setJoined={setInterested} setMemberUsernames={setMemberUsernames} setMembers={setMembers}/>
+        <ImageBanner source={defaultBanner} user={user} is_proposal={true} item={item} joined={interested} setJoined={setInterested} setMemberUsernames={setMemberUsernames} setMembers={setMembers} loading={loading}/>
       </View>
 
       <View style={styles.proposalBox}>
@@ -54,7 +78,7 @@ export default function ItemDetailScreen({ route, navigation }) {
       </View>
 
       <View style={styles.membersContainer}>
-          <Members memberNames={memberNames} memberUsernames={memberUsernames} interested={interested} />
+          <Members memberNames={memberNames} memberUsernames={memberUsernames} interested={interested} loading={loading} />
         </View>
 
       {/* <View style={styles.commentsSection}>
@@ -69,24 +93,23 @@ export default function ItemDetailScreen({ route, navigation }) {
     </ScrollView>
   );
 }
-
-const Members = ({ memberNames, memberUsernames, interested }) => (
-  <View>
-    <InteractiveBox initialSize={20} enlargedSize={120}>
-      <Text style={styles.memberText}>Members:</Text>
-      {interested && memberNames ? (
-        memberNames.map((name, index) => (
-          <View key={index} style={styles.memberContainer}>
-            <Text style={styles.memberName}>{name}</Text>
-            <Text style={styles.memberUsername}>@{memberUsernames[index]}</Text>
-          </View>
-        ))
+const Members = ({ memberNames, memberUsernames, joined, loading }) => {
+  return <View>
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
       ) : (
-        <Text style={styles.memberContent}>Join to see members</Text>
+        <>
+          <Text style={styles.membersHeader}>Members:</Text>
+          {memberNames && memberNames.length > 0 ? (memberNames.map((name, index) => (
+            <View key={index} style={styles.memberContainer}>
+              <Text style={styles.memberName}>{name}</Text>
+              {/* <Text style={styles.memberUsername}>@{memberUsernames[index]}</Text> */}
+            </View>
+          ))) : <Text style={styles.memberName}>No members</Text>}
+        </>
       )}
-    </InteractiveBox>
-  </View>
-);
+    </View>
+};
 
 const styles = StyleSheet.create({
   container: {

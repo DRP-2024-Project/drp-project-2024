@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, FlatList, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import SearchBar from './SearchBar';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -7,6 +7,8 @@ import ItemRecord from './ItemRecord';
 import ItemProposalRecord from './ItemProposalRecord'; // Import the ItemProposalRecord component
 import CreateButton from './CreateButton';
 import CommunityList from './CommunityList';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 export default function HomeScreen({ route }) {
   const [open, setOpen] = useState(false);
@@ -17,6 +19,20 @@ export default function HomeScreen({ route }) {
     { label: 'Rating', value: 'rating' }
   ]);
   const { navigation, user } = route.params;
+
+  const [reload, setReload] = useState(false);
+
+
+  useFocusEffect(
+  useCallback(() => {
+    // focus
+    setReload(reload => !reload);
+    return () => {
+      // unfocus
+    };
+  }, [])
+);
+
 
 
   return (
@@ -40,7 +56,7 @@ export default function HomeScreen({ route }) {
         />
         <CreateButton navigation={navigation} user={user} />
       </View>
-      <CommunityList value={value} search={search} navigation={navigation} user={user} myCommunities={false} reloadHomePage={true}/>
+      <CommunityList value={value} search={search} navigation={navigation} user={user} myCommunities={false} reloadHomePage={true} reload={reload}/>
     </View>
   );
 }

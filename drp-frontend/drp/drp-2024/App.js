@@ -1,4 +1,7 @@
 
+import {LogBox} from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']);
+LogBox.ignoreAllLogs();
 
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
@@ -14,7 +17,7 @@ import SearchBar from './SearchBar';
 import SimpleMap from './map';
 import RatingComponent from './Rating';
 import MessageBoard from './MessageBoard';
-import HomePageScreen from './MyHomePage';
+import Home from './MyHomePage';
 import MapPicker from './MapPicker';
 
 const Stack = createNativeStackNavigator();
@@ -35,7 +38,7 @@ export default function App() {
         <Stack.Screen name="Map" component={SimpleMap} />
         <Stack.Screen name="Rating" component={RatingComponent} />
         <Stack.Screen name="MessageBoard" component={MessageBoard} />
-        <Stack.Screen name="HomePageScreen" component={HomePageScreen} />
+        <Stack.Screen name="Home" component={Home} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -282,9 +282,11 @@ export default function HomeScreen({ route }) {
       <View style={styles.imageButton}>
         <Button title="Select Image" color="#3d649b" borderRadius="10" onPress={selectImage} />
       </View>
-      <View style={styles.container}>
+      <View style={styles.imageButton}>
       <Button
         title="Pick a Location"
+        color="#3d649b"
+        borderRadius="10"
         onPress={() => navigation.navigate('Map Picker', {setSelectedLocation})}
       />
     </View>

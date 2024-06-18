@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Dimensions, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { REMOTE_HOST } from './Config';
 
-const ImageBanner = ({ source, user, item, is_proposal, joined, setJoined, setMemberUsernames, setMembers }) => {
-  const [loading, setLoading] = useState(true);
+const ImageBanner = ({ source, user, item, is_proposal, joined, setJoined, setMemberUsernames, setMembers, loading }) => {
   const [imageLoading, setImageLoading] = useState(true); // State for image loading
 
   const title = item.title;
@@ -27,36 +26,10 @@ const ImageBanner = ({ source, user, item, is_proposal, joined, setJoined, setMe
       }
 
       const json = await response.json();
+
       setMembers(json.names);
       setMemberUsernames(json.usernames);
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-        var response;
-        try {
-          if (!is_proposal) {
-            response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${title}`);
-          } else {
-            response = await fetch(`${REMOTE_HOST}/getProposalMembers?proposal=${title}`);
-          }
-
-          const json = await response.json();
-          setMembers(json.names);
-          setMemberUsernames(json.usernames);
-          if (json.usernames.includes(user)) {
-            setJoined(true);
-          }
-        } catch (error) {
-          console.error('Failed to fetch community members:', error);
-        } finally {
-          setLoading(false); // Set loading to false after data is fetched
-        }
-      };
-  
-      fetchData();
-
-  }, [title, user]);
 
   const screenWidth = Dimensions.get('screen').width;
   const imageHeight = Dimensions.get('screen').height * 0.2;

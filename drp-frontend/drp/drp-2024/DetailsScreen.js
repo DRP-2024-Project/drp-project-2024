@@ -60,6 +60,29 @@ export default function ItemDetailScreen({ route, navigation }) {
 
     fetchImage();
   }, [commName]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+        var response;
+        try {
+          response = await fetch(`${REMOTE_HOST}/getCommunityMembers?community=${commName}`);
+
+          const json = await response.json();
+          setMembers(json.names);
+          setMemberUsernames(json.usernames);
+          if (json.usernames.includes(user)) {
+            setJoined(true);
+          }
+        } catch (error) {
+          console.error('Failed to fetch community members:', error);
+        } finally {
+          setLoading(false); // Set loading to false after data is fetched
+        }
+      };
+  
+      fetchData();
+
+  }, [commName, user]);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -171,7 +194,7 @@ export default function ItemDetailScreen({ route, navigation }) {
       <View>
         <View style={styles.topRowContainer}>
           <View style={styles.bannerContainer}>
-            <ImageBanner source={{uri: url.toString()}} is_proposal={false} user={user} item={item} joined={joined} setJoined={setJoined} setMemberUsernames={setMemberUsernames} setMembers={setMembers}/>
+            <ImageBanner source={{uri: url.toString()}} is_proposal={false} user={user} item={item} joined={joined} setJoined={setJoined} setMemberUsernames={setMemberUsernames} setMembers={setMembers} loading={loading}/>
           </View>
 
           <View style={styles.middleRow}>
@@ -262,7 +285,7 @@ export default function ItemDetailScreen({ route, navigation }) {
           </View>
         </View>
         <View style={styles.membersContainer}>
-          <Members memberNames={memberNames} memberUsernames={memberUsernames} joined={joined} />
+          <Members memberNames={memberNames} memberUsernames={memberUsernames} joined={joined} loading={loading}/>
         </View>
 
         {/* <View style={styles.commentsSection}>
@@ -331,23 +354,23 @@ export default function ItemDetailScreen({ route, navigation }) {
   );
 }
 
-const Members = ({ memberNames, memberUsernames, joined }) => (
-  <View>
-    <InteractiveBox initialSize={20} enlargedSize={120}>
-      <Text style={styles.memberText}>Members:</Text>
-      {joined && memberNames ? (
-        memberNames.map((name, index) => (
-          <View key={index} style={styles.memberContainer}>
-            <Text style={styles.memberName}>{name}</Text>
-            <Text style={styles.memberUsername}>@{memberUsernames[index]}</Text>
-          </View>
-        ))
-      ) : (
-        <Text style={styles.memberContent}>Join to see members</Text>
-      )}
-    </InteractiveBox>
-  </View>
-);
+const Members = ({ memberNames, memberUsernames, joined, loading }) => {
+    return <View>
+        {loading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <>
+            <Text style={styles.membersHeader}>Members:</Text>
+            {memberNames && memberNames.length > 0 ? (memberNames.map((name, index) => (
+              <View key={index} style={styles.memberContainer}>
+                <Text style={styles.memberName}>{name}</Text>
+                {/* <Text style={styles.memberUsername}>@{memberUsernames[index]}</Text> */}
+              </View>
+            ))) : <Text style={styles.memberName}>No members</Text>}
+          </>
+        )}
+      </View>
+};
 
 
 const styles = StyleSheet.create({

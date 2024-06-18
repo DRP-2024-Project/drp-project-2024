@@ -19,7 +19,7 @@ export default function UserScreen({ navigation }) {
         if (!json.exists) {
             setModalVisible(true);
         } else {
-            navigation.navigate("HomePageScreen", { navigation, user });
+            navigation.navigate("Home", { navigation, user });
         }
     };
 
@@ -29,7 +29,9 @@ export default function UserScreen({ navigation }) {
         await fetch(`${REMOTE_HOST}/addUser/?username=${username}&name=${name}`, {
             method: 'POST',
         });
-        navigation.navigate("Communities", { navigation, username });
+
+        const user = username;
+        navigation.navigate("Home", { navigation, user });
     }
 
     const closeModal = () => {
