@@ -1,23 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, Button } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, Button, ActivityIndicator } from 'react-native';
 import NotificationItem from './NotificationItem'; // Adjust the import path as necessary
 import { REMOTE_HOST } from './Config.js';
 
-const notifications = [
-  { id: '1', title: 'Welcome!', message: 'Thanks for joining our community.' },
-  { id: '2', title: 'New Feature', message: 'Check out the new feature in your profile.' },
-  { id: '3', title: 'Reminder', message: 'Don’t forget to complete your profile.' },
-];
-
 const NotificationList = ({ user, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState([]);
 
   const handleToggleModal = () => {
     setModalVisible(!modalVisible);
   };
 
-  const [loading, setLoading] = useState(true);
-  const [notifications, setNotifications] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -34,7 +28,6 @@ const NotificationList = ({ user, navigation }) => {
     fetchData();
     // const intervalId = setInterval(fetchData, 5000);
     // return () => clearInterval(intervalId);
-
   }, [user]);
 
   return (
@@ -52,16 +45,24 @@ const NotificationList = ({ user, navigation }) => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalHeader}>Notifications</Text>
-            <FlatList
-              data={notifications}
-              renderItem={({ item }) => <NotificationItem 
-                                          notification={item} 
-                                          navigation={navigation} 
-                                          user={user}
-                                          setModalVisible={setModalVisible}/>}
-              keyExtractor={item => item.id}
-              contentContainerStyle={styles.listContainer}
-            />
+            {loading ? (
+              <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+              <FlatList
+                data={notifications}
+                renderItem={({ item }) => (
+                  <NotificationItem
+                    notification={item}
+                    navigation={navigation}
+                    user={user}
+                    setModalVisible={setModalVisible}
+                  />
+                )}
+                keyExtractor={item => item.id}
+                contentContainerStyle={styles.listContainer}
+                ListEmptyComponent={<Text style={styles.noNotifications}>No new notifications</Text>}
+              />
+            )}
             <Button title="Close" onPress={handleToggleModal} />
           </View>
         </View>
@@ -117,6 +118,11 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingBottom: 20,
+  },
+  noNotifications: {
+    textAlign: 'center',
+    color: '#888',
+    marginTop: 20,
   },
 });
 

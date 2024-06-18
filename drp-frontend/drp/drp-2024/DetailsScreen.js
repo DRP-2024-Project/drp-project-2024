@@ -183,11 +183,11 @@ export default function ItemDetailScreen({ route, navigation }) {
               <Text style={styles.title}>Schedule:</Text>
               {item.schedule === '' ? (
                 <View style={styles.scheduleContainer}>
-                  {(item.schedule === '' && joined) && (
+                  {(joined) ? (
                     <TouchableOpacity style={styles.organiseButton} onPress={() => setModalVisible(true)}>
                       <Text style={[styles.organiseButtonText, {fontSize: getFontSize(10)}]}>Organise</Text>
                     </TouchableOpacity>
-                  )}
+                  ) : <Text style={styles.content}>Sessions organised by members</Text>}
                 </View>
               ) : (
                 <View style={styles.scheduleContainer}>

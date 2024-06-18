@@ -45,6 +45,8 @@ const ProposalList = ({ value, search, navigation, user, myCommunities, reload }
           renderItem={renderItem}
           keyExtractor={item => item.communityId}
           contentContainerStyle={styles.listContainer}
+          ListEmptyComponent={<Text style={styles.noProposals}>You have not joined a proposal</Text>}
+
         />
       )}
     </View>
@@ -63,6 +65,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  noProposals: {
+    textAlign: 'center',
+    color: '#888',
+    marginTop: 20,
   },
 });
 
