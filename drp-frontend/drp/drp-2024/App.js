@@ -1,4 +1,7 @@
 
+import {LogBox} from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']);
+LogBox.ignoreAllLogs();
 
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
