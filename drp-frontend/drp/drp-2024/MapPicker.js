@@ -4,8 +4,8 @@ import MapView, { Marker } from 'react-native-maps';
 
 const MapPicker = ({ route }) => {
   const [region, setRegion] = useState({
-    latitude: 37.78825,
-    longitude: -122.4324,
+    latitude: 51.49916494462091,
+    longitude: -0.17731535886352467,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
