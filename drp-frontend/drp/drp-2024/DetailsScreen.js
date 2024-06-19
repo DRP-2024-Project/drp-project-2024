@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PixelRatio } from 'react-native';
 import { Button, ScrollView, View, Text, StyleSheet, TextInput, TouchableOpacity, Modal, ActivityIndicator, Platform, Linking } from 'react-native';
 import { REMOTE_HOST } from './Config.js';
@@ -7,6 +7,8 @@ import ImageBanner from './ImageBanner.js';
 import RatingComponent from './Rating.js';
 import FixedRating from './FixedRating.js';
 import { createNotification } from './NotificationCreator.js'; 
+import { useFocusEffect } from '@react-navigation/native';
+
 
 const InteractiveBox = ({ children, initialSize, enlargedSize }) => {
   const [size, setSize] = useState(enlargedSize);
@@ -45,6 +47,19 @@ export default function ItemDetailScreen({ route, navigation }) {
   const [ratingNumber, setRatingNumber] = useState(0.0);
   const [joined, setJoined] = useState(false);
   const [events, setEvents] = useState([]);
+  const [reload, setReload] = useState(false);
+  
+
+
+  useFocusEffect(
+    useCallback(() => {
+      // focus
+      setReload(reload => !reload);
+      return () => {
+        // unfocus
+      };
+    }, [])
+  );
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -166,7 +181,7 @@ export default function ItemDetailScreen({ route, navigation }) {
 
     // const intervalId = setInterval(fetchData, 5000);
     // return () => clearInterval(intervalId);
-  }, [item.id]);
+  }, [item.id, reload]);
 
   if (loading) {
     return (
@@ -489,7 +504,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 50,
     alignSelf: "flex-end",
-    width: '50%',
+    width: '100%',
     alignContent: 'center',
     alignItems: 'center',
   },
@@ -637,6 +652,7 @@ const styles = StyleSheet.create({
   },
   membersContainer: {
     marginVertical: 10,
+    marginBottom: 75,
   },
   memberText: {
     fontSize: 16,

@@ -50,6 +50,7 @@ const CommunityList = ({ value, search, navigation, user, myCommunities, reload,
           renderItem={renderItem}
           keyExtractor={item => item.communityId}
           contentContainerStyle={styles.listContainer}
+          ListEmptyComponent={<Text style={styles.noCommunities}>You have not joined a community</Text>}
         />
       )}
     </View>
@@ -69,6 +70,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  noCommunities: {
+    textAlign: 'center',
+    color: '#888',
+    marginTop: 20,
+  }
 });
 
 export default CommunityList;

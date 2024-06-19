@@ -32,8 +32,8 @@ const NotificationList = ({ user, navigation }) => {
     };
 
     fetchData();
-    // const intervalId = setInterval(fetchData, 5000);
-    // return () => clearInterval(intervalId);
+    const intervalId = setInterval(fetchData, 5000);
+    return () => clearInterval(intervalId);
 
   }, [user]);
 
@@ -61,6 +61,8 @@ const NotificationList = ({ user, navigation }) => {
                                           setModalVisible={setModalVisible}/>}
               keyExtractor={item => item.id}
               contentContainerStyle={styles.listContainer}
+              ListEmptyComponent={<Text style={styles.noNotifications}>You have no new notifications</Text>}
+
             />
             <Button title="Close" onPress={handleToggleModal} />
           </View>
@@ -118,6 +120,11 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingBottom: 20,
   },
+  noNotifications: {
+    textAlign: 'center',
+    color: '#888',
+    marginTop: 20,
+  }
 });
 
 export default NotificationList;

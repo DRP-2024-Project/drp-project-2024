@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FlatList, View, ActivityIndicator, StyleSheet } from 'react-native';
+import { FlatList, View, ActivityIndicator, StyleSheet, Text } from 'react-native';
 import Message from './Message.js';
 import { REMOTE_HOST } from './Config.js';
 
@@ -45,6 +45,8 @@ export default function MessageBoardScreen({ route }) {
                     renderItem={({ item }) => <Message event={item} user={user} />}
                     keyExtractor={item => item.id.toString()} // Ensure key is a string
                     contentContainerStyle={styles.listContainer}
+                    ListEmptyComponent={<Text style={styles.noEvents}>There are no new events</Text>}
+
                 />
             )}
         </View>
@@ -64,4 +66,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    noEvents: {
+        textAlign: 'center',
+        color: '#888',
+        marginTop: 20,
+      }
 });
